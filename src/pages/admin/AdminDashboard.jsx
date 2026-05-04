@@ -282,11 +282,11 @@ export default function AdminDashboard() {
 
       {/* Hero Video Manager */}
       <HeroVideoManager />
+      <OfferBannerManager />
 
       {/* Recent Orders */}
       <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
-        <h3 className="text-white font-medium mb-4">Recent Orders</h3>
-        <div className="overflow-x-auto">
+        <h3 className="text-white font-medium mb-4">Recent Orders</h3>        <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#D4AF37]/10">
@@ -316,6 +316,83 @@ export default function AdminDashboard() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Offer Banner Manager — add/edit/remove scrolling offers
+function OfferBannerManager() {
+  const [offers, setOffers] = useState([
+    { id: 1, text: '🎉 Free Shipping on all orders across India!', link: '/products' },
+    { id: 2, text: '💍 New Bridal Collection — Shop Now', link: '/products?tags=bridal' },
+    { id: 3, text: '✨ Use code NASHE10 for 10% off on first order', link: '/products' },
+  ])
+  const [saving, setSaving] = useState(false)
+  const [newText, setNewText] = useState('')
+  const [newLink, setNewLink] = useState('/products')
+
+  useEffect(() => {
+    getSetting('offer_banner').then(val => {
+      if (val) { try { const p = JSON.parse(val); if (Array.isArray(p) && p.length) setOffers(p) } catch {} }
+    }).catch(() => {})
+  }, [])
+
+  const save = async (updated) => {
+    setSaving(true)
+    try { await setSetting('offer_banner', JSON.stringify(updated)); toast.success('Banner updated!') }
+    catch (e) { toast.error(e.message) }
+    finally { setSaving(false) }
+  }
+
+  const addOffer = () => {
+    if (!newText.trim()) return
+    const updated = [...offers, { id: Date.now(), text: newText.trim(), link: newLink || '/products' }]
+    setOffers(updated)
+    save(updated)
+    setNewText('')
+    setNewLink('/products')
+  }
+
+  const removeOffer = (id) => {
+    const updated = offers.filter(o => o.id !== id)
+    setOffers(updated)
+    save(updated)
+  }
+
+  return (
+    <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
+      <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+        <span className="text-[#D4AF37]">📢</span> Offer Banner
+        <span className="text-xs text-gray-500 font-normal ml-1">— scrolling banner below navbar</span>
+      </h3>
+
+      {/* Current offers */}
+      <div className="space-y-2 mb-4">
+        {offers.map(o => (
+          <div key={o.id} className="flex items-center gap-2 bg-[#1A1A1A] rounded-lg px-3 py-2">
+            <span className="flex-1 text-sm text-gray-300 truncate">{o.text}</span>
+            <span className="text-xs text-gray-600 shrink-0">{o.link}</span>
+            <button onClick={() => removeOffer(o.id)} className="text-gray-600 hover:text-red-400 transition-colors ml-1 shrink-0">✕</button>
+          </div>
+        ))}
+        {offers.length === 0 && <p className="text-gray-600 text-xs">No offers. Add one below.</p>}
+      </div>
+
+      {/* Add new offer */}
+      <div className="space-y-2">
+        <input value={newText} onChange={e => setNewText(e.target.value)}
+          placeholder="Offer text e.g. 🎉 Free Shipping on all orders!"
+          className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+        <div className="flex gap-2">
+          <input value={newLink} onChange={e => setNewLink(e.target.value)}
+            placeholder="Link e.g. /products"
+            className="flex-1 bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+          <button onClick={addOffer} disabled={saving || !newText.trim()}
+            className="px-4 py-2 bg-[#D4AF37] text-black text-sm font-semibold rounded-lg hover:bg-[#F0D060] disabled:opacity-60 transition-all">
+            {saving ? '...' : '+ Add'}
+          </button>
         </div>
       </div>
     </div>

@@ -23,3 +23,8 @@ on conflict (key) do nothing;
 -- Allow authenticated users to upload hero videos to product-images bucket
 -- (already covered by existing product-images bucket policies)
 -- Just ensure the hero/ folder is accessible
+
+-- Offer banner setting
+insert into site_settings (key, value)
+values ('offer_banner', '')
+on conflict (key) do nothing;

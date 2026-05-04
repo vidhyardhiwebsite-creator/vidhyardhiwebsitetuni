@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 import AdminLayout from './components/admin/AdminLayout.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
+import OfferBanner from './components/OfferBanner'
 import { useAuthStore } from './store/authStore'
 import { useCartStore } from './store/cartStore'
 import { useWishlistStore } from './store/wishlistStore'
@@ -89,6 +90,7 @@ export default function App() {
           <Route path="/*" element={
             <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
               <Navbar />
+              <OfferBanner />
               <main className="flex-1">
                 <ErrorBoundary>
                   <Suspense fallback={<PageLoader />}>
