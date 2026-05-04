@@ -1,0 +1,323 @@
+﻿import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import {
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from 'recharts'
+import { ShoppingBag, DollarSign, Package, AlertTriangle, TrendingUp, Clock, Video, Upload, Loader2 } from 'lucide-react'
+import { useAdminStore } from '../../store/adminStore'
+import { formatINR } from '../../utils/format'
+import { getSetting, setSetting } from '../../services/settingsService'
+import { supabase } from '../../lib/supabase'
+import toast from 'react-hot-toast'
+
+const GOLD_COLORS = ['#D4AF37', '#F0D060', '#B8960C', '#8B6914', '#E8C84A', '#C9A227', '#FFD700', '#DAA520']
+
+// Hero Video Manager component
+function HeroVideoManager() {
+  const [currentUrl, setCurrentUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [manualUrl, setManualUrl] = useState('')
+
+  useEffect(() => {
+    getSetting('hero_video_url').then(url => {
+      if (url) { setCurrentUrl(url); setManualUrl(url) }
+    }).catch(() => {})
+  }, [])
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('video/')) { toast.error('Please select a video file'); return }
+    if (file.size > 50 * 1024 * 1024) { toast.error('Video must be under 50MB'); return }
+    setUploading(true)
+    try {
+      const fileName = `hero_${Date.now()}.${file.name.split('.').pop()}`
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(`hero/${fileName}`, file, { cacheControl: '3600', upsert: true, contentType: file.type })
+      if (uploadError) throw uploadError
+      const { data } = supabase.storage.from('product-images').getPublicUrl(`hero/${fileName}`)
+      await setSetting('hero_video_url', data.publicUrl)
+      setCurrentUrl(data.publicUrl)
+      setManualUrl(data.publicUrl)
+      toast.success('Hero video updated!')
+    } catch (e) {
+      toast.error(e.message || 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleSaveUrl = async () => {
+    if (!manualUrl.trim()) return
+    setSaving(true)
+    try {
+      await setSetting('hero_video_url', manualUrl.trim())
+      setCurrentUrl(manualUrl.trim())
+      toast.success('Hero video URL saved!')
+    } catch (e) {
+      toast.error(e.message || 'Failed to save')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
+      <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+        <Video size={16} className="text-[#D4AF37]" /> Hero Video
+      </h3>
+      {currentUrl && (
+        <video src={currentUrl} className="w-full h-32 object-cover rounded-lg mb-4 bg-[#1A1A1A]" muted />
+      )}
+      <div className="space-y-3">
+        {/* Upload from device */}
+        <div>
+          <label className="text-xs text-gray-400 mb-1 block">Upload from device (max 50MB)</label>
+          <label className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[#D4AF37]/30 rounded-lg cursor-pointer hover:border-[#D4AF37]/60 transition-all">
+            <input type="file" accept="video/*" className="hidden" onChange={handleFileUpload} disabled={uploading} />
+            {uploading
+              ? <><Loader2 size={15} className="text-[#D4AF37] animate-spin" /><span className="text-gray-400 text-sm">Uploading...</span></>
+              : <><Upload size={15} className="text-[#D4AF37]" /><span className="text-gray-400 text-sm">Choose video file</span></>
+            }
+          </label>
+        </div>
+        {/* Or paste URL */}
+        <div>
+          <label className="text-xs text-gray-400 mb-1 block">Or paste video URL</label>
+          <div className="flex gap-2">
+            <input
+              value={manualUrl}
+              onChange={e => setManualUrl(e.target.value)}
+              placeholder="https://..."
+              className="flex-1 bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]"
+            />
+            <button onClick={handleSaveUrl} disabled={saving || !manualUrl.trim()}
+              className="px-4 py-2 bg-[#D4AF37] text-black text-sm font-medium rounded-lg hover:bg-[#F0D060] disabled:opacity-60 flex items-center gap-1">
+              {saving && <Loader2 size={13} className="animate-spin" />}
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const StatCard = ({ icon: Icon, label, value, sub, color = 'gold' }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5"
+  >
+    <div className="flex items-start justify-between mb-3">
+      <div className={`p-2 rounded-lg ${color === 'gold' ? 'bg-[#D4AF37]/15' : color === 'green' ? 'bg-green-500/15' : color === 'red' ? 'bg-red-500/15' : 'bg-blue-500/15'}`}>
+        <Icon size={18} className={color === 'gold' ? 'text-[#D4AF37]' : color === 'green' ? 'text-green-400' : color === 'red' ? 'text-red-400' : 'text-blue-400'} />
+      </div>
+    </div>
+    <p className="text-2xl font-bold text-white mb-1">{value}</p>
+    <p className="text-gray-400 text-sm">{label}</p>
+    {sub && <p className="text-xs text-gray-600 mt-1">{sub}</p>}
+  </motion.div>
+)
+
+const ChartTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2 text-xs">
+      <p className="text-gray-400 mb-1">{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} style={{ color: p.color }}>{p.name}: {p.name === 'revenue' ? formatINR(p.value) : p.value}</p>
+      ))}
+    </div>
+  )
+}
+
+export default function AdminDashboard() {
+  const { stats, orders, products, loadOrders, loadProducts, computeStats, addNotification } = useAdminStore()
+
+  useEffect(() => {
+    Promise.all([loadOrders(), loadProducts()]).then(() => {
+      computeStats()
+    })
+  }, [])
+
+  useEffect(() => {
+    if (stats?.lowStockCount > 0) {
+      addNotification(`${stats.lowStockCount} products have low stock`, 'warning')
+    }
+    if (stats?.todayOrdersCount > 0) {
+      addNotification(`${stats.todayOrdersCount} new orders today`, 'info')
+    }
+  }, [stats?.lowStockCount, stats?.todayOrdersCount])
+
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</h1>
+        <p className="text-gray-500 text-sm mt-1">Welcome back. Here's what's happening.</p>
+      </div>
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard icon={ShoppingBag} label="Total Orders" value={stats.totalOrders} sub={`${stats.paidOrders} paid`} color="gold" />
+        <StatCard icon={DollarSign} label="Total Revenue" value={formatINR(stats.totalRevenue)} sub="from paid orders" color="green" />
+        <StatCard icon={Package} label="Products" value={stats.totalProducts} color="blue" />
+        <StatCard icon={AlertTriangle} label="Low Stock" value={stats.lowStockCount} sub="< 10 items" color="red" />
+        <StatCard icon={Clock} label="Today's Orders" value={stats.todayOrdersCount} color="gold" />
+      </div>
+
+      {/* Charts Row 1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Orders + Revenue Line Chart */}
+        <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
+          <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+            <TrendingUp size={16} className="text-[#D4AF37]" /> Orders (Last 14 Days)
+          </h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={stats.last14Days}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#222" />
+              <XAxis dataKey="date" tick={{ fill: '#666', fontSize: 10 }} />
+              <YAxis tick={{ fill: '#666', fontSize: 10 }} />
+              <Tooltip content={<ChartTooltip />} />
+              <Line type="monotone" dataKey="orders" stroke="#D4AF37" strokeWidth={2} dot={{ fill: '#D4AF37', r: 3 }} name="orders" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Revenue Bar Chart */}
+        <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
+          <h3 className="text-white font-medium mb-4">Revenue (Last 14 Days)</h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={stats.last14Days}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#222" />
+              <XAxis dataKey="date" tick={{ fill: '#666', fontSize: 10 }} />
+              <YAxis tick={{ fill: '#666', fontSize: 10 }} tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} />
+              <Tooltip content={<ChartTooltip />} />
+              <Bar dataKey="revenue" fill="#D4AF37" radius={[3, 3, 0, 0]} name="revenue" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Charts Row 2 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Category Pie */}
+        <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
+          <h3 className="text-white font-medium mb-4">Category Sales</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie data={stats.categorySales} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" nameKey="name">
+                {stats.categorySales.map((_, i) => <Cell key={i} fill={GOLD_COLORS[i % GOLD_COLORS.length]} />)}
+              </Pie>
+              <Tooltip formatter={(v) => formatINR(v)} contentStyle={{ background: '#1A1A1A', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 8, fontSize: 11 }} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 11, color: '#999' }} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* City Distribution */}
+        <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
+          <h3 className="text-white font-medium mb-4">Orders by City</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={stats.cityData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" stroke="#222" />
+              <XAxis type="number" tick={{ fill: '#666', fontSize: 10 }} />
+              <YAxis dataKey="city" type="category" tick={{ fill: '#999', fontSize: 10 }} width={70} />
+              <Tooltip contentStyle={{ background: '#1A1A1A', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 8, fontSize: 11 }} />
+              <Bar dataKey="count" fill="#D4AF37" radius={[0, 3, 3, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Top Products */}
+        <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
+          <h3 className="text-white font-medium mb-4">Top Products</h3>
+          <div className="space-y-2">
+            {stats.topProducts.slice(0, 6).map((p, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <span className="text-[#D4AF37] text-xs w-4">{i + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-300 text-xs truncate">{p.name}</p>
+                  <div className="h-1.5 bg-[#1A1A1A] rounded-full mt-1">
+                    <div
+                      className="h-full bg-[#D4AF37] rounded-full"
+                      style={{ width: `${(p.qty / stats.topProducts[0].qty) * 100}%` }}
+                    />
+                  </div>
+                </div>
+                <span className="text-gray-500 text-xs">{p.qty}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Low Stock Alert */}
+      {stats.lowStockProducts?.length > 0 && (
+        <div className="bg-[#111] border border-red-500/20 rounded-xl p-5">
+          <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+            <AlertTriangle size={16} className="text-red-400" /> Low Stock Alert
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {stats.lowStockProducts.slice(0, 8).map(p => (
+              <div key={p.id} className="bg-[#1A1A1A] rounded-lg p-3">
+                <p className="text-white text-xs font-medium truncate">{p.name}</p>
+                <p className="text-red-400 text-xs mt-1">{p.stock} left</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Hero Video Manager */}
+      <HeroVideoManager />
+
+      {/* Recent Orders */}
+      <div className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
+        <h3 className="text-white font-medium mb-4">Recent Orders</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[#D4AF37]/10">
+                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Order ID</th>
+                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Customer</th>
+                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Amount</th>
+                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Status</th>
+                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#D4AF37]/5">
+              {orders.slice(0, 8).map(o => (
+                <tr key={o.id} className="hover:bg-white/2">
+                  <td className="py-3 text-gray-400 text-xs font-mono">#{String(o.id).slice(-8).toUpperCase()}</td>
+                  <td className="py-3 text-gray-300 text-xs">{o.users?.email || 'Guest'}</td>
+                  <td className="py-3 text-[#D4AF37] text-xs font-medium">{formatINR(o.total_amount)}</td>
+                  <td className="py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      o.payment_status === 'paid' ? 'bg-green-500/20 text-green-400' :
+                      o.payment_status === 'delivered' ? 'bg-blue-500/20 text-blue-400' :
+                      o.payment_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>{o.payment_status}</span>
+                  </td>
+                  <td className="py-3 text-gray-500 text-xs">{new Date(o.created_at).toLocaleDateString('en-IN')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}

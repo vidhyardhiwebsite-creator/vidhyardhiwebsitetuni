@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --gold: #D4AF37;
+    --gold-light: #F0D060;
+    --gold-dark: #B8960C;
+    --dark: #0A0A0A;
+    --dark-2: #111111;
+    --dark-3: #1A1A1A;
+    --dark-4: #222222;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background-color: #0A0A0A;
+    color: #E5E5E5;
+    font-family: 'Georgia', serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #111;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D4AF37;
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  .gold-gradient {
+    background: linear-gradient(135deg, #D4AF37, #F0D060, #B8960C);
+  }
+  .text-gold {
+    color: #D4AF37;
+  }
+  .bg-dark {
+    background-color: #0A0A0A;
+  }
+  .bg-dark-2 {
+    background-color: #111111;
+  }
+  .bg-dark-3 {
+    background-color: #1A1A1A;
+  }
+  .border-gold {
+    border-color: #D4AF37;
+  }
+  .hover-gold:hover {
+    color: #D4AF37;
+  }
+}
