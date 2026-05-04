@@ -14,7 +14,7 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     let done = false
 
-    const redirect = async (session) => {
+    const finish = async (session) => {
       if (done) return
       done = true
       const user = session.user
@@ -29,31 +29,50 @@ export default function AuthCallbackPage() {
       navigate(isAdmin(user) ? "/admin" : "/", { replace: true })
     }
 
-    // 1. Try getSession first — works if Supabase already parsed the hash
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) redirect(session)
-    })
+    const run = async () => {
+      // PKCE flow: exchange code from URL query param
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get("code")
 
-    // 2. Listen for SIGNED_IN event as fallback
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
-        redirect(session)
+      if (code) {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+        if (error) {
+          toast.error("Sign in failed: " + error.message)
+          navigate("/login", { replace: true })
+          return
+        }
+        if (data.session) {
+          await finish(data.session)
+          return
+        }
       }
-    })
 
-    // 3. Timeout fallback — if nothing happens in 5s, go to login
-    const timeout = setTimeout(() => {
-      if (!done) {
-        done = true
-        toast.error("Sign in timed out. Please try again.")
-        navigate("/login", { replace: true })
+      // Implicit flow fallback: hash fragment
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        await finish(session)
+        return
       }
-    }, 5000)
 
-    return () => {
-      subscription.unsubscribe()
-      clearTimeout(timeout)
+      // Listen for auth state change
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
+          subscription.unsubscribe()
+          await finish(session)
+        }
+      })
+
+      // Timeout fallback
+      setTimeout(() => {
+        if (!done) {
+          done = true
+          toast.error("Sign in timed out. Please try again.")
+          navigate("/login", { replace: true })
+        }
+      }, 8000)
     }
+
+    run()
   }, [])
 
   return (
