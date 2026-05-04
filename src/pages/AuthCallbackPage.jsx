@@ -30,31 +30,31 @@ export default function AuthCallbackPage() {
     }
 
     const run = async () => {
-      // PKCE flow: exchange code from URL query param
+      // 1. PKCE: code in query string
       const params = new URLSearchParams(window.location.search)
       const code = params.get("code")
-
       if (code) {
         const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-        if (error) {
-          toast.error("Sign in failed: " + error.message)
-          navigate("/login", { replace: true })
-          return
-        }
-        if (data.session) {
-          await finish(data.session)
-          return
+        if (!error && data.session) { await finish(data.session); return }
+      }
+
+      // 2. Implicit: parse hash manually and set session
+      const hash = window.location.hash.substring(1)
+      if (hash && hash.includes("access_token")) {
+        const hashParams = new URLSearchParams(hash)
+        const access_token = hashParams.get("access_token")
+        const refresh_token = hashParams.get("refresh_token")
+        if (access_token && refresh_token) {
+          const { data, error } = await supabase.auth.setSession({ access_token, refresh_token })
+          if (!error && data.session) { await finish(data.session); return }
         }
       }
 
-      // Implicit flow fallback: hash fragment
+      // 3. Already have session
       const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        await finish(session)
-        return
-      }
+      if (session) { await finish(session); return }
 
-      // Listen for auth state change
+      // 4. Wait for auth state change
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
           subscription.unsubscribe()
@@ -62,7 +62,7 @@ export default function AuthCallbackPage() {
         }
       })
 
-      // Timeout fallback
+      // 5. Timeout
       setTimeout(() => {
         if (!done) {
           done = true
