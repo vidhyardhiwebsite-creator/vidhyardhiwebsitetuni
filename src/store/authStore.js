@@ -7,11 +7,13 @@ export const useAuthStore = create((set, get) => ({
   loading: true,
 
   initialize: async () => {
+    // onAuthStateChange handles hash parsing for OAuth callbacks automatically
+    supabase.auth.onAuthStateChange((_event, session) => {
+      set({ session, user: session?.user ?? null, loading: false })
+    })
+    // Also get current session immediately
     const { data: { session } } = await supabase.auth.getSession()
     set({ session, user: session?.user ?? null, loading: false })
-    supabase.auth.onAuthStateChange((_event, session) => {
-      set({ session, user: session?.user ?? null })
-    })
   },
 
   signInWithGoogle: async () => {
