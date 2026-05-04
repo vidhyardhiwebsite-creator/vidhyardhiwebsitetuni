@@ -12,25 +12,58 @@ export default function AuthCallbackPage() {
   const { loadWishlist } = useWishlistStore()
 
   useEffect(() => {
-    const handle = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession()
-      if (error || !session) {
-        toast.error("Authentication failed")
-        navigate("/login")
-        return
-      } 
-      const user = session.user
-      await mergeLocalCart(user.id)
-      await loadCart(user.id)
-      await loadWishlist(user.id)
-      toast.success(`Welcome, ${user.user_metadata?.full_name || user.email}!`)
-      if (isAdmin(user)) {
-        navigate("/admin")
-      } else {
-        navigate("/")
+    // Supabase processes the #access_token hash and fires SIGNED_IN
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        subscription.unsubscribe()
+        const user = session.user
+        try {
+          await mergeLocalCart(user.id)
+          await loadCart(user.id)
+          await loadWishlist(user.id)
+        } catch {}
+        toast.success(`Welcome, ${user.user_metadata?.full_name || user.email}!`)
+        if (isAdmin(user)) {
+          navigate("/admin", { replace: true })
+        } else {
+          navigate("/", { replace: true })
+        }
+      } else if (event === "SIGNED_OUT" || (event !== "SIGNED_IN" && event !== "INITIAL_SESSION")) {
+        // Fallback: try getSession in case hash was already consumed
+        const { data: { session: s } } = await supabase.auth.getSession()
+        if (s) {
+          subscription.unsubscribe()
+          const user = s.user
+          try {
+            await mergeLocalCart(user.id)
+            await loadCart(user.id)
+            await loadWishlist(user.id)
+          } catch {}
+          toast.success(`Welcome, ${user.user_metadata?.full_name || user.email}!`)
+          navigate(isAdmin(user) ? "/admin" : "/", { replace: true })
+        } else {
+          subscription.unsubscribe()
+          toast.error("Authentication failed")
+          navigate("/login", { replace: true })
+        }
       }
-    }
-    handle()
+    })
+
+    // Also try immediately in case session is already available
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        subscription.unsubscribe()
+        const user = session.user
+        Promise.all([mergeLocalCart(user.id), loadCart(user.id), loadWishlist(user.id)])
+          .catch(() => {})
+          .finally(() => {
+            toast.success(`Welcome, ${user.user_metadata?.full_name || user.email}!`)
+            navigate(isAdmin(user) ? "/admin" : "/", { replace: true })
+          })
+      }
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   return (
