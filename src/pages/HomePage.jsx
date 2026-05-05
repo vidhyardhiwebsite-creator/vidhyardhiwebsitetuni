@@ -78,8 +78,7 @@ export default function HomePage() {
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/85 via-[#0A0A0A]/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20">
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-xl">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20">          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-xl">
             <motion.p initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
               className="text-[#D4AF37] text-sm uppercase tracking-[0.3em] mb-4">New Collection 2024</motion.p>
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
@@ -101,31 +100,6 @@ export default function HomePage() {
           </motion.div>
         </div>
 
-        {/* Mobile quick-view products strip — 3 products visible on mobile */}
-        <div className="absolute bottom-6 left-0 right-0 px-4 sm:hidden">
-          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
-            {loading
-              ? Array(3).fill(0).map((_, i) => (
-                <div key={i} className="w-28 h-36 bg-[#111]/80 rounded-xl animate-pulse flex-shrink-0" />
-              ))
-              : allProducts.slice(0, 5).map(p => (
-                <Link key={p.id} to={`/products/${p.id}`}
-                  className="flex-shrink-0 w-28 bg-[#111]/90 backdrop-blur rounded-xl overflow-hidden border border-[#D4AF37]/20 hover:border-[#D4AF37]/50 transition-all">
-                  <img src={p.images?.[0]} alt={p.name} className="w-full h-20 object-cover"
-                    onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=200&q=80" }} />
-                  <div className="p-1.5">
-                    <p className="text-white text-xs font-medium line-clamp-1">{p.name}</p>
-                    <p className="text-[#D4AF37] text-xs">₹{p.price?.toLocaleString("en-IN")}</p>
-                  </div>
-                </Link>
-              ))
-            }
-            <Link to="/products" className="flex-shrink-0 w-20 bg-[#D4AF37]/20 backdrop-blur rounded-xl border border-[#D4AF37]/40 flex flex-col items-center justify-center gap-1 p-2">
-              <ArrowRight size={18} className="text-[#D4AF37]" />
-              <p className="text-[#D4AF37] text-xs text-center font-medium">View All</p>
-            </Link>
-          </div>
-        </div>
       </section>
 
       {/* Features bar */}
@@ -155,8 +129,8 @@ export default function HomePage() {
         <ScrollReveal>
           <SectionHeader label="Just In" title="New Arrivals" link="/products?sort=newest" icon={<Clock size={16} />} />
         </ScrollReveal>
-        {/* Mobile: 3 cols, tablet: 3, desktop: 6 */}
-        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {/* Mobile: 2 cols, desktop: 6 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {loading
             ? Array(6).fill(0).map((_, i) => <SkeletonCard key={i} />)
             : newArrivals.map((p, i) => (
@@ -200,7 +174,7 @@ export default function HomePage() {
         <ScrollReveal>
           <SectionHeader label="Customer Favourites" title="Best Sellers" link="/products?tags=premium" icon={<Star size={16} />} />
         </ScrollReveal>
-        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {loading
             ? Array(6).fill(0).map((_, i) => <SkeletonCard key={i} />)
             : bestSellers.map((p, i) => (
@@ -217,8 +191,8 @@ export default function HomePage() {
         <ScrollReveal>
           <SectionHeader label="Handpicked" title="Featured Pieces" link="/products" />
         </ScrollReveal>
-        {/* Mobile: 3 cols, desktop: 4 */}
-        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {/* Mobile: 2 cols, desktop: 4 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {loading
             ? Array(8).fill(0).map((_, i) => <SkeletonCard key={i} />)
             : featured.map((p, i) => (
@@ -236,7 +210,7 @@ export default function HomePage() {
           <ScrollReveal>
             <h2 className="text-xl font-bold text-white mb-6" style={{ fontFamily: "Georgia, serif" }}>Recently Viewed</h2>
           </ScrollReveal>
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
             {recentItems.slice(0, 6).map((p, i) => (
               <ScrollReveal key={p.id} delay={i * 0.05}>
                 <ProductCard product={p} />

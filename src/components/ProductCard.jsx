@@ -89,9 +89,9 @@ export default function ProductCard({ product }) {
         <button
           onClick={handleAddToCart}
           disabled={product.stock === 0}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black rounded-lg text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed border border-[#D4AF37]/30"
+          className="flex-1 flex items-center justify-center gap-1 py-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black rounded-lg text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed border border-[#D4AF37]/30 whitespace-nowrap"
         >
-          <ShoppingCart size={13} /> Add to Cart
+          <ShoppingCart size={12} /> <span className="hidden sm:inline">Add to </span>Cart
         </button>
         <button
           onClick={handleWishlist}
