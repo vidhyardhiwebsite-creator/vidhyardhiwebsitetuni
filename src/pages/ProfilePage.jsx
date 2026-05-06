@@ -24,19 +24,7 @@ function AddressForm({ initial, onSave, onCancel, saving }) {
     return Object.keys(e).length === 0
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (validate()) onSave(form)
-  }
-
-  const F = ({ name, label, placeholder, half }) => (
-    <div className={half ? "" : "col-span-2"}>
-      <label className="text-xs text-gray-400 mb-1 block">{label}</label>
-      <input value={form[name]} onChange={e => setForm(f => ({ ...f, [name]: e.target.value }))} placeholder={placeholder}
-        className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
-      {errors[name] && <p className="text-red-400 text-xs mt-0.5">{errors[name]}</p>}
-    </div>
-  )
+  const handleSubmit = (e) => { e.preventDefault(); if (validate()) onSave(form) }
 
   return (
     <form onSubmit={handleSubmit} className="bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-xl p-4 space-y-3">
@@ -55,13 +43,40 @@ function AddressForm({ initial, onSave, onCancel, saving }) {
         </label>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <F name="full_name" label="Full Name *" placeholder="Your name" />
-        <F name="phone" label="Phone *" placeholder="10-digit number" half />
-        <F name="address1" label="Address Line 1 *" placeholder="House/Flat, Street" />
-        <F name="address2" label="Address Line 2" placeholder="Landmark (optional)" />
-        <F name="city" label="City *" placeholder="City" half />
-        <F name="state" label="State *" placeholder="State" half />
-        <F name="pincode" label="PIN Code *" placeholder="6-digit PIN" half />
+        <div className="col-span-2">
+          <label className="text-xs text-gray-400 mb-1 block">Full Name *</label>
+          <input value={form.full_name||""} onChange={e=>setForm(f=>({...f,full_name:e.target.value}))} placeholder="Your name" className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+          {errors.full_name && <p className="text-red-400 text-xs mt-0.5">{errors.full_name}</p>}
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 mb-1 block">Phone *</label>
+          <input value={form.phone||""} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} placeholder="10-digit number" className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+          {errors.phone && <p className="text-red-400 text-xs mt-0.5">{errors.phone}</p>}
+        </div>
+        <div className="col-span-2">
+          <label className="text-xs text-gray-400 mb-1 block">Address Line 1 *</label>
+          <input value={form.address1||""} onChange={e=>setForm(f=>({...f,address1:e.target.value}))} placeholder="House/Flat, Street" className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+          {errors.address1 && <p className="text-red-400 text-xs mt-0.5">{errors.address1}</p>}
+        </div>
+        <div className="col-span-2">
+          <label className="text-xs text-gray-400 mb-1 block">Address Line 2</label>
+          <input value={form.address2||""} onChange={e=>setForm(f=>({...f,address2:e.target.value}))} placeholder="Landmark (optional)" className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 mb-1 block">City *</label>
+          <input value={form.city||""} onChange={e=>setForm(f=>({...f,city:e.target.value}))} placeholder="City" className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+          {errors.city && <p className="text-red-400 text-xs mt-0.5">{errors.city}</p>}
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 mb-1 block">State *</label>
+          <input value={form.state||""} onChange={e=>setForm(f=>({...f,state:e.target.value}))} placeholder="State" className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+          {errors.state && <p className="text-red-400 text-xs mt-0.5">{errors.state}</p>}
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 mb-1 block">PIN Code *</label>
+          <input value={form.pincode||""} onChange={e=>setForm(f=>({...f,pincode:e.target.value}))} placeholder="6-digit PIN" className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+          {errors.pincode && <p className="text-red-400 text-xs mt-0.5">{errors.pincode}</p>}
+        </div>
       </div>
       <div className="flex gap-2 pt-1">
         <button type="button" onClick={onCancel} className="flex-1 py-2 border border-[#D4AF37]/20 text-gray-400 rounded-lg text-sm">Cancel</button>

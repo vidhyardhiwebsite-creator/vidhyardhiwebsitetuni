@@ -10,6 +10,7 @@ import { useRecentlyViewedStore } from "../store/recentlyViewedStore"
 import ProductCard from "../components/ProductCard"
 import SkeletonCard from "../components/SkeletonCard"
 import ScrollReveal from "../components/ScrollReveal"
+import PromoBanners from "../components/PromoBanners"
 import heroVideoFallback from "../assets/jewlaryhero.mp4"
 
 const categoryImages = {
@@ -101,6 +102,9 @@ export default function HomePage() {
         </div>
 
       </section>
+
+      {/* Promo Banners — Flipkart-style sliding offer cards */}
+      <PromoBanners />
 
       {/* Features bar */}
       <ScrollReveal>

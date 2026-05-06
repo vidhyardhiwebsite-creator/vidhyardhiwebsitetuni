@@ -28,3 +28,5 @@ on conflict (key) do nothing;
 insert into site_settings (key, value)
 values ('offer_banner', '')
 on conflict (key) do nothing;
+
+insert into site_settings (key, value) values ('promo_banners', '') on conflict (key) do nothing;
