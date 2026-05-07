@@ -12,6 +12,15 @@ export default class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
+      const isChunkError = this.state.error?.message?.includes('dynamically imported module') ||
+        this.state.error?.message?.includes('Failed to fetch')
+
+      if (isChunkError) {
+        // Auto-reload for chunk errors (stale deployment)
+        window.location.reload()
+        return null
+      }
+
       return (
         <div className="flex items-center justify-center h-64 flex-col gap-4">
           <p className="text-red-400 text-sm font-medium">Something went wrong loading this page.</p>

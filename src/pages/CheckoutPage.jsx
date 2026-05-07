@@ -10,10 +10,11 @@ import { supabase } from "../lib/supabase"
 import { formatINR } from "../utils/format"
 import toast from "react-hot-toast"
 
-const UPI_ID = "Lakshmiram_collections@phonepe"
+const UPI_ID = "Q901588902@ybl"
 const ADMIN_WHATSAPP = "918639006849"
-// QR code image — upload this to your Supabase Storage and replace URL
-const QR_IMAGE = "https://dutroxipxwtxnhgijzoe.supabase.co/storage/v1/object/public/product-images/upi-qr.jpg"
+// Generate QR dynamically from UPI ID using Google Charts API
+const getQRUrl = (upiId, amount) =>
+  `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`upi://pay?pa=${upiId}&pn=NaShe+Jewels&am=${amount}&cu=INR&tn=NaShe+Jewels+Order`)}`
 
 const EMPTY_ADDR = { label: "Home", full_name: "", phone: "", address1: "", address2: "", city: "", state: "", pincode: "", is_default: false }
 
@@ -251,11 +252,15 @@ export default function CheckoutPage() {
                   <Smartphone size={16} className="text-[#D4AF37]" /> Pay via UPI
                 </h2>
 
-                {/* QR Code */}
+                {/* QR Code — generated dynamically with exact amount */}
                 <div className="flex flex-col sm:flex-row gap-6 items-center mb-5">
-                  <div className="bg-white p-3 rounded-xl flex-shrink-0">
-                    <img src={QR_IMAGE} alt="UPI QR Code" className="w-44 h-44 object-contain"
-                      onError={e => { e.target.style.display = "none" }} />
+                  <div className="bg-white p-3 rounded-xl flex-shrink-0 text-center">
+                    <img
+                      src={getQRUrl(UPI_ID, total)}
+                      alt="UPI QR Code"
+                      className="w-44 h-44 object-contain"
+                    />
+                    <p className="text-gray-500 text-xs mt-1">Scan to pay ₹{total.toLocaleString("en-IN")}</p>
                   </div>
                   <div className="flex-1 space-y-3">
                     <div className="bg-[#1A1A1A] rounded-xl p-4">
