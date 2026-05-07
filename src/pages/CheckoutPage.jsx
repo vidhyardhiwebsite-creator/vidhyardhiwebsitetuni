@@ -122,12 +122,12 @@ export default function CheckoutPage() {
     if (!addr) { toast.error("Please select delivery address"); return }
     setSubmitting(true)
     try {
-      // Upload screenshot to Supabase Storage
+      // Upload screenshot to Supabase Storage (product-images bucket is public)
       const ext = screenshot.name.split(".").pop()
-      const path = `screenshots/${user.id}_${Date.now()}.${ext}`
-      const { error: uploadErr } = await supabase.storage.from("payment-screenshots").upload(path, screenshot, { contentType: screenshot.type })
+      const path = `payment-screenshots/${user.id}_${Date.now()}.${ext}`
+      const { error: uploadErr } = await supabase.storage.from("product-images").upload(path, screenshot, { contentType: screenshot.type })
       if (uploadErr) throw uploadErr
-      const { data: urlData } = supabase.storage.from("payment-screenshots").getPublicUrl(path)
+      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path)
 
       // Save order with pending_verification status
       const { data: order, error: orderErr } = await supabase.from("orders").insert({
