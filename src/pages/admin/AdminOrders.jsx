@@ -13,7 +13,7 @@ const ORDER_FLOW = [
   { key: "delivered", label: "Delivered", icon: Package },
 ]
 const PAYMENT_STATUSES = ["all", "pending_verification", "paid", "pending", "failed", "cancelled"]
-const SERIES_FILTERS = ["all", "NS0", "NS1"]
+const SERIES_FILTERS = ["all", "NS-HOME", "NS-HYD"]
 
 function StatusStepper({ orderId, currentStatus, onUpdate }) {
   const [updating, setUpdating] = useState(false)
@@ -105,7 +105,9 @@ export default function AdminOrders() {
 
   const filtered = localOrders.filter(o => {
     const matchStatus = statusFilter === "all" || o.payment_status === statusFilter
-    const matchSeries = seriesFilter === "all" || o.order_series === seriesFilter
+    const matchSeries = seriesFilter === "all" || 
+      (o.display_order_id && o.display_order_id.toUpperCase().includes(seriesFilter)) ||
+      (o.order_series && o.order_series.toUpperCase().includes(seriesFilter))
     const matchSearch = !search || String(o.id).toLowerCase().includes(search.toLowerCase())
     return matchStatus && matchSearch && matchSeries
   })
@@ -147,7 +149,11 @@ export default function AdminOrders() {
         <div className="flex gap-2">
           {SERIES_FILTERS.map(s => (
             <button key={s} onClick={() => setSeriesFilter(s)}
-              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${seriesFilter === s ? "bg-[#111] text-white border border-white" : "bg-[#111] text-gray-500 border border-[#D4AF37]/10"}`}>
+              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                seriesFilter === s
+                  ? s === "NS-HYD" ? "bg-purple-500 text-white" : s === "NS-HOME" ? "bg-blue-500 text-white" : "bg-white text-black"
+                  : "bg-[#111] text-gray-500 border border-[#D4AF37]/10 hover:border-[#D4AF37]/30"
+              }`}>
               {s === "all" ? "All Series" : s}
             </button>
           ))}
@@ -158,8 +164,8 @@ export default function AdminOrders() {
         {[
           { label: "Total", count: localOrders.length, color: "text-white" },
           { label: "Verify", count: localOrders.filter(o => o.payment_status === "pending_verification").length, color: "text-orange-400" },
-          { label: "Paid", count: localOrders.filter(o => o.payment_status === "paid").length, color: "text-green-400" },
-          { label: "Delivered", count: localOrders.filter(o => o.order_status === "delivered").length, color: "text-blue-400" },
+          { label: "NS-HOME", count: localOrders.filter(o => o.display_order_id?.toUpperCase().includes("HOME") || o.order_series?.includes("HOME")).length, color: "text-blue-400" },
+          { label: "NS-HYD", count: localOrders.filter(o => o.display_order_id?.toUpperCase().includes("HYD") || o.order_series?.includes("HYD")).length, color: "text-purple-400" },
         ].map(s => (
           <div key={s.label} className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-4 text-center">
             <p className={`text-2xl font-bold ${s.color}`}>{s.count}</p>
@@ -181,13 +187,15 @@ export default function AdminOrders() {
               <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/2 transition-colors"
                 onClick={() => setExpanded(isExpanded ? null : order.id)}>
                 <div>
-                  <p className="text-white text-sm font-mono">
-                    {order.display_order_id || '#' + String(order.id).slice(-8).toUpperCase()}
-                    {order.order_series && (
-                      <span className={`ml-2 text-xs px-1.5 py-0.5 rounded font-bold ${order.order_series === "NS1" ? "bg-purple-500/20 text-purple-400" : "bg-blue-500/20 text-blue-400"}`}>
-                        {order.order_series}
-                      </span>
-                    )}
+                  <p className="text-white text-sm font-mono flex items-center gap-2 flex-wrap">
+                    {order.display_order_id
+                      ? order.display_order_id.split(',').map(id => id.trim()).map(id => (
+                          <span key={id} className={`px-2 py-0.5 rounded text-xs font-bold ${
+                            id.toUpperCase().includes('HYD') ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'
+                          }`}>{id}</span>
+                        ))
+                      : <span>#{String(order.id).slice(-8).toUpperCase()}</span>
+                    }
                   </p>
                   <p className="text-gray-500 text-xs mt-0.5">{formatDate(order.created_at)} · {addr.full_name || "Customer"}</p>                </div>
                 <div className="flex items-center gap-3">
