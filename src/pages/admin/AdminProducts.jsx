@@ -149,7 +149,7 @@ export default function AdminProducts() {
     if (!validate()) return
     setSaving(true)
     const payload = {
-      name: form.name.trim(), price: Number(form.price), category: form.category,
+      name: form.name.trim(), price: Number(form.price), category: form.category, custom_id: form.custom_id?.trim() || null,
       description: form.description.trim(), size: form.size,
       stock: Number(form.stock), tags: form.tags, images: form.images, series_id: form.series_id || 'NS0',
     }
@@ -225,6 +225,7 @@ export default function AdminProducts() {
                       />
                       <div>
                         <p className="text-white text-xs font-medium">{p.name}</p>
+                        {p.custom_id && <p className="text-[#D4AF37] text-xs font-mono">{p.custom_id}</p>}
                         <p className="text-gray-600 text-xs">{p.size}</p>
                       </div>
                     </div>
@@ -270,6 +271,14 @@ export default function AdminProducts() {
               </div>
               <div className="p-5 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label className="text-xs text-gray-400 mb-1 block">Product ID <span className="text-gray-600">(e.g. NS0.1, NS1.5)</span></label>
+                    <input value={form.custom_id||""} onChange={e => setForm(f => ({ ...f, custom_id: e.target.value }))}
+                      className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#D4AF37]"
+                      placeholder="e.g. NS0.1" />
+                    <p className="text-gray-600 text-xs mt-0.5">Leave empty to auto-generate</p>
+                  </div>
+
                   <div className="col-span-2">
                     <label className="text-xs text-gray-400 mb-1 block">Product Name *</label>
                     <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
