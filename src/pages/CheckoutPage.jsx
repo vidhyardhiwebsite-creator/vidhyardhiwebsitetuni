@@ -79,6 +79,7 @@ export default function CheckoutPage() {
   const [screenshot, setScreenshot] = useState(null)
   const [screenshotPreview, setScreenshotPreview] = useState(null)
   const [upiRef, setUpiRef] = useState("")
+  const [orderSeries, setOrderSeries] = useState("NS0")
   const [submitting, setSubmitting] = useState(false)
   const [savingAddr, setSavingAddr] = useState(false)
 
@@ -129,6 +130,11 @@ export default function CheckoutPage() {
       if (uploadErr) throw uploadErr
       const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path)
 
+      // Derive order series from products in cart
+      // If any product has NS1, the order goes to NS1; otherwise NS0
+      const hasNS1 = items.some(item => item.products?.series_id === "NS1")
+      const autoSeries = hasNS1 ? "NS1" : "NS0"
+
       // Save order with pending_verification status
       const { data: order, error: orderErr } = await supabase.from("orders").insert({
         user_id: user.id,
@@ -139,6 +145,7 @@ export default function CheckoutPage() {
         upi_ref: upiRef.trim(),
         address: JSON.stringify(addr),
         order_status: "pending",
+        order_series: autoSeries,
       }).select().single()
       if (orderErr) throw orderErr
 
@@ -159,6 +166,7 @@ export default function CheckoutPage() {
       const msg = encodeURIComponent(
         `🛍️ *New Order Received!*\n\n` +
         `Order ID: ${order.id.slice(-8).toUpperCase()}\n` +
+        `Series: ${autoSeries}\n` +
         `Customer: ${addr.full_name}\n` +
         `Phone: ${addr.phone}\n` +
         `Amount: ₹${total.toLocaleString("en-IN")}\n` +

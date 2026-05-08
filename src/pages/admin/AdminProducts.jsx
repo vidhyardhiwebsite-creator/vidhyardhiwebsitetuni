@@ -151,7 +151,7 @@ export default function AdminProducts() {
     const payload = {
       name: form.name.trim(), price: Number(form.price), category: form.category,
       description: form.description.trim(), size: form.size,
-      stock: Number(form.stock), tags: form.tags, images: form.images,
+      stock: Number(form.stock), tags: form.tags, images: form.images, series_id: form.series_id || 'NS0',
     }
     try {
       if (editProduct) {

@@ -13,6 +13,7 @@ const ORDER_FLOW = [
   { key: "delivered", label: "Delivered", icon: Package },
 ]
 const PAYMENT_STATUSES = ["all", "pending_verification", "paid", "pending", "failed", "cancelled"]
+const SERIES_FILTERS = ["all", "NS0", "NS1"]
 
 function StatusStepper({ orderId, currentStatus, onUpdate }) {
   const [updating, setUpdating] = useState(false)
@@ -61,6 +62,7 @@ export default function AdminOrders() {
   const [localOrders, setLocalOrders] = useState([])
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [seriesFilter, setSeriesFilter] = useState("all")
   const [expanded, setExpanded] = useState(null)
   const [screenshotModal, setScreenshotModal] = useState(null)
 
@@ -103,8 +105,9 @@ export default function AdminOrders() {
 
   const filtered = localOrders.filter(o => {
     const matchStatus = statusFilter === "all" || o.payment_status === statusFilter
+    const matchSeries = seriesFilter === "all" || o.order_series === seriesFilter
     const matchSearch = !search || String(o.id).toLowerCase().includes(search.toLowerCase())
-    return matchStatus && matchSearch
+    return matchStatus && matchSearch && matchSeries
   })
 
   const getStatusInfo = (o) => {
@@ -140,6 +143,15 @@ export default function AdminOrders() {
             </button>
           ))}
         </div>
+        {/* Series filter */}
+        <div className="flex gap-2">
+          {SERIES_FILTERS.map(s => (
+            <button key={s} onClick={() => setSeriesFilter(s)}
+              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${seriesFilter === s ? "bg-[#111] text-white border border-white" : "bg-[#111] text-gray-500 border border-[#D4AF37]/10"}`}>
+              {s === "all" ? "All Series" : s}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-3">
@@ -169,9 +181,15 @@ export default function AdminOrders() {
               <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/2 transition-colors"
                 onClick={() => setExpanded(isExpanded ? null : order.id)}>
                 <div>
-                  <p className="text-white text-sm font-mono">#{String(order.id).slice(-8).toUpperCase()}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">{formatDate(order.created_at)} · {addr.full_name || "Customer"}</p>
-                </div>
+                  <p className="text-white text-sm font-mono">
+                    #{String(order.id).slice(-8).toUpperCase()}
+                    {order.order_series && (
+                      <span className={`ml-2 text-xs px-1.5 py-0.5 rounded font-bold ${order.order_series === "NS1" ? "bg-purple-500/20 text-purple-400" : "bg-blue-500/20 text-blue-400"}`}>
+                        {order.order_series}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-0.5">{formatDate(order.created_at)} · {addr.full_name || "Customer"}</p>                </div>
                 <div className="flex items-center gap-3">
                   <p className="text-[#D4AF37] font-semibold text-sm hidden sm:block">{formatINR(order.total_amount)}</p>
                   <span className={`text-xs px-2 py-1 rounded-full ${statusInfo.color}`}>{statusInfo.label}</span>
