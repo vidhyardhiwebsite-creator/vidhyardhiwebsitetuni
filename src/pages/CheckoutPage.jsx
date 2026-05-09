@@ -130,18 +130,19 @@ export default function CheckoutPage() {
       if (uploadErr) throw uploadErr
       const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path)
 
-      // Order ID = product's custom_id set by admin (e.g. NS-HOME-001, NS-HYD-001)
-      // If multiple products, join them. If no custom_id, fallback to timestamp
-      const productIds = [...new Set(
-        items.map(i => i.products?.custom_id).filter(Boolean)
-      )]
-      const displayOrderId = productIds.length > 0
-        ? productIds.join(', ')
-        : `ORD-${Date.now().toString().slice(-6)}`
+      // Determine series: NS1 for HYD products, NS0 for HOME
+      // Check cart items for any HYD-tagged products
+      const hasHyd = items.some(i =>
+        (i.products?.custom_id || "").toUpperCase().includes("HYD") ||
+        (i.products?.tags || []).some(t => t.toUpperCase().includes("HYD"))
+      )
+      const autoSeries = hasHyd ? "NS1" : "NS0"
 
-      // Derive series from product IDs
-      const hasHyd = productIds.some(id => id.toUpperCase().includes('HYD'))
-      const autoSeries = hasHyd ? "NS-HYD" : "NS-HOME"
+      // Get next sequential number atomically from DB
+      const { data: seqData, error: seqErr } = await supabase.rpc("get_next_series_number", { p_series: autoSeries })
+      if (seqErr) throw seqErr
+      const seqNum = String(seqData).padStart(3, "0")
+      const displayOrderId = `${autoSeries}-${seqNum}`
 
       // Save order with pending_verification status
       const { data: order, error: orderErr } = await supabase.from("orders").insert({

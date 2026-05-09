@@ -219,16 +219,12 @@ export default function AdminOrders() {
     String(o.id).toLowerCase().includes(search.toLowerCase())
   )
 
-  const hasHome = (o) => {
-    const id = (o.display_order_id || "").toUpperCase()
-    return id.includes("HOME") || (!id.includes("HYD") && id.length > 0 && !id.startsWith("#"))
-  }
-  const hasHyd = (o) => (o.display_order_id || "").toUpperCase().includes("HYD")
+  const isNS0 = (o) => (o.display_order_id || "").toUpperCase().startsWith("NS0")
+  const isNS1 = (o) => (o.display_order_id || "").toUpperCase().startsWith("NS1")
 
-  // An order can appear in BOTH columns if it has both series
-  const homeOrders = filtered.filter(hasHome)
-  const hydOrders = filtered.filter(hasHyd)
-  const otherOrders = filtered.filter(o => !hasHome(o) && !hasHyd(o))
+  const ns0Orders = filtered.filter(isNS0)
+  const ns1Orders = filtered.filter(isNS1)
+  const otherOrders = filtered.filter(o => !isNS0(o) && !isNS1(o))
 
   const cardProps = { onStatusUpdate: handleStatusUpdate, onVerify: verifyPayment, onReject: rejectPayment, onNotify: notifyCustomer, onScreenshot: setScreenshotModal }
 
@@ -243,23 +239,23 @@ export default function AdminOrders() {
 
       <div className="relative">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by order ID..."
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by order ID (e.g. NS0-001)..."
           className="w-full bg-[#111] border border-[#D4AF37]/20 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
       </div>
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* NS-HOME Column */}
+        {/* NS0 Column (Home) */}
         <div>
           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-blue-500/30">
             <div className="w-3 h-3 rounded-full bg-blue-500" />
-            <h2 className="text-white font-semibold">NS-HOME</h2>
-            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">{homeOrders.length}</span>
-            <span className="text-xs text-orange-400 ml-auto">{homeOrders.filter(o=>o.payment_status==="pending_verification").length} pending</span>
+            <h2 className="text-white font-semibold">NS0 — Home</h2>
+            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">{ns0Orders.length}</span>
+            <span className="text-xs text-orange-400 ml-auto">{ns0Orders.filter(o=>o.payment_status==="pending_verification").length} pending</span>
           </div>
-          {homeOrders.length === 0
-            ? <p className="text-gray-600 text-sm text-center py-8">No NS-HOME orders</p>
-            : homeOrders.map(order => (
+          {ns0Orders.length === 0
+            ? <p className="text-gray-600 text-sm text-center py-8">No NS0 orders</p>
+            : ns0Orders.map(order => (
               <OrderCard key={order.id} order={order} expanded={expanded === order.id}
                 onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
                 {...cardProps} />
@@ -267,17 +263,17 @@ export default function AdminOrders() {
           }
         </div>
 
-        {/* NS-HYD Column */}
+        {/* NS1 Column (HYD) */}
         <div>
           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-purple-500/30">
             <div className="w-3 h-3 rounded-full bg-purple-500" />
-            <h2 className="text-white font-semibold">NS-HYD</h2>
-            <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">{hydOrders.length}</span>
-            <span className="text-xs text-orange-400 ml-auto">{hydOrders.filter(o=>o.payment_status==="pending_verification").length} pending</span>
+            <h2 className="text-white font-semibold">NS1 — HYD</h2>
+            <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">{ns1Orders.length}</span>
+            <span className="text-xs text-orange-400 ml-auto">{ns1Orders.filter(o=>o.payment_status==="pending_verification").length} pending</span>
           </div>
-          {hydOrders.length === 0
-            ? <p className="text-gray-600 text-sm text-center py-8">No NS-HYD orders</p>
-            : hydOrders.map(order => (
+          {ns1Orders.length === 0
+            ? <p className="text-gray-600 text-sm text-center py-8">No NS1 orders</p>
+            : ns1Orders.map(order => (
               <OrderCard key={order.id} order={order} expanded={expanded === order.id}
                 onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
                 {...cardProps} />
