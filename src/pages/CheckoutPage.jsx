@@ -71,6 +71,14 @@ export default function CheckoutPage() {
   const total = getTotal()
   const fileRef = useRef(null)
 
+  // Shipping cost based on state
+  const getShippingCost = (addr) => {
+    if (!addr) return 100
+    const state = (addr.state || "").toLowerCase().trim()
+    const localStates = ["andhra pradesh", "telangana", "ap", "ts"]
+    return localStates.some(s => state.includes(s)) ? 80 : 100
+  }
+
   const [addresses, setAddresses] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [showNewForm, setShowNewForm] = useState(false)
@@ -123,6 +131,8 @@ export default function CheckoutPage() {
     if (!addr) { toast.error("Please select delivery address"); return }
     setSubmitting(true)
     try {
+      const shipping = getShippingCost(addr)
+
       // Upload screenshot to Supabase Storage (product-images bucket is public)
       const ext = screenshot.name.split(".").pop()
       const path = `payment-screenshots/${user.id}_${Date.now()}.${ext}`
@@ -146,7 +156,10 @@ export default function CheckoutPage() {
       const createdOrderIds = []
 
       for (const [series, groupItems] of orderGroups) {
-        const groupTotal = groupItems.reduce((s, i) => s + (i.products?.price || 0) * i.quantity, 0)
+        const groupSubtotal = groupItems.reduce((s, i) => s + (i.products?.price || 0) * i.quantity, 0)
+        // Distribute shipping proportionally — or add full shipping to first group only
+        const isFirstGroup = createdOrderIds.length === 0
+        const groupTotal = groupSubtotal + (isFirstGroup ? shipping : 0)
 
         // Generate sequential order ID: NS0-001, NS0-002 / NS1-001, NS1-002
         const { data: seqData, error: seqErr } = await supabase.rpc("get_next_series_number", { p_series: series })
@@ -268,12 +281,17 @@ export default function CheckoutPage() {
                 {/* QR Code — generated dynamically with exact amount */}
                 <div className="flex flex-col sm:flex-row gap-6 items-center mb-5">
                   <div className="bg-white p-3 rounded-xl flex-shrink-0 text-center">
-                    <img
-                      src={getQRUrl(UPI_ID, total)}
-                      alt="UPI QR Code"
-                      className="w-44 h-44 object-contain"
-                    />
-                    <p className="text-gray-500 text-xs mt-1">Scan to pay ₹{total.toLocaleString("en-IN")}</p>
+                    {(() => {
+                      const selectedAddr = addresses.find(a => a.id === selectedId)
+                      const shipping = getShippingCost(selectedAddr)
+                      const grandTotal = total + shipping
+                      return (
+                        <>
+                          <img src={getQRUrl(UPI_ID, grandTotal)} alt="UPI QR Code" className="w-44 h-44 object-contain" />
+                          <p className="text-gray-500 text-xs mt-1">Scan to pay ₹{grandTotal.toLocaleString("en-IN")}</p>
+                        </>
+                      )
+                    })()}
                   </div>
                   <div className="flex-1 space-y-3">
                     <div className="bg-[#1A1A1A] rounded-xl p-4">
@@ -288,12 +306,16 @@ export default function CheckoutPage() {
                     </div>
                     <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-xl p-3">
                       <p className="text-[#D4AF37] text-xs font-semibold mb-1">Amount to Pay</p>
-                      <p className="text-white text-2xl font-bold">₹{total.toLocaleString("en-IN")}</p>
+                      {(() => {
+                        const selectedAddr = addresses.find(a => a.id === selectedId)
+                        const shipping = getShippingCost(selectedAddr)
+                        return <p className="text-white text-2xl font-bold">₹{(total + shipping).toLocaleString("en-IN")}</p>
+                      })()}
                     </div>
                     <div className="text-xs text-gray-500 space-y-1">
                       <p>1. Open PhonePe / GPay / Paytm</p>
                       <p>2. Scan QR or enter UPI ID</p>
-                      <p>3. Pay ₹{total.toLocaleString("en-IN")}</p>
+                      <p>3. Pay exact amount shown above</p>
                       <p>4. Upload screenshot below</p>
                     </div>
                   </div>
@@ -360,11 +382,34 @@ export default function CheckoutPage() {
             ))}
           </div>
           <div className="border-t border-[#D4AF37]/10 pt-4 space-y-2 mb-5">
-            <div className="flex justify-between text-sm"><span className="text-gray-400">Shipping</span><span className="text-green-400">Free</span></div>
-            <div className="flex justify-between font-semibold pt-1 border-t border-[#D4AF37]/10">
-              <span className="text-white">Total</span>
-              <span className="text-[#D4AF37] text-lg">{formatINR(total)}</span>
-            </div>
+            {(() => {
+              const selectedAddr = addresses.find(a => a.id === selectedId)
+              const shipping = getShippingCost(selectedAddr)
+              const grandTotal = total + shipping
+              return (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Subtotal</span>
+                    <span className="text-gray-300">{formatINR(total)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Shipping</span>
+                    <span className="text-yellow-400">+{formatINR(shipping)}</span>
+                  </div>
+                  {selectedAddr && (
+                    <p className="text-gray-600 text-xs">
+                      {["andhra pradesh","telangana","ap","ts"].some(s => (selectedAddr.state||"").toLowerCase().includes(s))
+                        ? "AP/Telangana rate"
+                        : "Other states rate"}
+                    </p>
+                  )}
+                  <div className="flex justify-between font-semibold pt-1 border-t border-[#D4AF37]/10">
+                    <span className="text-white">Total</span>
+                    <span className="text-[#D4AF37] text-lg">{formatINR(grandTotal)}</span>
+                  </div>
+                </>
+              )
+            })()}
           </div>
           <p className="text-gray-600 text-xs text-center">🔒 UPI Payment · Secure & Safe</p>
         </div>

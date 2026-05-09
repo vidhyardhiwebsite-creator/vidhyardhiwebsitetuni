@@ -8,7 +8,7 @@ export default function ContactPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
         {[
           { icon: <Mail size={20} />, label: 'Email', value: 'support@nashejewels.in' },
-          { icon: <Phone size={20} />, label: 'Phone', value: '+91 98765 43210' },
+          { icon: <Phone size={20} />, label: 'Phone / WhatsApp', value: '+91 863 900 6849' },
           { icon: <Clock size={20} />, label: 'Hours', value: 'Mon–Sat, 10am–7pm IST' },
           { icon: <MapPin size={20} />, label: 'Location', value: 'India' },
         ].map((c, i) => (

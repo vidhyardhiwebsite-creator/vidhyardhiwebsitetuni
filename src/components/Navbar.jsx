@@ -1,11 +1,14 @@
 ﻿import { useState, useRef, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { ShoppingCart, Heart, Search, Menu, X, User, LogOut, ChevronDown, Package, MapPin } from "lucide-react"
+import { ShoppingCart, Heart, Search, Menu, X, User, LogOut, ChevronDown, Package, Settings } from "lucide-react"
 import { useAuthStore } from "../store/authStore"
 import { useCartStore } from "../store/cartStore"
 import { CATEGORIES } from "../data/products"
+import logoImg from "../assets/image.png"
 import toast from "react-hot-toast"
+
+const ADMIN_EMAIL = "nashejewels@gmail.com"
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -17,6 +20,7 @@ export default function Navbar() {
   const cartCount = useCartStore(s => s.getCount())
   const navigate = useNavigate()
   const userRef = useRef(null)
+  const isAdmin = user?.email === ADMIN_EMAIL || user?.user_metadata?.role === "admin"
 
   // Close user dropdown when clicking outside
   useEffect(() => {
@@ -58,8 +62,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2" onClick={closeAll}>
-            <span className="text-2xl font-bold" style={{ fontFamily: "Georgia, serif", color: "#D4AF37", letterSpacing: "0.05em" }}>
-              ✦ NaShe
+            <img src={logoImg} alt="NaShe Jewels" className="h-9 w-9 rounded-full object-cover" />
+            <span className="text-xl font-bold hidden sm:block" style={{ fontFamily: "Georgia, serif", color: "#D4AF37", letterSpacing: "0.05em" }}>
+              NaShe
             </span>
             <span className="text-xs text-gray-400 hidden sm:block tracking-widest uppercase">Jewels</span>
           </Link>
@@ -144,6 +149,12 @@ export default function Navbar() {
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors">
                         <Heart size={14} /> Wishlist
                       </Link>
+                      {isAdmin && (
+                        <Link to="/admin" onClick={() => setUserOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors font-medium">
+                          <Settings size={14} /> Admin Panel
+                        </Link>
+                      )}
                       <div className="border-t border-[#D4AF37]/10 mt-1 pt-1">
                         <button onClick={handleSignOut}
                           className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-red-400 hover:bg-red-400/10 w-full transition-colors">
@@ -218,6 +229,11 @@ export default function Navbar() {
                       <button onClick={handleSignOut} className="flex items-center gap-2 text-red-400 text-sm py-2 px-1 w-full">
                         <LogOut size={15} /> Sign Out
                       </button>
+                      {isAdmin && (
+                        <Link to="/admin" className="flex items-center gap-2 text-[#D4AF37] text-sm py-2 px-1 font-medium" onClick={closeAll}>
+                          <Settings size={15} /> Admin Panel
+                        </Link>
+                      )}
                     </div>
                   </>
                 )}

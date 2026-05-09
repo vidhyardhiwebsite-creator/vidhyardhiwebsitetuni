@@ -13,7 +13,7 @@ export default function Footer() {
             <p className="text-gray-500 text-sm leading-relaxed mb-4">Premium handcrafted jewelry celebrating India's rich heritage. Every piece tells a story.</p>
             <div className="space-y-2 text-sm text-gray-500">
               <div className="flex items-center gap-2"><Mail size={13} className="text-[#D4AF37]" /> support@nashejewels.in</div>
-              <div className="flex items-center gap-2"><Phone size={13} className="text-[#D4AF37]" /> +91 98765 43210</div>
+              <div className="flex items-center gap-2"><Phone size={13} className="text-[#D4AF37]" /> +91 863 900 6849</div>
               <div className="flex items-center gap-2"><Clock size={13} className="text-[#D4AF37]" /> Mon–Sat, 10am–7pm</div>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-[#D4AF37]/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-gray-600 text-xs">
-          <span>© 2024 NaShe Jewels. All rights reserved. | Crafted with ♥ in India</span>
+          <span>© 2026 NaShe Jewels. All rights reserved. | Crafted with ♥ in India</span>
           <div className="flex gap-4">
             <Link to="/privacy-policy" className="hover:text-[#D4AF37] transition-colors">Privacy</Link>
             <Link to="/shipping-policy" className="hover:text-[#D4AF37] transition-colors">Shipping</Link>
