@@ -102,7 +102,6 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
         {expanded && (
           <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
             <div className="border-t border-[#D4AF37]/10 p-3 space-y-3">
-              {/* Payment verification */}
               {needsVerification && (
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 space-y-2">
                   <p className="text-orange-400 text-xs font-semibold flex items-center gap-1"><AlertTriangle size={12} /> Verify Payment</p>
@@ -120,7 +119,6 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
                 </div>
               )}
 
-              {/* Order Status Control */}
               {order.payment_status === "paid" && (
                 <div className="bg-[#1A1A1A] rounded-lg p-3 space-y-2">
                   <p className="text-gray-400 text-xs font-medium">Order Status</p>
@@ -136,16 +134,11 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
                         )
                       })}
                     </div>
-                    <StatusDropdown
-                      orderId={order.id}
-                      currentStatus={order.order_status || "confirmed"}
-                      onStatusUpdate={onStatusUpdate}
-                    />
+                    <StatusDropdown orderId={order.id} currentStatus={order.order_status || "confirmed"} onStatusUpdate={onStatusUpdate} />
                   </div>
                 </div>
               )}
 
-              {/* Items */}
               <div className="space-y-1">
                 {order.order_items?.map(item => (
                   <div key={item.id} className="flex items-center gap-2 bg-[#1A1A1A] rounded p-1.5">
@@ -158,7 +151,6 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
                 ))}
               </div>
 
-              {/* Address + WhatsApp */}
               {addr.full_name && (
                 <div className="bg-[#1A1A1A] rounded-lg p-2 text-xs text-gray-400">
                   <p className="text-white">{addr.full_name} · {addr.phone}</p>
@@ -214,92 +206,113 @@ export default function AdminOrders() {
     else toast.error("No phone number")
   }
 
+  const q = search.toLowerCase().trim()
+
   const filtered = localOrders.filter(o => {
-    if (!search) return true
+    if (!q) return true
     const id = (o.display_order_id || "").toLowerCase()
-    const s = search.toLowerCase()
-    return id.includes(s) || String(o.id).toLowerCase().includes(s)
+    const addr = (() => { try { return typeof o.address === "object" ? o.address : JSON.parse(o.address) } catch { return {} } })()
+    const name = (addr.full_name || "").toLowerCase()
+    const phone = (addr.phone || "").toLowerCase()
+    return id.includes(q) || String(o.id).toLowerCase().includes(q) || name.includes(q) || phone.includes(q)
   })
 
   const isNS0 = (o) => (o.display_order_id || "").toUpperCase().startsWith("NS0")
   const isNS1 = (o) => (o.display_order_id || "").toUpperCase().startsWith("NS1")
 
-  const ns0Orders = filtered.filter(isNS0)
-  const ns1Orders = filtered.filter(isNS1)
-  const otherOrders = filtered.filter(o => !isNS0(o) && !isNS1(o))
+  const ns0Orders = localOrders.filter(isNS0)
+  const ns1Orders = localOrders.filter(isNS1)
+  const otherOrders = localOrders.filter(o => !isNS0(o) && !isNS1(o))
 
   const cardProps = { onStatusUpdate: handleStatusUpdate, onVerify: verifyPayment, onReject: rejectPayment, onNotify: notifyCustomer, onScreenshot: setScreenshotModal }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>Orders</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{localOrders.length} total · {localOrders.filter(o => o.payment_status === "pending_verification").length} awaiting verification</p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>Orders</h1>
+        <p className="text-gray-500 text-sm mt-0.5">{localOrders.length} total · {localOrders.filter(o => o.payment_status === "pending_verification").length} awaiting verification</p>
       </div>
 
       <div className="relative">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by order ID (e.g. NS0-001)..."
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by order ID (e.g. NS0-001), name, phone..."
           className="w-full bg-[#111] border border-[#D4AF37]/20 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
       </div>
 
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* NS0 Column (Home) */}
+      {/* Search results — flat list */}
+      {q && (
         <div>
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-blue-500/30">
-            <div className="w-3 h-3 rounded-full bg-blue-500" />
-            <h2 className="text-white font-semibold">NS0 — Home</h2>
-            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">{ns0Orders.length}</span>
-            <span className="text-xs text-orange-400 ml-auto">{ns0Orders.filter(o=>o.payment_status==="pending_verification").length} pending</span>
-          </div>
-          {ns0Orders.length === 0
-            ? <p className="text-gray-600 text-sm text-center py-8">No NS0 orders</p>
-            : ns0Orders.map(order => (
+          <p className="text-gray-500 text-xs mb-3">{filtered.length} result{filtered.length !== 1 ? "s" : ""} for &quot;{search}&quot;</p>
+          {filtered.length === 0
+            ? <p className="text-gray-600 text-sm text-center py-12">No orders found</p>
+            : filtered.map(order => (
               <OrderCard key={order.id} order={order} expanded={expanded === order.id}
                 onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
                 {...cardProps} />
             ))
           }
         </div>
+      )}
 
-        {/* NS1 Column (HYD) */}
-        <div>
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-purple-500/30">
-            <div className="w-3 h-3 rounded-full bg-purple-500" />
-            <h2 className="text-white font-semibold">NS1 — HYD</h2>
-            <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">{ns1Orders.length}</span>
-            <span className="text-xs text-orange-400 ml-auto">{ns1Orders.filter(o=>o.payment_status==="pending_verification").length} pending</span>
-          </div>
-          {ns1Orders.length === 0
-            ? <p className="text-gray-600 text-sm text-center py-8">No NS1 orders</p>
-            : ns1Orders.map(order => (
-              <OrderCard key={order.id} order={order} expanded={expanded === order.id}
-                onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
-                {...cardProps} />
-            ))
-          }
-        </div>
-      </div>
+      {/* Normal two-column layout */}
+      {!q && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* NS0 — Home */}
+            <div>
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-blue-500/30">
+                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                <h2 className="text-white font-semibold">NS0 — Home</h2>
+                <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">{ns0Orders.length}</span>
+                <span className="text-xs text-orange-400 ml-auto">{ns0Orders.filter(o=>o.payment_status==="pending_verification").length} pending</span>
+              </div>
+              {ns0Orders.length === 0
+                ? <p className="text-gray-600 text-sm text-center py-8">No NS0 orders</p>
+                : ns0Orders.map(order => (
+                  <OrderCard key={order.id} order={order} expanded={expanded === order.id}
+                    onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
+                    {...cardProps} />
+                ))
+              }
+            </div>
 
-      {/* Other orders (no series) */}
-      {otherOrders.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#D4AF37]/20">
-            <div className="w-3 h-3 rounded-full bg-[#D4AF37]" />
-            <h2 className="text-white font-semibold">Other Orders</h2>
-            <span className="text-xs bg-[#D4AF37]/20 text-[#D4AF37] px-2 py-0.5 rounded-full">{otherOrders.length}</span>
+            {/* NS1 — HYD */}
+            <div>
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-purple-500/30">
+                <div className="w-3 h-3 rounded-full bg-purple-500" />
+                <h2 className="text-white font-semibold">NS1 — HYD</h2>
+                <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">{ns1Orders.length}</span>
+                <span className="text-xs text-orange-400 ml-auto">{ns1Orders.filter(o=>o.payment_status==="pending_verification").length} pending</span>
+              </div>
+              {ns1Orders.length === 0
+                ? <p className="text-gray-600 text-sm text-center py-8">No NS1 orders</p>
+                : ns1Orders.map(order => (
+                  <OrderCard key={order.id} order={order} expanded={expanded === order.id}
+                    onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
+                    {...cardProps} />
+                ))
+              }
+            </div>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {otherOrders.map(order => (
-              <OrderCard key={order.id} order={order} expanded={expanded === order.id}
-                onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
-                {...cardProps} />
-            ))}
-          </div>
-        </div>
+
+          {/* Other orders */}
+          {otherOrders.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#D4AF37]/20">
+                <div className="w-3 h-3 rounded-full bg-[#D4AF37]" />
+                <h2 className="text-white font-semibold">Other Orders</h2>
+                <span className="text-xs bg-[#D4AF37]/20 text-[#D4AF37] px-2 py-0.5 rounded-full">{otherOrders.length}</span>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {otherOrders.map(order => (
+                  <OrderCard key={order.id} order={order} expanded={expanded === order.id}
+                    onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
+                    {...cardProps} />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Screenshot modal */}
