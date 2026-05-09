@@ -5,7 +5,7 @@ import { ShoppingCart, Heart, Search, Menu, X, User, LogOut, ChevronDown, Packag
 import { useAuthStore } from "../store/authStore"
 import { useCartStore } from "../store/cartStore"
 import { CATEGORIES } from "../data/products"
-import logoImg from "../assets/image.png"
+import logoImg from "../assets/logo.png"
 import toast from "react-hot-toast"
 
 const ADMIN_EMAIL = "nashejewels@gmail.com"
