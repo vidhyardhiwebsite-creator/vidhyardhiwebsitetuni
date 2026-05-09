@@ -14,11 +14,34 @@ const policies = {
   'refund-policy': {
     title: 'Refund & Return Policy',
     content: [
-      { heading: '30-Day Returns', text: 'We accept returns within 30 days of delivery. Items must be unused, in original packaging, and in the same condition as received.' },
-      { heading: 'How to Return', text: 'Contact us at support@nashejewels.in with your order ID and reason for return. We will arrange a pickup at no extra cost.' },
-      { heading: 'Refund Process', text: 'Once we receive and inspect the returned item, refunds are processed within 5–7 business days to your original payment method.' },
-      { heading: 'Non-Returnable Items', text: 'Custom-made or personalized jewelry cannot be returned unless there is a manufacturing defect.' },
-      { heading: 'Damaged Items', text: 'If you receive a damaged or defective item, please contact us within 48 hours with photos. We will replace it at no charge.' },
+      {
+        heading: '💛 Our Commitment',
+        text: 'Customer satisfaction is very important to us. Every product is carefully checked and packed before dispatch to ensure it reaches you in the best condition.'
+      },
+      {
+        heading: 'General Policy',
+        text: 'We follow a No Return / No Exchange policy for all orders once delivered. Returns are not accepted for reasons such as change of mind, dislike of design, or minor variations in color/finish (as some variation may occur due to photography and screen display).'
+      },
+      {
+        heading: 'Damaged or Defective Products',
+        text: 'If you receive a damaged or defective product, we are committed to resolving it quickly. Inform us within 24 hours of receiving the order.'
+      },
+      {
+        heading: '📹 Unboxing Video — Mandatory',
+        text: 'An unboxing video is REQUIRED to process any damage claim. Before opening the package, focus the camera on the tearing side properly. ❌ NO ZOOM  ❌ NO EDITING. NOTE: 360° view of the package must be recorded before tearing it open.'
+      },
+      {
+        heading: 'How to Report',
+        text: 'Send the unboxing video and clear photos of the damaged product via:\n• WhatsApp: +91 8639006849\n• Email: nashejewels@gmail.com\n\nOnce verified by our team, we will offer a replacement of the same product, or provide a refund if replacement is not possible.'
+      },
+      {
+        heading: 'Refunds',
+        text: 'Refunds will be processed to the original payment method within 5–7 working days after approval. Shipping charges are non-refundable.'
+      },
+      {
+        heading: 'Contact Us',
+        text: 'For all return or refund related queries, please contact us:\n📞 Phone / WhatsApp: +91 8639006849'
+      },
     ]
   },
   'privacy-policy': {
@@ -52,7 +75,7 @@ export default function PolicyPage() {
         {policy.content.map((section, i) => (
           <div key={i} className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
             <h2 className="text-[#D4AF37] font-semibold mb-2">{section.heading}</h2>
-            <p className="text-gray-400 text-sm leading-relaxed">{section.text}</p>
+            <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-line">{section.text}</p>
           </div>
         ))}
       </div>
