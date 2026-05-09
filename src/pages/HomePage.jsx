@@ -11,6 +11,7 @@ import ProductCard from "../components/ProductCard"
 import SkeletonCard from "../components/SkeletonCard"
 import ScrollReveal from "../components/ScrollReveal"
 import PromoBanners from "../components/PromoBanners"
+import ReviewsSection from "../components/ReviewsSection"
 import heroVideoFallback from "../assets/jewlaryhero.mp4"
 
 const categoryImages = {
@@ -223,6 +224,11 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Customer Reviews */}
+      <ScrollReveal>
+        <ReviewsSection />
+      </ScrollReveal>
 
       {/* Bridal Banner */}
       <ScrollReveal>
