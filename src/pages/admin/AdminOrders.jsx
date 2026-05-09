@@ -1,12 +1,63 @@
 ﻿import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, ChevronDown, ChevronUp, CheckCircle, Truck, Package, XCircle, AlertTriangle, Eye, MessageCircle } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, AlertTriangle, Eye, MessageCircle } from "lucide-react"
 import { useAdminStore } from "../../store/adminStore"
 import { formatINR, formatDate } from "../../utils/format"
 import { supabase } from "../../lib/supabase"
 import toast from "react-hot-toast"
 
-const ADMIN_WHATSAPP = "918639006849"
+const ORDER_STATUSES = [
+  { key: "confirmed", label: "Confirmed", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  { key: "shipping", label: "Shipped", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
+  { key: "delivered", label: "Delivered", color: "bg-green-500/20 text-green-400 border-green-500/30" },
+  { key: "cancelled", label: "Cancelled", color: "bg-red-500/20 text-red-400 border-red-500/30" },
+]
+
+function StatusDropdown({ orderId, currentStatus, onStatusUpdate }) {
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const current = ORDER_STATUSES.find(s => s.key === currentStatus) || ORDER_STATUSES[0]
+
+  const handleSelect = async (statusKey) => {
+    if (statusKey === currentStatus) { setOpen(false); return }
+    setLoading(true)
+    await onStatusUpdate(orderId, statusKey)
+    setLoading(false)
+    setOpen(false)
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open) }}
+        disabled={loading}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${current.color} hover:opacity-80`}
+      >
+        {loading ? <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" /> : null}
+        {current.label}
+        <ChevronDown size={11} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+            className="absolute top-full mt-1 right-0 z-20 bg-[#1A1A1A] border border-[#333] rounded-xl overflow-hidden shadow-xl min-w-[130px]"
+          >
+            {ORDER_STATUSES.map(s => (
+              <button key={s.key} onClick={() => handleSelect(s.key)}
+                className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-[#252525] transition-colors ${s.key === currentStatus ? "opacity-50 cursor-default" : ""}`}>
+                <span className={`w-2 h-2 rounded-full border ${s.color}`} />
+                <span className="text-gray-200">{s.label}</span>
+                {s.key === currentStatus && <span className="ml-auto text-gray-500">✓</span>}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {open && <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />}
+    </div>
+  )
+}
 
 function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReject, onNotify, onScreenshot }) {
   const addr = (() => { try { return typeof order.address === "object" ? order.address : JSON.parse(order.address) } catch { return {} } })()
@@ -69,26 +120,28 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
                 </div>
               )}
 
-              {/* Delivery stepper */}
-              {order.payment_status === "paid" && !isCancelled && (
-                <div className="space-y-2">
-                  <div className="flex gap-1 flex-wrap">
-                    {[{k:"confirmed",l:"Confirmed"},{k:"shipping",l:"Shipping"},{k:"delivered",l:"Delivered"}].map((s,i) => {
-                      const cur = ["confirmed","shipping","delivered"].indexOf(order.order_status || "confirmed")
-                      const done = i < cur; const active = i === cur
-                      return (
-                        <span key={s.k} className={`text-xs px-2 py-0.5 rounded border ${active?"bg-[#D4AF37]/15 border-[#D4AF37]/50 text-[#D4AF37]":done?"bg-green-500/10 border-green-500/30 text-green-400":"bg-[#222] border-[#333] text-gray-600"}`}>
-                          {s.l}
-                        </span>
-                      )
-                    })}
+              {/* Order Status Control */}
+              {order.payment_status === "paid" && (
+                <div className="bg-[#1A1A1A] rounded-lg p-3 space-y-2">
+                  <p className="text-gray-400 text-xs font-medium">Order Status</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-1">
+                      {["confirmed","shipping","delivered"].map((s, i) => {
+                        const cur = ["confirmed","shipping","delivered"].indexOf(order.order_status || "confirmed")
+                        const done = i < cur; const active = i === cur
+                        return (
+                          <span key={s} className={`text-xs px-2 py-0.5 rounded border ${active?"bg-[#D4AF37]/15 border-[#D4AF37]/50 text-[#D4AF37]":done?"bg-green-500/10 border-green-500/30 text-green-400":"bg-[#222] border-[#333] text-gray-600"}`}>
+                            {s.charAt(0).toUpperCase() + s.slice(1)}
+                          </span>
+                        )
+                      })}
+                    </div>
+                    <StatusDropdown
+                      orderId={order.id}
+                      currentStatus={order.order_status || "confirmed"}
+                      onStatusUpdate={onStatusUpdate}
+                    />
                   </div>
-                  {["confirmed","shipping"].includes(order.order_status || "confirmed") && (
-                    <button onClick={() => onStatusUpdate(order.id, order.order_status || "confirmed")}
-                      className="w-full py-1.5 bg-[#D4AF37] text-black text-xs font-semibold rounded-lg hover:bg-[#F0D060]">
-                      Mark as {order.order_status === "confirmed" ? "Shipping" : "Delivered"} →
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -134,11 +187,12 @@ export default function AdminOrders() {
   useEffect(() => { loadOrders() }, [])
   useEffect(() => { setLocalOrders(orders) }, [orders])
 
-  const handleStatusUpdate = async (orderId, currentStatus) => {
-    const next = currentStatus === "confirmed" ? "shipping" : "delivered"
-    const { error } = await supabase.from("orders").update({ order_status: next }).eq("id", orderId)
-    if (!error) { setLocalOrders(p => p.map(o => o.id === orderId ? { ...o, order_status: next } : o)); toast.success("Updated to " + next) }
-    else toast.error(error.message)
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    const { error } = await supabase.from("orders").update({ order_status: newStatus }).eq("id", orderId)
+    if (!error) {
+      setLocalOrders(p => p.map(o => o.id === orderId ? { ...o, order_status: newStatus } : o))
+      toast.success("Status updated to " + newStatus)
+    } else toast.error(error.message)
   }
 
   const verifyPayment = async (orderId) => {

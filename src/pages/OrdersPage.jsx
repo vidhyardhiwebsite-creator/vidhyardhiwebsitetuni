@@ -65,20 +65,26 @@ function CancelButton({ order, onCancel }) {
 }
 
 const STATUS_STEPS = [
-  { key: "confirmed", label: "Order Confirmed", icon: CheckCircle, desc: "Your order has been confirmed" },
+  { key: "confirmed", label: "Confirmed", icon: CheckCircle, desc: "Your order has been confirmed" },
   { key: "shipping", label: "Shipped", icon: Truck, desc: "Your order is on the way" },
   { key: "delivered", label: "Delivered", icon: Package, desc: "Order delivered successfully" },
 ]
 
 function DeliveryTracker({ status }) {
   const currentIdx = STATUS_STEPS.findIndex(s => s.key === status)
+  const isCancelled = status === "cancelled"
   return (
     <div className="bg-[#1A1A1A] rounded-xl p-4 mt-3">
-      <p className="text-gray-400 text-xs font-medium mb-3">Delivery Status</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-gray-400 text-xs font-medium">Delivery Status</p>
+        {isCancelled && (
+          <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-400">Cancelled</span>
+        )}
+      </div>
       <div className="flex items-start gap-0">
         {STATUS_STEPS.map((step, idx) => {
-          const done = idx <= currentIdx
-          const active = idx === currentIdx
+          const done = !isCancelled && idx <= currentIdx
+          const active = !isCancelled && idx === currentIdx
           const Icon = step.icon
           return (
             <div key={step.key} className="flex-1 flex flex-col items-center">
@@ -100,6 +106,9 @@ function DeliveryTracker({ status }) {
           )
         })}
       </div>
+      {!isCancelled && currentIdx >= 0 && (
+        <p className="text-center text-xs text-gray-500 mt-3">{STATUS_STEPS[currentIdx].desc}</p>
+      )}
     </div>
   )
 }
@@ -214,7 +223,7 @@ export default function OrdersPage() {
                   <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
                     <div className="border-t border-[#D4AF37]/10 p-5 space-y-4">
       {/* Delivery Tracker */}
-                      {order.payment_status === "paid" && order.order_status !== "cancelled" && (
+                      {order.payment_status === "paid" && (
                         <DeliveryTracker status={order.order_status || "confirmed"} />
                       )}
 
