@@ -32,11 +32,13 @@ export default function ProductDetailPage() {
     setLoading(true)
     setImgIdx(0)
     Promise.all([fetchProductById(id), fetchProducts()]).then(([prod, all]) => {
-      setProduct(prod)
+      // If not found by UUID, try by custom_id
+      const finalProd = prod || all.find(p => p.custom_id === id) || null
+      setProduct(finalProd)
       setAllProducts(all)
-      if (prod) {
-        addProduct(prod)
-        setRecommendations(getRecommendations(prod, all))
+      if (finalProd) {
+        addProduct(finalProd)
+        setRecommendations(getRecommendations(finalProd, all))
       }
       setLoading(false)
     })
