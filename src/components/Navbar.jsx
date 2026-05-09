@@ -96,6 +96,13 @@ export default function Navbar() {
 
           {/* Right Icons */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Admin quick-access button — only visible to admin */}
+            {isAdmin && (
+              <Link to="/admin"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#D4AF37] text-black text-xs font-bold rounded-lg hover:bg-[#F0D060] transition-all">
+                <Settings size={13} /> Admin
+              </Link>
+            )}
             <button onClick={() => setSearchOpen(!searchOpen)} className="text-gray-300 hover:text-[#D4AF37] transition-colors p-1">
               <Search size={20} />
             </button>
