@@ -7,6 +7,7 @@ import { useCartStore } from "../store/cartStore"
 import { CATEGORIES } from "../data/products"
 import logoImg from "../assets/logo.png"
 import toast from "react-hot-toast"
+import { isAdmin as checkIsAdmin } from "./AdminRoute"
 
 const ADMIN_EMAIL = "nashejewels@gmail.com"
 
@@ -20,7 +21,7 @@ export default function Navbar() {
   const cartCount = useCartStore(s => s.getCount())
   const navigate = useNavigate()
   const userRef = useRef(null)
-  const isAdmin = user?.email === ADMIN_EMAIL || user?.user_metadata?.role === "admin"
+  const isAdmin = checkIsAdmin(user)
 
   // Close user dropdown when clicking outside
   useEffect(() => {
