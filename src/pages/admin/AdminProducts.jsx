@@ -8,9 +8,22 @@ import { uploadProductImages, deleteProductImage } from "../../services/storageS
 import { supabase } from "../../lib/supabase"
 import toast from "react-hot-toast"
 
+// Size options per category
+const SIZE_OPTIONS = {
+  "Bangles": ["Free Size", "2.4", "2.6", "2.8", "Small", "Medium", "Large"],
+  "Rings": ["Free Size", "5", "6", "7", "8", "9", "10", "11", "12"],
+  "Necklaces": ["Free Size", "Small", "Medium", "Large"],
+  "Earrings": ["Free Size"],
+  "Anklets": ["Free Size", "Small", "Medium", "Large"],
+  "Bracelets": ["Free Size", "Small", "Medium", "Large"],
+  "default": ["Free Size", "Small", "Medium", "Large"],
+}
+
+const getSizeOptions = (category) => SIZE_OPTIONS[category] || SIZE_OPTIONS["default"]
+
 const EMPTY_FORM = {
   name: "", price: "", category: CATEGORIES[0], description: "",
-  size: "Medium", stock: "", tags: [], images: []
+  size: "Free Size", stock: "", tags: [], images: []
 }
 
 // Image uploader sub-component
@@ -313,7 +326,7 @@ export default function AdminProducts() {
                   </div>
                   <div>
                     <label className="text-xs text-gray-400 mb-1 block">Category</label>
-                    <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                    <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value, size: getSizeOptions(e.target.value)[0] }))}
                       className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#D4AF37]">
                       {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -322,7 +335,7 @@ export default function AdminProducts() {
                     <label className="text-xs text-gray-400 mb-1 block">Size</label>
                     <select value={form.size} onChange={e => setForm(f => ({ ...f, size: e.target.value }))}
                       className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#D4AF37]">
-                      {["Small","Medium","Large"].map(s => <option key={s} value={s}>{s}</option>)}
+                      {getSizeOptions(form.category).map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div className="col-span-2">
