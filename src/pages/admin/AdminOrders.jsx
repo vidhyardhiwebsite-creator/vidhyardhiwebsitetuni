@@ -1,6 +1,6 @@
-﻿import { useEffect, useState } from "react"
+﻿import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, ChevronDown, ChevronUp, AlertTriangle, Eye, MessageCircle } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, AlertTriangle, Eye, MessageCircle, Truck, Upload } from "lucide-react"
 import { useAdminStore } from "../../store/adminStore"
 import { formatINR, formatDate } from "../../utils/format"
 import { supabase } from "../../lib/supabase"
@@ -59,7 +59,80 @@ function StatusDropdown({ orderId, currentStatus, onStatusUpdate }) {
   )
 }
 
-function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReject, onNotify, onScreenshot }) {
+function TrackingPanel({ order, onSave }) {
+  const [trackingId, setTrackingId] = useState(order.tracking_id || "")
+  const [image, setImage] = useState(null)
+  const [preview, setPreview] = useState(order.tracking_image_url || null)
+  const [saving, setSaving] = useState(false)
+  const fileRef = useRef(null)
+
+  const handleImage = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImage(file)
+    setPreview(URL.createObjectURL(file))
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      let imageUrl = order.tracking_image_url || null
+      if (image) {
+        const ext = image.name.split(".").pop()
+        const path = `tracking/${order.id}_${Date.now()}.${ext}`
+        const { error: upErr } = await supabase.storage.from("product-images").upload(path, image, { contentType: image.type })
+        if (upErr) throw upErr
+        const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path)
+        imageUrl = urlData.publicUrl
+      }
+      const { error } = await supabase.from("orders").update({
+        tracking_id: trackingId.trim() || null,
+        tracking_image_url: imageUrl,
+        tracking_updated_at: new Date().toISOString(),
+      }).eq("id", order.id)
+      if (error) throw error
+      onSave(order.id, { tracking_id: trackingId.trim() || null, tracking_image_url: imageUrl })
+      toast.success("Tracking info saved")
+    } catch (e) {
+      toast.error(e.message || "Failed to save tracking")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="bg-[#1A1A1A] border border-yellow-500/20 rounded-lg p-3 space-y-2">
+      <p className="text-yellow-400 text-xs font-semibold flex items-center gap-1">
+        <Truck size={12} /> Tracking Info
+      </p>
+      <input
+        value={trackingId}
+        onChange={e => setTrackingId(e.target.value)}
+        placeholder="Tracking ID (e.g. DTDC123456)"
+        className="w-full bg-[#111] border border-[#333] rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500/50"
+      />
+      <label className="flex items-center gap-2 p-2 border border-dashed border-[#333] hover:border-yellow-500/40 rounded-lg cursor-pointer transition-all">
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
+        <Upload size={13} className="text-yellow-400 flex-shrink-0" />
+        <span className="text-xs text-gray-400">{image ? image.name : "Upload tracking screenshot (optional)"}</span>
+      </label>
+      {preview && (
+        <div className="relative inline-block">
+          <img src={preview} alt="Tracking" className="h-20 rounded-lg border border-[#333] object-cover" />
+          <button onClick={() => { setImage(null); setPreview(null) }}
+            className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">×</button>
+        </div>
+      )}
+      <button onClick={handleSave} disabled={saving}
+        className="w-full py-1.5 bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-xs rounded-lg hover:bg-yellow-500/30 disabled:opacity-50 flex items-center justify-center gap-1">
+        {saving && <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />}
+        Save Tracking Info
+      </button>
+    </div>
+  )
+}
+
+function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReject, onNotify, onScreenshot, onTrackingSave }) {
   const addr = (() => { try { return typeof order.address === "object" ? order.address : JSON.parse(order.address) } catch { return {} } })()
   const isCancelled = order.order_status === "cancelled"
   const needsVerification = order.payment_status === "pending_verification"
@@ -139,6 +212,11 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
                 </div>
               )}
 
+              {/* Tracking panel — shown when order is shipping */}
+              {order.order_status === "shipping" && (
+                <TrackingPanel order={order} onSave={onTrackingSave} />
+              )}
+
               <div className="space-y-1">
                 {order.order_items?.map(item => (
                   <div key={item.id} className="flex items-center gap-2 bg-[#1A1A1A] rounded p-1.5">
@@ -206,6 +284,10 @@ export default function AdminOrders() {
     else toast.error("No phone number")
   }
 
+  const handleTrackingSave = (orderId, data) => {
+    setLocalOrders(p => p.map(o => o.id === orderId ? { ...o, ...data } : o))
+  }
+
   const q = search.toLowerCase().trim()
 
   const filtered = localOrders.filter(o => {
@@ -224,7 +306,7 @@ export default function AdminOrders() {
   const ns1Orders = localOrders.filter(isNS1)
   const otherOrders = localOrders.filter(o => !isNS0(o) && !isNS1(o))
 
-  const cardProps = { onStatusUpdate: handleStatusUpdate, onVerify: verifyPayment, onReject: rejectPayment, onNotify: notifyCustomer, onScreenshot: setScreenshotModal }
+  const cardProps = { onStatusUpdate: handleStatusUpdate, onVerify: verifyPayment, onReject: rejectPayment, onNotify: notifyCustomer, onScreenshot: setScreenshotModal, onTrackingSave: handleTrackingSave }
 
   return (
     <div className="space-y-4">

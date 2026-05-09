@@ -227,6 +227,24 @@ export default function OrdersPage() {
                         <DeliveryTracker status={order.order_status || "confirmed"} />
                       )}
 
+                      {/* Tracking info — shown when shipped */}
+                      {order.order_status === "shipping" && (order.tracking_id || order.tracking_image_url) && (
+                        <div className="bg-[#1A1A1A] border border-yellow-500/20 rounded-xl p-4 space-y-2">
+                          <p className="text-yellow-400 text-xs font-semibold flex items-center gap-1">
+                            <Truck size={12} /> Shipment Tracking
+                          </p>
+                          {order.tracking_id && (
+                            <div className="flex items-center gap-2">
+                              <p className="text-gray-400 text-xs">Tracking ID:</p>
+                              <p className="text-white text-xs font-mono font-semibold">{order.tracking_id}</p>
+                            </div>
+                          )}
+                          {order.tracking_image_url && (
+                            <img src={order.tracking_image_url} alt="Tracking" className="w-full max-h-48 object-contain rounded-lg border border-[#333]" />
+                          )}
+                        </div>
+                      )}
+
                       {/* Cancel button - only before shipping */}
                       {order.payment_status === "paid" &&
                         (order.order_status === "confirmed" || !order.order_status) && (
