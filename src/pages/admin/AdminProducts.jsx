@@ -8,22 +8,12 @@ import { uploadProductImages, deleteProductImage } from "../../services/storageS
 import { supabase } from "../../lib/supabase"
 import toast from "react-hot-toast"
 
-// Size options per category
-const SIZE_OPTIONS = {
-  "Bangles": ["Free Size", "2.4", "2.6", "2.8", "Small", "Medium", "Large"],
-  "Rings": ["Free Size", "5", "6", "7", "8", "9", "10", "11", "12"],
-  "Necklaces": ["Free Size", "Small", "Medium", "Large"],
-  "Earrings": ["Free Size"],
-  "Anklets": ["Free Size", "Small", "Medium", "Large"],
-  "Bracelets": ["Free Size", "Small", "Medium", "Large"],
-  "default": ["Free Size", "Small", "Medium", "Large"],
-}
-
-const getSizeOptions = (category) => SIZE_OPTIONS[category] || SIZE_OPTIONS["default"]
+// Only Bangles have sizes — admin types them as comma-separated values
+const BANGLE_CATEGORY = "Bangles"
 
 const EMPTY_FORM = {
   name: "", price: "", category: CATEGORIES[0], description: "",
-  size: "Free Size", stock: "", tags: [], images: []
+  size: "", stock: "", tags: [], images: []
 }
 
 // Image uploader sub-component
@@ -141,7 +131,7 @@ export default function AdminProducts() {
     setEditProduct(p)
     setForm({
       name: p.name || "", price: String(p.price || ""), category: p.category || CATEGORIES[0],
-      description: p.description || "", size: p.size || "Medium",
+      description: p.description || "", size: p.category === BANGLE_CATEGORY ? (p.size || "") : "",
       stock: String(p.stock || ""), tags: p.tags || [], images: p.images || []
     })
     setErrors({})
@@ -174,7 +164,7 @@ export default function AdminProducts() {
     }
     const payload = {
       name: form.name.trim(), price: Number(form.price), category: form.category, custom_id: form.custom_id?.trim() || null,
-      description: form.description.trim(), size: form.size,
+      description: form.description.trim(), size: form.category === BANGLE_CATEGORY ? (form.size.trim() || null) : null,
       stock: Number(form.stock), tags: form.tags, images: form.images, series_id: form.series_id || 'NS0',
     }
     try {
@@ -326,18 +316,23 @@ export default function AdminProducts() {
                   </div>
                   <div>
                     <label className="text-xs text-gray-400 mb-1 block">Category</label>
-                    <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value, size: getSizeOptions(e.target.value)[0] }))}
+                    <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value, size: "" }))}
                       className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#D4AF37]">
                       {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">Size</label>
-                    <select value={form.size} onChange={e => setForm(f => ({ ...f, size: e.target.value }))}
-                      className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#D4AF37]">
-                      {getSizeOptions(form.category).map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
+                  {form.category === BANGLE_CATEGORY && (
+                    <div>
+                      <label className="text-xs text-gray-400 mb-1 block">Available Sizes</label>
+                      <input
+                        value={form.size}
+                        onChange={e => setForm(f => ({ ...f, size: e.target.value }))}
+                        placeholder="e.g. 2.4, 2.6, 2.8, Free Size"
+                        className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#D4AF37]"
+                      />
+                      <p className="text-gray-600 text-xs mt-0.5">Comma-separated. Remove a size to mark it out of stock.</p>
+                    </div>
+                  )}
                   <div className="col-span-2">
                     <label className="text-xs text-gray-400 mb-1 block">Description</label>
                     <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}

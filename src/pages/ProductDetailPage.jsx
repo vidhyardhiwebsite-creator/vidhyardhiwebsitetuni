@@ -153,11 +153,18 @@ export default function ProductDetailPage() {
             <p className="text-3xl font-bold text-[#D4AF37] mb-4">{formatINR(product.price)}</p>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">{product.description}</p>
 
-            <div className="grid grid-cols-2 gap-3 mb-6 text-sm">
-              <div className="bg-[#111] rounded-lg p-3">
-                <p className="text-gray-500 text-xs mb-1">Size</p>
-                <p className="text-white font-medium">{product.size}</p>
-              </div>
+            <div className={`grid gap-3 mb-6 text-sm ${product.category === 'Bangles' && product.size ? 'grid-cols-1' : 'grid-cols-1'}`}>
+              {/* Size — only for Bangles */}
+              {product.category === 'Bangles' && product.size && (
+                <div className="bg-[#111] rounded-lg p-3">
+                  <p className="text-gray-500 text-xs mb-2">Available Sizes</p>
+                  <div className="flex flex-wrap gap-2">
+                    {product.size.split(',').map(s => s.trim()).filter(Boolean).map(s => (
+                      <span key={s} className="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-xs rounded-full font-medium">{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="bg-[#111] rounded-lg p-3">
                 <p className="text-gray-500 text-xs mb-1">Stock</p>
                 <p className={`font-medium ${product.stock > 0 ? 'text-green-400' : 'text-red-400'}`}>
