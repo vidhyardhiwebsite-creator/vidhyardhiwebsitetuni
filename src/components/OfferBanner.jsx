@@ -8,7 +8,6 @@ const DEFAULT_OFFERS = [
   { id: 1, text: '🎉 Free Shipping on all orders across India!', link: '/products' },
   { id: 2, text: '💍 New Bridal Collection — Shop Now', link: '/products?tags=bridal' },
   { id: 3, text: '✨ Use code NASHE10 for 10% off on first order', link: '/products' },
-  { id: 4, text: '🪙 Premium Gold Jewelry — BIS Hallmarked', link: '/products?tags=premium' },
 ]
 
 export default function OfferBanner() {
