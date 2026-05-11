@@ -196,7 +196,11 @@ export default function AdminProducts() {
       toast.success("Product deleted")
       setDeleteConfirm(null)
     } catch (e) {
-      toast.error(e.message || "Failed to delete product")
+      if (e.message?.includes("foreign key")) {
+        toast.error("Cannot delete — this product exists in orders. Run fix-product-fk.sql in Supabase first.", { duration: 6000 })
+      } else {
+        toast.error(e.message || "Failed to delete product")
+      }
     } finally {
       setDeleting(false)
     }
