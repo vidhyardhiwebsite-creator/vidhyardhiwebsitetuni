@@ -8,10 +8,8 @@ import { useAuthStore } from '../store/authStore'
 import { useCartStore } from '../store/cartStore'
 import { useWishlistStore } from '../store/wishlistStore'
 import { useRecentlyViewedStore } from '../store/recentlyViewedStore'
-import { getRecommendations } from '../utils/recommendations'
 import { formatINR } from '../utils/format'
 import ProductCard from '../components/ProductCard'
-import SkeletonCard from '../components/SkeletonCard'
 import toast from 'react-hot-toast'
 
 export default function ProductDetailPage() {
@@ -26,20 +24,15 @@ export default function ProductDetailPage() {
   const [allProducts, setAllProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [imgIdx, setImgIdx] = useState(0)
-  const [recommendations, setRecommendations] = useState([])
 
   useEffect(() => {
     setLoading(true)
     setImgIdx(0)
     Promise.all([fetchProductById(id), fetchProducts()]).then(([prod, all]) => {
-      // If not found by UUID, try by custom_id
       const finalProd = prod || all.find(p => p.custom_id === id) || null
       setProduct(finalProd)
       setAllProducts(all)
-      if (finalProd) {
-        addProduct(finalProd)
-        setRecommendations(getRecommendations(finalProd, all))
-      }
+      if (finalProd) addProduct(finalProd)
       setLoading(false)
     })
   }, [id])
@@ -210,35 +203,26 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Recommendations */}
-        {recommendations.length > 0 && (
-          <section className="mb-12">
-            <div className="mb-6">
-              <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-1">You May Also Like</p>
-              <h2 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Georgia, serif' }}>Similar Pieces</h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {recommendations.map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-          </section>
-        )}
-
-        {/* More from same category — ascending price */}
-        {allProducts.filter(p => p.id !== product?.id && p.category === product?.category && !recommendations.find(r => r.id === p.id)).length > 0 && (
-          <section className="mb-12">
-            <div className="mb-6">
-              <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-1">Explore More</p>
-              <h2 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Georgia, serif' }}>More {product.category}</h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {allProducts
-                .filter(p => p.id !== product?.id && p.category === product?.category && !recommendations.find(r => r.id === p.id))
-                .sort((a, b) => a.price - b.price)
-                .slice(0, 6)
-                .map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-          </section>
-        )}
+        {/* Related Products — same category, sorted by price ascending */}
+        {(() => {
+          const related = allProducts
+            .filter(p => p.id !== product?.id && p.category === product?.category)
+            .sort((a, b) => a.price - b.price)
+          if (related.length === 0) return null
+          return (
+            <section className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-1">You May Also Like</p>
+                  <h2 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Georgia, serif' }}>More {product.category}</h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {related.slice(0, 12).map(p => <ProductCard key={p.id} product={p} />)}
+              </div>
+            </section>
+          )
+        })()}
       </div>
     </>
   )
