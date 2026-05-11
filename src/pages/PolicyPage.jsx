@@ -86,16 +86,16 @@ export default function PolicyPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-white mb-8" style={{ fontFamily: 'Georgia, serif' }}>{policy.title}</h1>
+      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-8" style={{ fontFamily: 'Georgia, serif' }}>{policy.title}</h1>
       <div className="space-y-6">
         {policy.content.map((section, i) => (
-          <div key={i} className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-5">
-            <h2 className="text-[#D4AF37] font-semibold mb-2">{section.heading}</h2>
-            <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-line">{section.text}</p>
+          <div key={i} className="bg-white border border-[#E8E0D5] rounded-xl p-5 shadow-sm">
+            <h2 className="text-[#1B2B5E] font-semibold mb-2">{section.heading}</h2>
+            <p className="text-[#4A4A6A] text-sm leading-relaxed whitespace-pre-line">{section.text}</p>
           </div>
         ))}
       </div>
-      <p className="text-gray-600 text-xs mt-8 text-center">Last updated: May 2026 · NaShe Jewels</p>
+      <p className="text-[#8A8AAA] text-xs mt-8 text-center">Last updated: May 2026 · NaShe Jewels</p>
     </div>
   )
 }

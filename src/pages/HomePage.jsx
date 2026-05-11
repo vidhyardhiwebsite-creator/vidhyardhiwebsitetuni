@@ -55,11 +55,11 @@ export default function HomePage() {
   const SectionHeader = ({ label, title, link, linkText = "View All" }) => (
     <div className="flex items-center justify-between mb-6">
       <div>
-        <p className="text-[#D4AF37] text-xs uppercase tracking-widest mb-1">{label}</p>
-        <h2 className="text-2xl sm:text-3xl font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>{title}</h2>
+        <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-1">{label}</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#1A1A2E]" style={{ fontFamily: "Georgia, serif" }}>{title}</h2>
       </div>
       {link && (
-        <Link to={link} className="text-[#D4AF37] text-sm hover:underline flex items-center gap-1 shrink-0">
+        <Link to={link} className="text-[#1B2B5E] text-sm hover:underline flex items-center gap-1 shrink-0 font-medium">
           {linkText} <ArrowRight size={14} />
         </Link>
       )}
@@ -74,34 +74,33 @@ export default function HomePage() {
       </Helmet>
 
       {/* HERO */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-90">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-[#F2EDE6]">
+        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-30">
           <source src={heroVideo} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/85 via-[#0A0A0A]/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20">          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5]/95 via-[#FAF8F5]/70 to-transparent" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20">
+          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-xl">
             <motion.p initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
-              className="text-[#D4AF37] text-sm uppercase tracking-[0.3em] mb-4">New Collection 2024</motion.p>
+              className="text-[#C9956C] text-sm uppercase tracking-[0.3em] mb-4 font-medium">New Collection 2025</motion.p>
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-              className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
-              Wear Your <span className="text-[#D4AF37]">Story</span>
+              className="text-5xl sm:text-6xl font-bold text-[#1A1A2E] mb-6 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
+              Wear Your <span className="text-[#1B2B5E]">Story</span>
             </motion.h1>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-              className="text-gray-300 text-lg mb-8 leading-relaxed">
-              Handcrafted jewelry celebrating India&apos;s timeless heritage.
+              className="text-[#4A4A6A] text-lg mb-8 leading-relaxed italic">
+              Luxury crafted for everyday elegance.
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="flex flex-wrap gap-4">
-              <Link to="/products" className="flex items-center gap-2 px-8 py-3 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all">
+              <Link to="/products" className="flex items-center gap-2 px-8 py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all shadow-md">
                 Shop Now <ArrowRight size={18} />
               </Link>
-              <Link to="/products?tags=bridal" className="flex items-center gap-2 px-8 py-3 border border-[#D4AF37] text-[#D4AF37] rounded-lg hover:bg-[#D4AF37]/10 transition-all">
+              <Link to="/products?tags=bridal" className="flex items-center gap-2 px-8 py-3 border-2 border-[#1B2B5E] text-[#1B2B5E] rounded-lg hover:bg-[#1B2B5E]/5 transition-all font-medium">
                 Bridal Collection
               </Link>
             </motion.div>
           </motion.div>
         </div>
-
       </section>
 
       {/* Promo Banners — Flipkart-style sliding offer cards */}
@@ -109,19 +108,19 @@ export default function HomePage() {
 
       {/* Features bar */}
       <ScrollReveal>
-        <section className="bg-[#111] border-y border-[#D4AF37]/10 py-8">
+        <section className="bg-white border-y border-[#E8E0D5] py-8 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { icon: <Shield size={20} />, title: "Certified Quality", desc: "BIS Hallmarked Gold" },
-              { icon: <Truck size={20} />, title: "Free Shipping", desc: "On all orders" },
-              { icon: <RefreshCw size={20} />, title: "Easy Returns", desc: "30-day return policy" },
+              { icon: <Shield size={20} />, title: "Certified Quality", desc: "Authenticity Guaranteed" },
+              { icon: <Truck size={20} />, title: "Fast Shipping", desc: "Across India" },
+              { icon: <RefreshCw size={20} />, title: "Easy Returns", desc: "7 Day Return Policy" },
               { icon: <Sparkles size={20} />, title: "Handcrafted", desc: "Artisan made jewelry" },
             ].map((f, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="text-[#D4AF37]">{f.icon}</div>
+                <div className="text-[#1B2B5E]">{f.icon}</div>
                 <div>
-                  <p className="text-white text-sm font-medium">{f.title}</p>
-                  <p className="text-gray-500 text-xs">{f.desc}</p>
+                  <p className="text-[#1A1A2E] text-sm font-semibold">{f.title}</p>
+                  <p className="text-[#8A8AAA] text-xs">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -151,8 +150,8 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 py-8">
         <ScrollReveal>
           <div className="text-center mb-8">
-            <p className="text-[#D4AF37] text-xs uppercase tracking-widest mb-2">Browse By</p>
-            <h2 className="text-3xl font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>Our Collections</h2>
+            <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-2">Browse By</p>
+            <h2 className="text-3xl font-bold text-[#1A1A2E]" style={{ fontFamily: "Georgia, serif" }}>Shop By Category</h2>
           </div>
         </ScrollReveal>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -213,7 +212,7 @@ export default function HomePage() {
       {recentItems.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 pb-12">
           <ScrollReveal>
-            <h2 className="text-xl font-bold text-white mb-6" style={{ fontFamily: "Georgia, serif" }}>Recently Viewed</h2>
+            <h2 className="text-xl font-bold text-[#1A1A2E] mb-6" style={{ fontFamily: "Georgia, serif" }}>Recently Viewed</h2>
           </ScrollReveal>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
             {recentItems.slice(0, 6).map((p, i) => (
@@ -236,11 +235,11 @@ export default function HomePage() {
           <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1400&q=80"
             alt="Bridal collection" className="w-full h-64 object-cover"
             onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=1400&q=80" }} />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/30 flex items-center px-8">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1B2B5E]/85 to-[#1B2B5E]/30 flex items-center px-8">
             <div>
-              <p className="text-[#D4AF37] text-xs uppercase tracking-widest mb-2">Limited Edition</p>
+              <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-2">Limited Edition</p>
               <h3 className="text-3xl font-bold text-white mb-4" style={{ fontFamily: "Georgia, serif" }}>Bridal Collection</h3>
-              <Link to="/products?tags=bridal" className="px-6 py-2.5 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all text-sm">
+              <Link to="/products?tags=bridal" className="px-6 py-2.5 bg-white text-[#1B2B5E] font-semibold rounded-lg hover:bg-[#FAF8F5] transition-all text-sm">
                 Explore Now
               </Link>
             </div>

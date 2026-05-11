@@ -53,11 +53,11 @@ export default function ProductsPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Georgia, serif' }}>
+          <h1 className="text-3xl font-bold text-[#1A1A2E] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
             {category || 'All Jewelry'}
           </h1>
-          {search && <p className="text-gray-400 text-sm">Search results for: <span className="text-[#D4AF37]">"{search}"</span></p>}
-          <p className="text-gray-500 text-sm mt-1">{loading ? '...' : `${products.length} pieces`}</p>
+          {search && <p className="text-[#4A4A6A] text-sm">Search results for: <span className="text-[#C9956C] font-medium">"{search}"</span></p>}
+          <p className="text-[#8A8AAA] text-sm mt-1">{loading ? '...' : `${products.length} pieces`}</p>
         </div>
 
         {/* Filters Bar */}
@@ -66,7 +66,7 @@ export default function ProductsPage() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilter('category', '')}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${!category ? 'bg-[#D4AF37] text-black' : 'bg-[#1A1A1A] text-gray-400 hover:text-[#D4AF37] border border-[#D4AF37]/20'}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${!category ? 'bg-[#1B2B5E] text-white' : 'bg-white text-[#4A4A6A] hover:text-[#1B2B5E] border border-[#E8E0D5]'}`}
             >
               All
             </button>
@@ -74,7 +74,7 @@ export default function ProductsPage() {
               <button
                 key={cat}
                 onClick={() => setFilter('category', cat)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${category === cat ? 'bg-[#D4AF37] text-black' : 'bg-[#1A1A1A] text-gray-400 hover:text-[#D4AF37] border border-[#D4AF37]/20'}`}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${category === cat ? 'bg-[#1B2B5E] text-white' : 'bg-white text-[#4A4A6A] hover:text-[#1B2B5E] border border-[#E8E0D5]'}`}
               >
                 {cat}
               </button>
@@ -83,14 +83,14 @@ export default function ProductsPage() {
 
           <div className="ml-auto flex items-center gap-3">
             {hasFilters && (
-              <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-400 transition-colors">
+              <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-[#8A8AAA] hover:text-red-500 transition-colors">
                 <X size={12} /> Clear
               </button>
             )}
             <select
               value={sort}
               onChange={e => setFilter('sort', e.target.value)}
-              className="bg-[#1A1A1A] border border-[#D4AF37]/20 text-gray-300 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-[#D4AF37]"
+              className="bg-white border border-[#E8E0D5] text-[#4A4A6A] text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-[#1B2B5E]"
             >
               {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
@@ -105,9 +105,9 @@ export default function ProductsPage() {
         ) : products.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-4">💎</p>
-            <p className="text-gray-400 text-lg">No jewelry found</p>
-            <p className="text-gray-600 text-sm mt-2">Try adjusting your filters</p>
-            <button onClick={clearFilters} className="mt-4 px-6 py-2 bg-[#D4AF37] text-black rounded-lg text-sm font-medium hover:bg-[#F0D060] transition-all">
+            <p className="text-[#4A4A6A] text-lg">No jewelry found</p>
+            <p className="text-[#8A8AAA] text-sm mt-2">Try adjusting your filters</p>
+            <button onClick={clearFilters} className="mt-4 px-6 py-2 bg-[#1B2B5E] text-white rounded-lg text-sm font-medium hover:bg-[#2A3F7E] transition-all">
               Clear Filters
             </button>
           </div>

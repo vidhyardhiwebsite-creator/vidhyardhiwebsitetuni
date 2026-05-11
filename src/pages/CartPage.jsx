@@ -26,10 +26,10 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <ShoppingBag size={64} className="text-gray-700 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: 'Georgia, serif' }}>Your cart is empty</h2>
-        <p className="text-gray-500 mb-6">Discover our beautiful jewelry collection</p>
-        <Link to="/products" className="px-8 py-3 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all">
+        <ShoppingBag size={64} className="text-[#C9956C] mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-[#1A1A2E] mb-2" style={{ fontFamily: 'Georgia, serif' }}>Your cart is empty</h2>
+        <p className="text-[#8A8AAA] mb-6">Discover our beautiful jewelry collection</p>
+        <Link to="/products" className="px-8 py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all">
           Shop Now
         </Link>
       </div>
@@ -38,7 +38,7 @@ export default function CartPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-white mb-8" style={{ fontFamily: 'Georgia, serif' }}>Shopping Cart</h1>
+      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-8" style={{ fontFamily: 'Georgia, serif' }}>Shopping Cart</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Items */}
@@ -53,37 +53,31 @@ export default function CartPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="flex gap-4 bg-[#111] border border-[#D4AF37]/10 rounded-xl p-4"
+                  className="flex gap-4 bg-white border border-[#E8E0D5] rounded-xl p-4 shadow-sm"
                 >
                   <Link to={`/products/${item.product_id}`}>
-                    <img
-                      src={image}
-                      alt={product.name}
-                      className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
-                      onError={e => { if (e.target.src !== 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=200&q=80') e.target.src = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=200&q=80' }}
-                    />
+                    <img src={image} alt={product.name} className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                      onError={e => { e.target.src = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=200&q=80' }} />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <Link to={`/products/${item.product_id}`}>
-                      <h3 className="text-white text-sm font-medium hover:text-[#D4AF37] transition-colors line-clamp-2">{product.name}</h3>
+                      <h3 className="text-[#1A1A2E] text-sm font-semibold hover:text-[#1B2B5E] transition-colors line-clamp-2">{product.name}</h3>
                     </Link>
-                    <p className="text-gray-500 text-xs mt-1">{product.category}</p>
-                    {product.stock === 0 && (
-                      <p className="text-red-400 text-xs mt-1">⚠ Out of stock</p>
-                    )}
+                    <p className="text-[#C9956C] text-xs mt-1 font-medium">{product.category}</p>
+                    {product.stock === 0 && <p className="text-red-500 text-xs mt-1">⚠ Out of stock</p>}
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => handleQty(item, -1)} className="w-7 h-7 flex items-center justify-center bg-[#1A1A1A] hover:bg-[#D4AF37]/20 text-gray-300 rounded-lg transition-all">
+                        <button onClick={() => handleQty(item, -1)} className="w-7 h-7 flex items-center justify-center bg-[#F2EDE6] hover:bg-[#E8E0D5] text-[#4A4A6A] rounded-lg transition-all">
                           <Minus size={12} />
                         </button>
-                        <span className="text-white text-sm w-6 text-center">{item.quantity}</span>
-                        <button onClick={() => handleQty(item, 1)} className="w-7 h-7 flex items-center justify-center bg-[#1A1A1A] hover:bg-[#D4AF37]/20 text-gray-300 rounded-lg transition-all">
+                        <span className="text-[#1A1A2E] text-sm w-6 text-center font-medium">{item.quantity}</span>
+                        <button onClick={() => handleQty(item, 1)} className="w-7 h-7 flex items-center justify-center bg-[#F2EDE6] hover:bg-[#E8E0D5] text-[#4A4A6A] rounded-lg transition-all">
                           <Plus size={12} />
                         </button>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-[#D4AF37] font-semibold text-sm">{formatINR((product.price || 0) * item.quantity)}</span>
-                        <button onClick={() => handleRemove(item)} className="text-gray-600 hover:text-red-400 transition-colors">
+                        <span className="text-[#1B2B5E] font-bold text-sm">{formatINR((product.price || 0) * item.quantity)}</span>
+                        <button onClick={() => handleRemove(item)} className="text-[#8A8AAA] hover:text-red-500 transition-colors">
                           <Trash2 size={15} />
                         </button>
                       </div>
@@ -96,32 +90,28 @@ export default function CartPage() {
         </div>
 
         {/* Summary */}
-        <div className="bg-[#111] border border-[#D4AF37]/20 rounded-xl p-6 h-fit sticky top-20">
-          <h2 className="text-white font-semibold mb-4">Order Summary</h2>
+        <div className="bg-white border border-[#E8E0D5] rounded-xl p-6 h-fit sticky top-20 shadow-sm">
+          <h2 className="text-[#1A1A2E] font-semibold mb-4">Order Summary</h2>
           <div className="space-y-3 mb-4">
             {items.map(item => (
               <div key={item.id || item.product_id} className="flex justify-between text-sm">
-                <span className="text-gray-400 truncate mr-2">{item.products?.name} × {item.quantity}</span>
-                <span className="text-gray-300 shrink-0">{formatINR((item.products?.price || 0) * item.quantity)}</span>
+                <span className="text-[#4A4A6A] truncate mr-2">{item.products?.name} × {item.quantity}</span>
+                <span className="text-[#1A1A2E] shrink-0 font-medium">{formatINR((item.products?.price || 0) * item.quantity)}</span>
               </div>
             ))}
           </div>
-          <div className="border-t border-[#D4AF37]/10 pt-4 mb-6">
+          <div className="border-t border-[#E8E0D5] pt-4 mb-6">
             <div className="flex justify-between">
-              <span className="text-white font-semibold">Total</span>
-              <span className="text-[#D4AF37] font-bold text-lg">{formatINR(total)}</span>
+              <span className="text-[#1A1A2E] font-semibold">Total</span>
+              <span className="text-[#1B2B5E] font-bold text-lg">{formatINR(total)}</span>
             </div>
-            {total >= 2000 && <p className="text-green-400 text-xs mt-1">✓ Free shipping</p>}
           </div>
-          <button
-            onClick={() => navigate('/checkout')}
-            disabled={hasOutOfStock || !user}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button onClick={() => navigate('/checkout')} disabled={hasOutOfStock || !user}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             Proceed to Checkout <ArrowRight size={16} />
           </button>
-          {!user && <p className="text-gray-500 text-xs text-center mt-2">Please login to checkout</p>}
-          {hasOutOfStock && <p className="text-red-400 text-xs text-center mt-2">Remove out-of-stock items to proceed</p>}
+          {!user && <p className="text-[#8A8AAA] text-xs text-center mt-2">Please login to checkout</p>}
+          {hasOutOfStock && <p className="text-red-500 text-xs text-center mt-2">Remove out-of-stock items to proceed</p>}
         </div>
       </div>
     </div>

@@ -79,73 +79,65 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#D4AF37] mb-2" style={{ fontFamily: "Georgia, serif" }}>✦ NaShe Jewels</h1>
-          <p className="text-gray-400 text-sm">{isLogin ? "Welcome back" : "Create your account"}</p>
+          <h1 className="text-3xl font-bold text-[#1B2B5E] mb-2" style={{ fontFamily: "Georgia, serif" }}>✦ NaShe Jewels</h1>
+          <p className="text-[#4A4A6A] text-sm">{isLogin ? "Welcome back" : "Create your account"}</p>
         </div>
 
-        <div className="bg-[#111] border border-[#D4AF37]/20 rounded-2xl p-8">
-          {/* Google Sign In - Primary */}
-          <button
-            onClick={handleGoogle}
-            disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 py-3 bg-white hover:bg-gray-100 text-gray-800 font-semibold rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed mb-5"
-          >
-            {googleLoading
-              ? <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-              : <GoogleIcon />
-            }
+        <div className="bg-white border border-[#E8E0D5] rounded-2xl p-8 shadow-md">
+          {/* Google Sign In */}
+          <button onClick={handleGoogle} disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-3 py-3 bg-white hover:bg-[#FAF8F5] text-[#1A1A2E] font-semibold rounded-lg transition-all disabled:opacity-60 border border-[#E8E0D5] shadow-sm mb-5">
+            {googleLoading ? <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" /> : <GoogleIcon />}
             Continue with Google
           </button>
 
-          {/* Divider */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px bg-[#D4AF37]/15" />
-            <span className="text-gray-600 text-xs">or use email</span>
-            <div className="flex-1 h-px bg-[#D4AF37]/15" />
+            <div className="flex-1 h-px bg-[#E8E0D5]" />
+            <span className="text-[#8A8AAA] text-xs">or use email</span>
+            <div className="flex-1 h-px bg-[#E8E0D5]" />
           </div>
 
-          {/* Toggle */}
-          <div className="flex bg-[#1A1A1A] rounded-lg p-1 mb-5">
-            <button onClick={() => setIsLogin(true)} className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${isLogin ? "bg-[#D4AF37] text-black" : "text-gray-400 hover:text-white"}`}>Sign In</button>
-            <button onClick={() => setIsLogin(false)} className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${!isLogin ? "bg-[#D4AF37] text-black" : "text-gray-400 hover:text-white"}`}>Sign Up</button>
+          <div className="flex bg-[#F2EDE6] rounded-lg p-1 mb-5">
+            <button onClick={() => setIsLogin(true)} className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${isLogin ? "bg-[#1B2B5E] text-white" : "text-[#4A4A6A] hover:text-[#1B2B5E]"}`}>Sign In</button>
+            <button onClick={() => setIsLogin(false)} className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${!isLogin ? "bg-[#1B2B5E] text-white" : "text-[#4A4A6A] hover:text-[#1B2B5E]"}`}>Sign Up</button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
-                <label className="text-xs text-gray-400 mb-1 block">Full Name</label>
+                <label className="text-xs text-[#4A4A6A] mb-1 block font-medium">Full Name</label>
                 <div className="relative">
-                  <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8AAA]" />
                   <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name"
-                    className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg pl-9 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+                    className="w-full bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg pl-9 pr-4 py-3 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E]" />
                 </div>
-                {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
             )}
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Email</label>
+              <label className="text-xs text-[#4A4A6A] mb-1 block font-medium">Email</label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8AAA]" />
                 <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="your@email.com"
-                  className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg pl-9 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
+                  className="w-full bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg pl-9 pr-4 py-3 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E]" />
               </div>
-              {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Password</label>
+              <label className="text-xs text-[#4A4A6A] mb-1 block font-medium">Password</label>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8AAA]" />
                 <input type={showPass ? "text" : "password"} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min. 8 characters"
-                  className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg pl-9 pr-10 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]" />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                  className="w-full bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg pl-9 pr-10 py-3 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E]" />
+                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A8AAA] hover:text-[#4A4A6A]">
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
             <button type="submit" disabled={loading}
-              className="w-full py-3 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-              {loading && <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />}
+              className="w-full py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+              {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
               {isLogin ? "Sign In" : "Create Account"}
             </button>
           </form>
