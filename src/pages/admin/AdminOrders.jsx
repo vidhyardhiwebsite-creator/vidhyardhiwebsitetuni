@@ -179,18 +179,32 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
           <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
             <div className="border-t border-[#D4AF37]/10 p-3 space-y-3">
               {needsVerification && (
-                <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 space-y-2">
-                  <p className="text-orange-400 text-xs font-semibold flex items-center gap-1"><AlertTriangle size={12} /> Verify Payment</p>
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 space-y-3">
+                  <p className="text-orange-400 text-xs font-semibold flex items-center gap-1"><AlertTriangle size={12} /> Payment Verification Required</p>
                   {order.payment_screenshot_url && (
-                    <button onClick={() => onScreenshot(order.payment_screenshot_url)}
-                      className="flex items-center gap-1 text-xs text-orange-300 hover:text-orange-200">
-                      <Eye size={11} /> View Screenshot
-                    </button>
+                    <div className="space-y-2">
+                      <img
+                        src={order.payment_screenshot_url}
+                        alt="Payment screenshot"
+                        className="w-full max-h-48 object-contain rounded-lg border border-orange-500/20 bg-[#111] cursor-pointer"
+                        onClick={() => onScreenshot(order.payment_screenshot_url)}
+                      />
+                      <button onClick={() => onScreenshot(order.payment_screenshot_url)}
+                        className="flex items-center gap-1 text-xs text-orange-300 hover:text-orange-200">
+                        <Eye size={11} /> View Full Screenshot
+                      </button>
+                    </div>
                   )}
-                  {order.upi_ref && <p className="text-gray-400 text-xs">UPI: <span className="font-mono text-white">{order.upi_ref}</span></p>}
-                  <div className="flex gap-2">
-                    <button onClick={() => onVerify(order.id)} className="flex-1 py-1.5 bg-green-500/20 border border-green-500/30 text-green-400 text-xs rounded-lg hover:bg-green-500/30">✓ Confirm</button>
-                    <button onClick={() => onReject(order.id)} className="flex-1 py-1.5 bg-red-500/20 border border-red-500/30 text-red-400 text-xs rounded-lg hover:bg-red-500/30">✗ Reject</button>
+                  {order.upi_ref && <p className="text-gray-400 text-xs">UPI Ref: <span className="font-mono text-white">{order.upi_ref}</span></p>}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => onVerify(order.id)}
+                      className="py-2.5 bg-green-500/20 border border-green-500/30 text-green-400 text-sm font-semibold rounded-lg hover:bg-green-500/30 transition-all">
+                      ✓ Confirm Payment
+                    </button>
+                    <button onClick={() => onReject(order.id)}
+                      className="py-2.5 bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-semibold rounded-lg hover:bg-red-500/30 transition-all">
+                      ✗ Reject
+                    </button>
                   </div>
                 </div>
               )}
@@ -198,8 +212,8 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
               {order.payment_status === "paid" && (
                 <div className="bg-[#1A1A1A] rounded-lg p-3 space-y-2">
                   <p className="text-gray-400 text-xs font-medium">Order Status</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap gap-1 flex-1">
                       {["confirmed","shipping","delivered"].map((s, i) => {
                         const cur = ["confirmed","shipping","delivered"].indexOf(order.order_status || "confirmed")
                         const done = i < cur; const active = i === cur

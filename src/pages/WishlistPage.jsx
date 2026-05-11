@@ -10,10 +10,10 @@ export default function WishlistPage() {
   if (products.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <Heart size={64} className="text-gray-700 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: 'Georgia, serif' }}>Your wishlist is empty</h2>
-        <p className="text-gray-500 mb-6">Save pieces you love to revisit later</p>
-        <Link to="/products" className="px-8 py-3 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all">
+        <Heart size={64} className="text-[#C9956C] mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-[#1A1A2E] mb-2" style={{ fontFamily: 'Georgia, serif' }}>Your wishlist is empty</h2>
+        <p className="text-[#8A8AAA] mb-6">Save pieces you love to revisit later</p>
+        <Link to="/products" className="px-8 py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all">
           Browse Jewelry
         </Link>
       </div>
@@ -22,8 +22,8 @@ export default function WishlistPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-white mb-8" style={{ fontFamily: 'Georgia, serif' }}>
-        My Wishlist <span className="text-gray-500 text-lg font-normal">({products.length})</span>
+      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-8" style={{ fontFamily: 'Georgia, serif' }}>
+        My Wishlist <span className="text-[#8A8AAA] text-lg font-normal">({products.length})</span>
       </h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map(p => <ProductCard key={p.id} product={p} />)}

@@ -212,13 +212,30 @@ export default function ProductDetailPage() {
 
         {/* Recommendations */}
         {recommendations.length > 0 && (
-          <section>
+          <section className="mb-12">
             <div className="mb-6">
               <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-1">You May Also Like</p>
               <h2 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Georgia, serif' }}>Similar Pieces</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
               {recommendations.map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+          </section>
+        )}
+
+        {/* More from same category — ascending price */}
+        {allProducts.filter(p => p.id !== product?.id && p.category === product?.category && !recommendations.find(r => r.id === p.id)).length > 0 && (
+          <section className="mb-12">
+            <div className="mb-6">
+              <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-1">Explore More</p>
+              <h2 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Georgia, serif' }}>More {product.category}</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {allProducts
+                .filter(p => p.id !== product?.id && p.category === product?.category && !recommendations.find(r => r.id === p.id))
+                .sort((a, b) => a.price - b.price)
+                .slice(0, 6)
+                .map(p => <ProductCard key={p.id} product={p} />)}
             </div>
           </section>
         )}
