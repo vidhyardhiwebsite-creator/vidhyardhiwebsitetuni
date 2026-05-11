@@ -248,7 +248,7 @@ export default function AdminDashboard() {
               <div key={i} className="flex items-center gap-2">
                 <span className="text-[#D4AF37] text-xs w-4">{i + 1}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-gray-300 text-xs truncate">{p.name}</p>
+                  <p className="text-gray-600 text-xs truncate">{p.name}</p>
                   <div className="h-1.5 bg-gray-50 rounded-full mt-1">
                     <div
                       className="h-full bg-[#D4AF37] rounded-full"
@@ -301,7 +301,7 @@ export default function AdminDashboard() {
               {orders.slice(0, 8).map(o => (
                 <tr key={o.id} className="hover:bg-gray-50">
                   <td className="py-3 text-gray-400 text-xs font-mono">#{String(o.id).slice(-8).toUpperCase()}</td>
-                  <td className="py-3 text-gray-300 text-xs">{o.users?.email || 'Guest'}</td>
+                  <td className="py-3 text-gray-600 text-xs">{o.users?.email || 'Guest'}</td>
                   <td className="py-3 text-[#D4AF37] text-xs font-medium">{formatINR(o.total_amount)}</td>
                   <td className="py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
@@ -372,7 +372,7 @@ function OfferBannerManager() {
       <div className="space-y-2 mb-4">
         {offers.map(o => (
           <div key={o.id} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
-            <span className="flex-1 text-sm text-gray-300 truncate">{o.text}</span>
+            <span className="flex-1 text-sm text-gray-600 truncate">{o.text}</span>
             <span className="text-xs text-gray-600 shrink-0">{o.link}</span>
             <button onClick={() => removeOffer(o.id)} className="text-gray-600 hover:text-red-400 transition-colors ml-1 shrink-0">?</button>
           </div>

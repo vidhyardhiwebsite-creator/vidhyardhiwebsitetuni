@@ -300,7 +300,7 @@ export default function AdminBanners() {
                   <BannerPreview banner={banner} />
                   <div className="flex items-center justify-between px-4 py-2 border-t border-[#D4AF37]/10">
                     <div className="flex items-center gap-1">
-                      <span className="text-gray-600 text-xs">#{idx + 1}</span>
+                      <span className="text-gray-500 text-xs">#{idx + 1}</span>
                       <button onClick={() => move(idx, -1)} disabled={idx === 0} className="p-1 text-gray-500 hover:text-[#1A1A2E] disabled:opacity-30"><ChevronUp size={14} /></button>
                       <button onClick={() => move(idx, 1)} disabled={idx === banners.length - 1} className="p-1 text-gray-500 hover:text-[#1A1A2E] disabled:opacity-30"><ChevronDown size={14} /></button>
                     </div>

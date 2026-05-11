@@ -90,7 +90,7 @@ export default function AdminUsers() {
         {users.length === 0 ? <div className="text-center py-12 text-gray-500">No customers yet</div>
         : users.map(u => {
           const tier = u.totalSpent >= 20000 ? "Gold" : u.totalSpent >= 8000 ? "Silver" : "Bronze"
-          const tierColor = tier === "Gold" ? "text-[#D4AF37] bg-[#D4AF37]/10" : tier === "Silver" ? "text-gray-300 bg-gray-500/10" : "text-orange-400 bg-orange-500/10"
+          const tierColor = tier === "Gold" ? "text-[#D4AF37] bg-[#D4AF37]/10" : tier === "Silver" ? "text-gray-600 bg-gray-500/10" : "text-orange-400 bg-orange-500/10"
           const details = userDetails[u.userId]
           const isExpanded = expanded === u.userId
           return (
