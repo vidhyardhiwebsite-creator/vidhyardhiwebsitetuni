@@ -83,8 +83,8 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="text-center py-20">
-        <p className="text-gray-400 text-lg">Product not found</p>
-        <button onClick={() => navigate('/products')} className="mt-4 px-6 py-2 bg-[#D4AF37] text-black rounded-lg text-sm">
+        <p className="text-[#4A4A6A] text-lg">Product not found</p>
+        <button onClick={() => navigate('/products')} className="mt-4 px-6 py-2 bg-[#1B2B5E] text-white rounded-lg text-sm">
           Browse Products
         </button>
       </div>
@@ -144,20 +144,20 @@ export default function ProductDetailPage() {
 
           {/* Product Info */}
           <div>
-            <p className="text-[#D4AF37] text-xs uppercase tracking-widest mb-2">{product.category}</p>
-            <h1 className="text-3xl font-bold text-white mb-3" style={{ fontFamily: 'Georgia, serif' }}>{product.name}</h1>
+            <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-2">{product.category}</p>
+            <h1 className="text-3xl font-bold text-[#1A1A2E] mb-3" style={{ fontFamily: 'Georgia, serif' }}>{product.name}</h1>
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex text-[#D4AF37]">{Array(5).fill(0).map((_, i) => <Star key={i} size={14} fill="currentColor" />)}</div>
-              <span className="text-gray-500 text-xs">(24 reviews)</span>
+              <div className="flex text-[#C9956C]">{Array(5).fill(0).map((_, i) => <Star key={i} size={14} fill="currentColor" />)}</div>
+              <span className="text-[#8A8AAA] text-xs">(24 reviews)</span>
             </div>
-            <p className="text-3xl font-bold text-[#D4AF37] mb-4">{formatINR(product.price)}</p>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">{product.description}</p>
+            <p className="text-3xl font-bold text-[#1B2B5E] mb-4">{formatINR(product.price)}</p>
+            <p className="text-[#4A4A6A] text-sm leading-relaxed mb-6">{product.description}</p>
 
             <div className={`grid gap-3 mb-6 text-sm ${product.category === 'Bangles' && product.size ? 'grid-cols-1' : 'grid-cols-1'}`}>
               {/* Size — only for Bangles */}
               {product.category === 'Bangles' && product.size && (
-                <div className="bg-[#111] rounded-lg p-3">
-                  <p className="text-gray-500 text-xs mb-2">Available Sizes</p>
+                <div className="bg-[#F2EDE6] rounded-lg p-3">
+                  <p className="text-[#8A8AAA] text-xs mb-2">Available Sizes</p>
                   <div className="flex flex-wrap gap-2">
                     {product.size.split(',').map(s => s.trim()).filter(Boolean).map(s => (
                       <span key={s} className="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-xs rounded-full font-medium">{s}</span>
@@ -165,12 +165,12 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
               )}
-              <div className="bg-[#111] rounded-lg p-3">
-                <p className="text-gray-500 text-xs mb-1">Stock</p>
-                <p className={`font-medium ${product.stock > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {product.stock > 0 ? `${product.stock} available` : 'Out of Stock'}
-                </p>
-              </div>
+              <div className="bg-[#F2EDE6] rounded-lg p-3">
+                  <p className="text-[#8A8AAA] text-xs mb-1">Stock</p>
+                  <p className={`font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    {product.stock > 0 ? `${product.stock} available` : 'Out of Stock'}
+                  </p>
+                </div>
             </div>
 
             {/* Tags */}
@@ -189,20 +189,20 @@ export default function ProductDetailPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black border border-[#D4AF37]/40 rounded-xl font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#1B2B5E]/10 hover:bg-[#1B2B5E] text-[#1B2B5E] hover:text-white border border-[#1B2B5E]/40 rounded-xl font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ShoppingCart size={18} /> Add to Cart
               </button>
               <button
                 onClick={handleBuyNow}
                 disabled={product.stock === 0}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#D4AF37] text-black rounded-xl font-semibold hover:bg-[#F0D060] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#1B2B5E] text-white rounded-xl font-semibold hover:bg-[#2A3F7E] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Zap size={18} /> Buy Now
               </button>
               <button
                 onClick={handleWishlist}
-                className={`p-3 rounded-xl border transition-all ${wishlisted ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-[#111] border-[#D4AF37]/20 text-gray-400 hover:text-red-400'}`}
+                className={`p-3 rounded-xl border transition-all ${wishlisted ? 'bg-red-500/20 border-red-500/50 text-red-500' : 'bg-[#F2EDE6] border-[#E8E0D5] text-[#4A4A6A] hover:text-red-500'}`}
               >
                 <Heart size={20} fill={wishlisted ? 'currentColor' : 'none'} />
               </button>
@@ -214,8 +214,8 @@ export default function ProductDetailPage() {
         {recommendations.length > 0 && (
           <section>
             <div className="mb-6">
-              <p className="text-[#D4AF37] text-xs uppercase tracking-widest mb-1">You May Also Like</p>
-              <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'Georgia, serif' }}>Similar Pieces</h2>
+              <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-1">You May Also Like</p>
+              <h2 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Georgia, serif' }}>Similar Pieces</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
               {recommendations.map(p => <ProductCard key={p.id} product={p} />)}

@@ -142,7 +142,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12 space-y-6">
-      <h1 className="text-3xl font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>My Profile</h1>
+      <h1 className="text-3xl font-bold text-[#1A1A2E]" style={{ fontFamily: "Georgia, serif" }}>My Profile</h1>
 
       {/* User Info */}
       <div className="bg-[#111] border border-[#D4AF37]/20 rounded-2xl p-6">

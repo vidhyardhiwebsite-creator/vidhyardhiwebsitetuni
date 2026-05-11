@@ -43,7 +43,7 @@ function ReviewCard({ review, currentUserId, onEdit, onDelete }) {
           </div>
           <div>
             <p className="text-white text-sm font-medium">{review.user_name || "Customer"}</p>
-            <p className="text-gray-600 text-xs">{new Date(review.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+            <p className="text-gray-400 text-xs">{new Date(review.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -125,8 +125,8 @@ export default function ReviewsSection() {
     <section className="max-w-4xl mx-auto px-4 py-16">
       {/* Header */}
       <div className="text-center mb-10">
-        <p className="text-[#D4AF37] text-xs uppercase tracking-widest mb-2">What Our Customers Say</p>
-        <h2 className="text-3xl font-bold text-white" style={{ fontFamily: "Georgia, serif" }}>Real Reviews</h2>
+        <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-2">What Our Customers Say</p>
+        <h2 className="text-3xl font-bold text-[#1A1A2E]" style={{ fontFamily: "Georgia, serif" }}>Real Reviews</h2>
         {avgRating && (
           <div className="flex items-center justify-center gap-2 mt-3">
             <StarRating value={Math.round(Number(avgRating))} size={18} />
@@ -198,7 +198,7 @@ export default function ReviewsSection() {
           {[1, 2, 3].map(i => <div key={i} className="bg-[#111] rounded-xl p-4 h-24 animate-pulse" />)}
         </div>
       ) : reviews.length === 0 ? (
-        <p className="text-center text-gray-600 py-10">No reviews yet. Be the first!</p>
+        <p className="text-center text-[#8A8AAA] py-10">No reviews yet. Be the first!</p>
       ) : (
         <div className="space-y-3">
           {reviews.map(r => (

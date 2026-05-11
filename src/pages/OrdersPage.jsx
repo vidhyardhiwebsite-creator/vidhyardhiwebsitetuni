@@ -188,16 +188,16 @@ export default function OrdersPage() {
   if (orders.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <Package size={64} className="text-gray-700 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "Georgia, serif" }}>No orders yet</h2>
-        <p className="text-gray-500">Your order history will appear here</p>
+        <Package size={64} className="text-[#C9956C] mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-[#1A1A2E] mb-2" style={{ fontFamily: "Georgia, serif" }}>No orders yet</h2>
+        <p className="text-[#8A8AAA]">Your order history will appear here</p>
       </div>
     )
   }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-white mb-6" style={{ fontFamily: "Georgia, serif" }}>My Orders</h1>
+      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-6" style={{ fontFamily: "Georgia, serif" }}>My Orders</h1>
 
       {/* Search bar */}
       <div className="relative mb-6">

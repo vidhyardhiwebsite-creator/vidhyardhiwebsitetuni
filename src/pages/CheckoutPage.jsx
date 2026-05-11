@@ -208,9 +208,9 @@ export default function CheckoutPage() {
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
           <CheckCircle size={80} className="text-green-400 mx-auto mb-6" />
         </motion.div>
-        <h2 className="text-3xl font-bold text-white mb-3" style={{ fontFamily: "Georgia, serif" }}>Order Placed!</h2>
-        <p className="text-gray-400 mb-2">Your order is pending payment verification.</p>
-        <p className="text-gray-500 text-sm mb-8">We will confirm your order once payment is verified. You will be notified.</p>
+        <h2 className="text-3xl font-bold text-[#1A1A2E] mb-3" style={{ fontFamily: "Georgia, serif" }}>Order Placed!</h2>
+        <p className="text-[#4A4A6A] mb-2">Your order is pending payment verification.</p>
+        <p className="text-[#8A8AAA] text-sm mb-8">We will confirm your order once payment is verified. You will be notified.</p>
         <div className="flex gap-4 justify-center">
           <button onClick={() => navigate("/orders")} className="px-6 py-3 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all">View Orders</button>
           <button onClick={() => navigate("/")} className="px-6 py-3 border border-[#D4AF37] text-[#D4AF37] rounded-lg hover:bg-[#D4AF37]/10 transition-all">Continue Shopping</button>
@@ -221,17 +221,17 @@ export default function CheckoutPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-white mb-8" style={{ fontFamily: "Georgia, serif" }}>Checkout</h1>
+      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-8" style={{ fontFamily: "Georgia, serif" }}>Checkout</h1>
 
       {/* Step indicator */}
       <div className="flex items-center gap-3 mb-8">
         {["address","payment"].map((s, i) => (
           <div key={s} className="flex items-center gap-2">
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step === s || (s === "address" && step === "payment") ? "bg-[#D4AF37] text-black" : "bg-[#1A1A1A] text-gray-500 border border-[#D4AF37]/20"}`}>
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step === s || (s === "address" && step === "payment") ? "bg-[#1B2B5E] text-white" : "bg-[#E8E0D5] text-[#8A8AAA] border border-[#E8E0D5]"}`}>
               {i + 1}
             </div>
-            <span className={`text-sm capitalize ${step === s ? "text-white" : "text-gray-500"}`}>{s === "address" ? "Delivery Address" : "Payment"}</span>
-            {i === 0 && <div className="w-8 h-px bg-[#D4AF37]/20 mx-1" />}
+            <span className={`text-sm capitalize ${step === s ? "text-[#1A1A2E] font-medium" : "text-[#8A8AAA]"}`}>{s === "address" ? "Delivery Address" : "Payment"}</span>
+            {i === 0 && <div className="w-8 h-px bg-[#E8E0D5] mx-1" />}
           </div>
         ))}
       </div>
