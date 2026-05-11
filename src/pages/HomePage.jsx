@@ -13,6 +13,7 @@ import ScrollReveal from "../components/ScrollReveal"
 import PromoBanners from "../components/PromoBanners"
 import ReviewsSection from "../components/ReviewsSection"
 import heroVideoFallback from "../assets/jewlaryhero.mp4"
+import heroBgImg from "../assets/herobg.jpg"
 
 const categoryImages = {
   "Earrings": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&q=80",
@@ -74,32 +75,37 @@ export default function HomePage() {
       </Helmet>
 
       {/* HERO */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-[#F2EDE6]">
-        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-30">
-          <source src={heroVideo} type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5]/95 via-[#FAF8F5]/70 to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20">
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-xl">
-            <motion.p initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
-              className="text-[#C9956C] text-sm uppercase tracking-[0.3em] mb-4 font-medium">New Collection 2025</motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-              className="text-5xl sm:text-6xl font-bold text-[#1A1A2E] mb-6 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
-              Wear Your <span className="text-[#1B2B5E]">Story</span>
+      <section className="relative overflow-hidden" style={{ minHeight: "clamp(280px, 55vw, 600px)" }}>
+        {/* Full bleed background image */}
+        <img src={heroBgImg} alt="NaShe Jewels hero" className="absolute inset-0 w-full h-full object-cover object-center" />
+        {/* Gradient overlay — stronger on left for text readability, fades to transparent on right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5]/90 via-[#FAF8F5]/50 to-transparent" />
+
+        {/* Text content — left side, over the empty cream area of the photo */}
+        <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-8 flex items-center" style={{ minHeight: "inherit" }}>
+          <div className="max-w-xs sm:max-w-md py-10 sm:py-16">
+            <motion.p initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+              className="text-[#C9956C] text-[10px] sm:text-xs uppercase tracking-[0.25em] mb-2 sm:mb-3 font-semibold">
+              New Collection 2025
+            </motion.p>
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+              className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#1A1A2E] mb-2 sm:mb-4 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
+              Wear Your <br /><span className="text-[#1B2B5E]">Story</span>
             </motion.h1>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-              className="text-[#4A4A6A] text-lg mb-8 leading-relaxed italic">
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              className="text-[#4A4A6A] text-xs sm:text-sm mb-4 sm:mb-7 leading-relaxed italic">
               Luxury crafted for everyday elegance.
             </motion.p>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="flex flex-wrap gap-4">
-              <Link to="/products" className="flex items-center gap-2 px-8 py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all shadow-md">
-                Shop Now <ArrowRight size={18} />
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}
+              className="flex flex-row gap-2 sm:gap-3">
+              <Link to="/products" className="flex items-center gap-1.5 px-4 sm:px-6 py-2 sm:py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all shadow-md text-xs sm:text-sm whitespace-nowrap">
+                Shop Now <ArrowRight size={13} />
               </Link>
-              <Link to="/products?tags=bridal" className="flex items-center gap-2 px-8 py-3 border-2 border-[#1B2B5E] text-[#1B2B5E] rounded-lg hover:bg-[#1B2B5E]/5 transition-all font-medium">
+              <Link to="/products?tags=bridal" className="flex items-center px-4 sm:px-6 py-2 sm:py-3 border-2 border-[#1B2B5E] text-[#1B2B5E] rounded-lg hover:bg-[#1B2B5E]/5 transition-all font-semibold text-xs sm:text-sm whitespace-nowrap">
                 Bridal Collection
               </Link>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
