@@ -90,6 +90,7 @@ export default function CheckoutPage() {
   const [orderSeries, setOrderSeries] = useState("NS0")
   const [submitting, setSubmitting] = useState(false)
   const [savingAddr, setSavingAddr] = useState(false)
+  const [qrRevealed, setQrRevealed] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -278,21 +279,45 @@ export default function CheckoutPage() {
                   <Smartphone size={16} className="text-[#D4AF37]" /> Pay via UPI
                 </h2>
 
-                {/* QR Code — generated dynamically with exact amount */}
+                {/* QR Code — flip card, hidden by default, tap to reveal */}
                 <div className="flex flex-col sm:flex-row gap-6 items-center mb-5">
-                  <div className="bg-white p-3 rounded-xl flex-shrink-0 text-center">
-                    {(() => {
-                      const selectedAddr = addresses.find(a => a.id === selectedId)
-                      const shipping = getShippingCost(selectedAddr)
-                      const grandTotal = total + shipping
-                      return (
-                        <>
-                          <img src={getQRUrl(UPI_ID, grandTotal)} alt="UPI QR Code" className="w-44 h-44 object-contain" />
-                          <p className="text-gray-500 text-xs mt-1">Scan to pay ₹{grandTotal.toLocaleString("en-IN")}</p>
-                        </>
-                      )
-                    })()}
-                  </div>
+                  {(() => {
+                    const selectedAddr = addresses.find(a => a.id === selectedId)
+                    const shipping = getShippingCost(selectedAddr)
+                    const grandTotal = total + shipping
+                    return (
+                      <div
+                        className="flex-shrink-0 cursor-pointer"
+                        style={{ perspective: "600px" }}
+                        onClick={() => setQrRevealed(r => !r)}
+                      >
+                        <div style={{
+                          width: "176px", height: "176px",
+                          transition: "transform 0.6s",
+                          transformStyle: "preserve-3d",
+                          transform: qrRevealed ? "rotateY(180deg)" : "rotateY(0deg)",
+                          position: "relative"
+                        }}>
+                          {/* Front — blurred placeholder */}
+                          <div style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+                            className="absolute inset-0 bg-[#1A1A1A] border-2 border-[#D4AF37]/30 rounded-xl flex flex-col items-center justify-center gap-2">
+                            <div className="w-16 h-16 grid grid-cols-3 gap-1 opacity-30">
+                              {Array(9).fill(0).map((_, i) => <div key={i} className="bg-white rounded-sm" />)}
+                            </div>
+                            <p className="text-[#D4AF37] text-xs font-semibold">Tap to reveal QR</p>
+                            <p className="text-gray-500 text-xs">₹{grandTotal.toLocaleString("en-IN")}</p>
+                          </div>
+                          {/* Back — actual QR */}
+                          <div style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+                            className="absolute inset-0 bg-white p-2 rounded-xl flex flex-col items-center justify-center">
+                            <img src={getQRUrl(UPI_ID, grandTotal)} alt="UPI QR Code" className="w-40 h-40 object-contain" />
+                            <p className="text-gray-500 text-xs mt-1">₹{grandTotal.toLocaleString("en-IN")}</p>
+                          </div>
+                        </div>
+                        <p className="text-center text-xs text-gray-500 mt-2">{qrRevealed ? "Tap to hide" : "Tap to show QR"}</p>
+                      </div>
+                    )
+                  })()}
                   <div className="flex-1 space-y-3">
                     <div className="bg-[#1A1A1A] rounded-xl p-4">
                       <p className="text-gray-400 text-xs mb-1">UPI ID</p>
