@@ -89,7 +89,7 @@ export default function App() {
 
           {/* Storefront routes */}
           <Route path="/*" element={
-            <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+            <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
               <Navbar />
               <main className="flex-1">
                 <ErrorBoundary>

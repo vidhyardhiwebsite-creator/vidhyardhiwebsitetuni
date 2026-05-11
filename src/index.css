@@ -2,63 +2,42 @@
 
 @layer base {
   :root {
-    --gold: #D4AF37;
-    --gold-light: #F0D060;
-    --gold-dark: #B8960C;
-    --dark: #0A0A0A;
-    --dark-2: #111111;
-    --dark-3: #1A1A1A;
-    --dark-4: #222222;
+    --navy: #1B2B5E;
+    --navy-light: #2A3F7E;
+    --navy-dark: #0F1A3A;
+    --cream: #FAF8F5;
+    --cream-2: #F2EDE6;
+    --cream-3: #E8E0D5;
+    --rose-gold: #C9956C;
+    --rose-gold-light: #DDB08A;
+    --text-dark: #1A1A2E;
+    --text-mid: #4A4A6A;
+    --text-light: #8A8AAA;
   }
 
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
   body {
     margin: 0;
-    background-color: #0A0A0A;
-    color: #E5E5E5;
+    background-color: #FAF8F5;
+    color: #1A1A2E;
     font-family: 'Georgia', serif;
     -webkit-font-smoothing: antialiased;
   }
 
-  #root {
-    min-height: 100vh;
-  }
+  #root { min-height: 100vh; }
 
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #111;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #D4AF37;
-    border-radius: 3px;
-  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #F2EDE6; }
+  ::-webkit-scrollbar-thumb { background: #1B2B5E; border-radius: 3px; }
 }
 
 @layer utilities {
-  .gold-gradient {
-    background: linear-gradient(135deg, #D4AF37, #F0D060, #B8960C);
-  }
-  .text-gold {
-    color: #D4AF37;
-  }
-  .bg-dark {
-    background-color: #0A0A0A;
-  }
-  .bg-dark-2 {
-    background-color: #111111;
-  }
-  .bg-dark-3 {
-    background-color: #1A1A1A;
-  }
-  .border-gold {
-    border-color: #D4AF37;
-  }
-  .hover-gold:hover {
-    color: #D4AF37;
-  }
+  .navy-gradient { background: linear-gradient(135deg, #1B2B5E, #2A3F7E); }
+  .text-navy { color: #1B2B5E; }
+  .text-rose { color: #C9956C; }
+  .bg-cream { background-color: #FAF8F5; }
+  .bg-cream-2 { background-color: #F2EDE6; }
+  .border-navy { border-color: #1B2B5E; }
+  .shadow-card { box-shadow: 0 2px 16px rgba(27,43,94,0.08); }
 }

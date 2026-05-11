@@ -5,14 +5,12 @@ import { Helmet } from "react-helmet-async"
 import { ArrowRight, Sparkles, Shield, Truck, RefreshCw, Star, Clock } from "lucide-react"
 import { CATEGORIES } from "../data/products"
 import { fetchProducts } from "../services/productService"
-import { getSetting } from "../services/settingsService"
 import { useRecentlyViewedStore } from "../store/recentlyViewedStore"
 import ProductCard from "../components/ProductCard"
 import SkeletonCard from "../components/SkeletonCard"
 import ScrollReveal from "../components/ScrollReveal"
 import PromoBanners from "../components/PromoBanners"
 import ReviewsSection from "../components/ReviewsSection"
-import heroVideoFallback from "../assets/jewlaryhero.mp4"
 import heroBgImg from "../assets/herobg.jpg"
 
 const categoryImages = {
@@ -27,30 +25,20 @@ const categoryImages = {
 }
 
 export default function HomePage() {
-  const [allProducts, setAllProducts] = useState([])
   const [featured, setFeatured] = useState([])
   const [newArrivals, setNewArrivals] = useState([])
   const [bestSellers, setBestSellers] = useState([])
   const [loading, setLoading] = useState(true)
-  const [heroVideo, setHeroVideo] = useState(heroVideoFallback)
   const { items: recentItems } = useRecentlyViewedStore()
 
   useEffect(() => {
-    // Load all products once, derive sections from them
     fetchProducts({ sort: "newest" }).then(data => {
-      setAllProducts(data)
-      // New arrivals = newest 6 (by created_at)
       setNewArrivals(data.slice(0, 6))
-      // Best sellers = premium tagged or highest price (simulate popularity)
       const premium = data.filter(p => p.tags?.includes("premium") || p.tags?.includes("bridal"))
       setBestSellers(premium.slice(0, 6))
-      // Featured = first 8 (admin can control via "featured" tag in future)
       setFeatured(data.slice(0, 8))
       setLoading(false)
     })
-    getSetting("hero_video_url").then(url => {
-      if (url) setHeroVideo(url)
-    }).catch(() => {})
   }, [])
 
   const SectionHeader = ({ label, title, link, linkText = "View All" }) => (
