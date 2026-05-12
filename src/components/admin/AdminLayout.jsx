@@ -22,7 +22,7 @@ function Sidebar({ pathname, onSignOut, userName }) {
       <div className="p-5 border-b border-white/10">
         <Link to="/" className="flex items-center gap-2">
           <span className="text-white font-bold text-lg" style={{ fontFamily: "Georgia, serif" }}>NaShe</span>
-          <span className="text-xs text-white bg-white/20 px-2 py-0.5 rounded font-semibold truncate max-w-[100px]">{userName}</span>
+          <span className="text-xs text-white bg-white/20 px-2 py-0.5 rounded font-semibold">User Panel</span>
         </Link>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">

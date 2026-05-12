@@ -19,7 +19,7 @@ function StarRating({ value, onChange, size = 20 }) {
         >
           <Star
             size={size}
-            className={`transition-colors ${(hovered || value) >= s ? "text-[#D4AF37] fill-[#D4AF37]" : "text-gray-600"}`}
+            className={`transition-colors ${(hovered || value) >= s ? "text-[#C9956C] fill-[#C9956C]" : "text-gray-300"}`}
           />
         </button>
       ))}
@@ -34,29 +34,29 @@ function ReviewCard({ review, currentUserId, onEdit, onDelete }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-      className="bg-[#111] border border-[#D4AF37]/10 rounded-xl p-4"
+      className="bg-white border border-[#E8E0D5] rounded-xl p-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] text-xs font-bold flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#1B2B5E]/10 border border-[#1B2B5E]/20 flex items-center justify-center text-[#1B2B5E] text-xs font-bold flex-shrink-0">
             {initials}
           </div>
           <div>
-            <p className="text-white text-sm font-medium">{review.user_name || "Customer"}</p>
-            <p className="text-gray-400 text-xs">{new Date(review.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+            <p className="text-[#1A1A2E] text-sm font-medium">{review.user_name || "Customer"}</p>
+            <p className="text-[#8A8AAA] text-xs">{new Date(review.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <StarRating value={review.rating} size={13} />
           {isOwn && (
             <div className="flex gap-1 ml-1">
-              <button onClick={() => onEdit(review)} className="text-gray-500 hover:text-[#D4AF37] transition-colors"><Edit2 size={13} /></button>
-              <button onClick={() => onDelete(review.id)} className="text-gray-500 hover:text-red-400 transition-colors"><Trash2 size={13} /></button>
+              <button onClick={() => onEdit(review)} className="text-[#8A8AAA] hover:text-[#1B2B5E] transition-colors"><Edit2 size={13} /></button>
+              <button onClick={() => onDelete(review.id)} className="text-[#8A8AAA] hover:text-red-500 transition-colors"><Trash2 size={13} /></button>
             </div>
           )}
         </div>
       </div>
-      <p className="text-gray-300 text-sm mt-3 leading-relaxed">{review.comment}</p>
+      <p className="text-[#4A4A6A] text-sm mt-3 leading-relaxed">{review.comment}</p>
     </motion.div>
   )
 }
@@ -130,8 +130,8 @@ export default function ReviewsSection() {
         {avgRating && (
           <div className="flex items-center justify-center gap-2 mt-3">
             <StarRating value={Math.round(Number(avgRating))} size={18} />
-            <span className="text-[#D4AF37] font-bold text-lg">{avgRating}</span>
-            <span className="text-gray-500 text-sm">({reviews.length} review{reviews.length !== 1 ? "s" : ""})</span>
+            <span className="text-[#C9956C] font-bold text-lg">{avgRating}</span>
+            <span className="text-[#8A8AAA] text-sm">({reviews.length} review{reviews.length !== 1 ? "s" : ""})</span>
           </div>
         )}
       </div>
@@ -140,51 +140,50 @@ export default function ReviewsSection() {
       {user && !userReview && !showForm && (
         <div className="text-center mb-8">
           <button onClick={() => setShowForm(true)}
-            className="px-6 py-2.5 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all text-sm">
-            ✍️ Write a Review
+            className="px-6 py-2.5 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all text-sm">
+            Write a Review
           </button>
         </div>
       )}
 
       {!user && (
-        <div className="text-center mb-8 bg-[#111] border border-[#D4AF37]/20 rounded-xl p-5">
-          <p className="text-gray-400 text-sm mb-3">Login to share your experience</p>
-          <Link to="/login" className="inline-flex items-center gap-2 px-5 py-2 bg-[#D4AF37] text-black font-semibold rounded-lg hover:bg-[#F0D060] transition-all text-sm">
+        <div className="text-center mb-8 bg-[#FAF8F5] border border-[#E8E0D5] rounded-xl p-5">
+          <p className="text-[#4A4A6A] text-sm mb-3">Login to share your experience</p>
+          <Link to="/login" className="inline-flex items-center gap-2 px-5 py-2 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all text-sm">
             <LogIn size={14} /> Login to Review
           </Link>
         </div>
       )}
 
-      {/* Review form */}
       <AnimatePresence>
         {showForm && user && (
           <motion.form id="review-form" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             onSubmit={handleSubmit}
-            className="bg-[#111] border border-[#D4AF37]/20 rounded-xl p-5 mb-8 space-y-4"
+            className="bg-white border border-[#E8E0D5] rounded-xl p-5 mb-8 space-y-4 shadow-sm"
           >
-            <p className="text-white font-medium">{editingId ? "Edit your review" : "Share your experience"}</p>
+            <p className="text-[#1A1A2E] font-medium">{editingId ? "Edit your review" : "Share your experience"}</p>
             <div>
-              <p className="text-gray-400 text-xs mb-2">Your Rating</p>
+              <p className="text-[#4A4A6A] text-xs mb-2 font-medium">Your Rating</p>
               <StarRating value={rating} onChange={setRating} size={24} />
             </div>
             <div>
-              <p className="text-gray-400 text-xs mb-2">Your Review</p>
+              <p className="text-[#4A4A6A] text-xs mb-2 font-medium">Your Review</p>
               <textarea
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 placeholder="Tell us about your experience with NaShe Jewels..."
                 rows={3}
-                className="w-full bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37] resize-none"
+                className="w-full bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E] resize-none"
               />
             </div>
             <div className="flex gap-3">
               <button type="button" onClick={() => { setShowForm(false); setEditingId(null); setComment(""); setRating(5) }}
-                className="flex-1 py-2 border border-[#D4AF37]/20 text-gray-400 rounded-lg text-sm hover:border-[#D4AF37]/40">
+                className="flex-1 py-2 border border-[#E8E0D5] text-[#4A4A6A] rounded-lg text-sm hover:border-[#1B2B5E]/30">
                 Cancel
               </button>
               <button type="submit" disabled={submitting}
-                className="flex-1 py-2 bg-[#D4AF37] text-black font-semibold rounded-lg text-sm hover:bg-[#F0D060] disabled:opacity-50 flex items-center justify-center gap-1">
-                {submitting && <div className="w-3 h-3 border border-black border-t-transparent rounded-full animate-spin" />}
+                className="flex-1 py-2 bg-[#1B2B5E] text-white font-semibold rounded-lg text-sm hover:bg-[#2A3F7E] disabled:opacity-50 flex items-center justify-center gap-1">
+                {submitting && <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />}
                 {editingId ? "Update" : "Submit Review"}
               </button>
             </div>
@@ -192,10 +191,9 @@ export default function ReviewsSection() {
         )}
       </AnimatePresence>
 
-      {/* Reviews list */}
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map(i => <div key={i} className="bg-[#111] rounded-xl p-4 h-24 animate-pulse" />)}
+          {[1, 2, 3].map(i => <div key={i} className="bg-[#F2EDE6] rounded-xl p-4 h-24 animate-pulse" />)}
         </div>
       ) : reviews.length === 0 ? (
         <p className="text-center text-[#8A8AAA] py-10">No reviews yet. Be the first!</p>
