@@ -7,6 +7,7 @@ export const useAdminStore = create((set, get) => ({
   stats: null,
   loading: false,
   notifications: [],
+  startupNotified: false,
 
   loadProducts: async () => {
     set({ loading: true })
@@ -30,7 +31,13 @@ export const useAdminStore = create((set, get) => ({
     const today = new Date().toDateString()
     const paidOrders = orders.filter(o => o.payment_status === "paid")
     const totalRevenue = paidOrders.reduce((s, o) => s + (o.total_amount || 0), 0)
-    const todayOrders = orders.filter(o => new Date(o.created_at).toDateString() === today)
+    // Only count active orders today (exclude cancelled, failed, and rejected)
+    const todayOrders = orders.filter(o =>
+      new Date(o.created_at).toDateString() === today &&
+      o.order_status !== "cancelled" &&
+      o.payment_status !== "failed" &&
+      o.payment_status !== "rejected"
+    )
     const lowStock = products.filter(p => (p.stock || 0) < 10)
 
     // Last 14 days chart data

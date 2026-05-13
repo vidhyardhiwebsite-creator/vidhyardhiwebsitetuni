@@ -48,7 +48,7 @@ function StatusDropdown({ orderId, currentStatus, onStatusUpdate }) {
                 className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 transition-colors ${s.key === currentStatus ? "opacity-50 cursor-default" : ""}`}>
                 <span className={`w-2 h-2 rounded-full border ${s.color}`} />
                 <span className="text-gray-500">{s.label}</span>
-                {s.key === currentStatus && <span className="ml-auto text-gray-500">?</span>}
+                {s.key === currentStatus && <span className="ml-auto text-gray-500">&#10003;</span>}
               </button>
             ))}
           </motion.div>
@@ -145,7 +145,7 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
   }
 
   const getStatusBadge = () => {
-    if (needsVerification) return { label: "? Verify", color: "bg-orange-500/20 text-orange-400" }
+    if (needsVerification) return { label: "⚠ Verify", color: "bg-orange-500/20 text-orange-400" }
     if (isCancelled) return { label: "Cancelled", color: "bg-red-500/20 text-red-400" }
     if (order.payment_status === "failed") return { label: "Failed", color: "bg-red-500/20 text-red-400" }
     const s = order.order_status || "confirmed"
@@ -199,11 +199,11 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
                   <div className="grid grid-cols-2 gap-2">
                     <button onClick={() => onVerify(order.id)}
                       className="py-2.5 bg-green-500/20 border border-green-500/30 text-green-400 text-sm font-semibold rounded-lg hover:bg-green-500/30 transition-all">
-                      ? Confirm Payment
+                      ✅ Confirm Payment
                     </button>
                     <button onClick={() => onReject(order.id)}
                       className="py-2.5 bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-semibold rounded-lg hover:bg-red-500/30 transition-all">
-                      ? Reject
+                      ❌ Reject
                     </button>
                   </div>
                 </div>
@@ -298,7 +298,7 @@ export default function AdminOrders() {
   }
 
   const notifyCustomer = (order, addr) => {
-    const msg = encodeURIComponent(`? *Order Update - NaShe Jewels*\n\nHi ${addr.full_name || "Customer"},\nOrder ${order.display_order_id || "#" + String(order.id).slice(-6).toUpperCase()} status: ${order.order_status || "confirmed"}\nAmount: ?${order.total_amount?.toLocaleString("en-IN")}\n\n?? NaShe Jewels`)
+    const msg = encodeURIComponent(`📦 *Order Update - NaShe Jewels*\n\nHi ${addr.full_name || "Customer"},\nOrder ${order.display_order_id || "#" + String(order.id).slice(-6).toUpperCase()} status: ${order.order_status || "confirmed"}\nAmount: ₹${order.total_amount?.toLocaleString("en-IN")}\n\n✨ NaShe Jewels`)
     const phone = addr.phone?.replace(/\D/g, "")
     if (phone) window.open(`https://wa.me/91${phone}?text=${msg}`, "_blank")
     else toast.error("No phone number")
@@ -426,7 +426,7 @@ export default function AdminOrders() {
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="max-w-lg w-full bg-white rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <p className="text-[#1B2B5E] font-medium">Payment Screenshot</p>
-                <button onClick={() => setScreenshotModal(null)} className="text-gray-400 hover:text-[#1A1A2E]">?</button>
+                <button onClick={() => setScreenshotModal(null)} className="text-gray-400 hover:text-[#1A1A2E]">&times;</button>
               </div>
               <img src={screenshotModal} alt="Payment screenshot" className="w-full max-h-[70vh] object-contain p-4" />
             </motion.div>

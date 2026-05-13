@@ -52,8 +52,8 @@ function BannerPreview({ banner }) {
         <p className="text-xs font-semibold" style={{ color: banner.accent }}>{banner.subtitle || "Subtitle"}</p>
         {(banner.price || banner.originalPrice) && (
           <div className="flex items-center gap-2 mt-0.5">
-            {banner.price && <span className="text-[#1A1A2E] text-sm font-bold">?{banner.price}</span>}
-            {banner.originalPrice && <span className="text-gray-400 text-xs line-through">?{banner.originalPrice}</span>}
+            {banner.price && <span className="text-[#1A1A2E] text-sm font-bold">₹{banner.price}</span>}
+            {banner.originalPrice && <span className="text-gray-400 text-xs line-through">₹{banner.originalPrice}</span>}
           </div>
         )}
         <span className="inline-block mt-1.5 px-3 py-1 rounded text-xs font-semibold"
@@ -148,11 +148,11 @@ function BannerForm({ initial, onSave, onCancel }) {
 
         {/* Price fields */}
         <div>
-          <label className={lbl}>Sale Price (?)</label>
+          <label className={lbl}>Sale Price (₹)</label>
           <input type="number" value={form.price||""} onChange={e=>setForm(f=>({...f,price:e.target.value}))} placeholder="e.g. 2499" className={inp} />
         </div>
         <div>
-          <label className={lbl}>Original Price (?) <span className="text-gray-600">optional</span></label>
+          <label className={lbl}>Original Price (₹) <span className="text-gray-600">optional</span></label>
           <input type="number" value={form.originalPrice||""} onChange={e=>setForm(f=>({...f,originalPrice:e.target.value}))} placeholder="e.g. 3999" className={inp} />
         </div>
 
@@ -202,7 +202,7 @@ function BannerForm({ initial, onSave, onCancel }) {
             {COLORS.map(c => (
               <button key={c.label} type="button"
                 onClick={() => setForm(f => ({ ...f, bg: c.bg, accent: c.accent }))}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-all ${form.bg === c.bg ? "border-white" : "border-transparent"}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-all cursor-pointer ${form.bg === c.bg ? "border-white" : "border-transparent"}`}
                 style={{ background: `linear-gradient(to right, ${c.accent}30, ${c.accent}10)`, color: c.accent }}>
                 <span className="w-3 h-3 rounded-full" style={{ background: c.accent }} />
                 {c.label}

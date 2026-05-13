@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { ShoppingCart, Heart, Search, Menu, X, User, LogOut, ChevronDown, Package, Settings } from "lucide-react"
+import { ShoppingCart, Heart, Search, Menu, X, User, LogOut, ChevronDown, Package, Settings, Store } from "lucide-react"
 import { useAuthStore } from "../store/authStore"
 import { useCartStore } from "../store/cartStore"
 import { CATEGORIES } from "../data/products"
@@ -18,8 +18,10 @@ export default function Navbar() {
   const { user, signOut } = useAuthStore()
   const cartCount = useCartStore(s => s.getCount())
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const userRef = useRef(null)
   const isAdmin = checkIsAdmin(user)
+  const isOnAdminPanel = pathname.startsWith("/admin")
 
   useEffect(() => {
     const handler = (e) => {
@@ -86,8 +88,14 @@ export default function Navbar() {
           {/* Right Icons */}
           <div className="flex items-center gap-2 sm:gap-3">
             {isAdmin && (
-              <Link to="/admin" className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#1B2B5E] text-white text-xs font-bold rounded-lg hover:bg-[#2A3F7E] transition-all">
-                <Settings size={13} /> User Panel
+              <Link
+                to={isOnAdminPanel ? "/" : "/admin"}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#1B2B5E] text-white text-xs font-bold rounded-lg hover:bg-[#2A3F7E] transition-all"
+              >
+                {isOnAdminPanel
+                  ? <><Store size={13} /> Switch to User</>
+                  : <><Settings size={13} /> Switch to Admin</>
+                }
               </Link>
             )}
             <button onClick={() => setSearchOpen(!searchOpen)} className="text-[#4A4A6A] hover:text-[#1B2B5E] transition-colors p-1">
@@ -125,10 +133,12 @@ export default function Navbar() {
                       <Link to="/orders" onClick={() => setUserOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#4A4A6A] hover:text-[#1B2B5E] hover:bg-[#FAF8F5] transition-colors"><Package size={14} /> My Orders</Link>
                       <Link to="/wishlist" onClick={() => setUserOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#4A4A6A] hover:text-[#1B2B5E] hover:bg-[#FAF8F5] transition-colors"><Heart size={14} /> Wishlist</Link>
                       {isAdmin && (
-                        <Link to="/admin" onClick={() => setUserOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#1B2B5E] hover:bg-[#FAF8F5] font-semibold transition-colors"><Settings size={14} /> User Panel</Link>
+                        <Link to={isOnAdminPanel ? "/" : "/admin"} onClick={() => setUserOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#1B2B5E] hover:bg-[#FAF8F5] font-semibold transition-colors">
+                          {isOnAdminPanel ? <><Store size={14} /> Switch to User</> : <><Settings size={14} /> Switch to Admin</>}
+                        </Link>
                       )}
                       <div className="border-t border-[#E8E0D5] mt-1 pt-1">
-                        <button onClick={handleSignOut} className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#4A4A6A] hover:text-red-500 hover:bg-red-50 w-full transition-colors"><LogOut size={14} /> Sign Out</button>
+                        <button onClick={handleSignOut} className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#4A4A6A] hover:text-red-500 hover:bg-red-50 w-full transition-colors"><LogOut size={14} /> Logout</button>
                       </div>
                     </motion.div>
                   )}
@@ -176,8 +186,12 @@ export default function Navbar() {
                     <Link to="/profile" className="flex items-center gap-2 text-[#4A4A6A] hover:text-[#1B2B5E] text-sm py-2 px-1" onClick={closeAll}><User size={15} /> Profile</Link>
                     <Link to="/orders" className="flex items-center gap-2 text-[#4A4A6A] hover:text-[#1B2B5E] text-sm py-2 px-1" onClick={closeAll}><Package size={15} /> My Orders</Link>
                     <Link to="/wishlist" className="flex items-center gap-2 text-[#4A4A6A] hover:text-[#1B2B5E] text-sm py-2 px-1" onClick={closeAll}><Heart size={15} /> Wishlist</Link>
-                    {isAdmin && <Link to="/admin" className="flex items-center gap-2 text-[#1B2B5E] text-sm py-2 px-1 font-semibold" onClick={closeAll}><Settings size={15} /> User Panel</Link>}
-                    <button onClick={handleSignOut} className="flex items-center gap-2 text-red-500 text-sm py-2 px-1 w-full"><LogOut size={15} /> Sign Out</button>
+                    {isAdmin && (
+                      <Link to={isOnAdminPanel ? "/" : "/admin"} className="flex items-center gap-2 text-[#1B2B5E] text-sm py-2 px-1 font-semibold" onClick={closeAll}>
+                        {isOnAdminPanel ? <><Store size={15} /> Switch to User</> : <><Settings size={15} /> Switch to Admin</>}
+                      </Link>
+                    )}
+                    <button onClick={handleSignOut} className="flex items-center gap-2 text-red-500 text-sm py-2 px-1 w-full"><LogOut size={15} /> Logout</button>
                   </div>
                 )}
               </div>

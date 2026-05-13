@@ -8,10 +8,10 @@ import { TrendingUp, MapPin, ShoppingBag, DollarSign } from 'lucide-react'
 import { useAdminStore } from '../../store/adminStore'
 import { formatINR } from '../../utils/format'
 
-const COLORS = ['#D4AF37', '#F0D060', '#B8960C', '#8B6914', '#E8C84A', '#C9A227', '#FFD700', '#DAA520']
+const COLORS = ['#1B2B5E', '#2A3F7E', '#3D5A99', '#4E6FA8', '#1A3A6B', '#0F1A3A', '#5B7DB1', '#6B8EC4']
 
 const TooltipStyle = {
-  contentStyle: { background: '#fff', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 8, fontSize: 11 },
+  contentStyle: { background: '#fff', border: '1px solid rgba(27,43,94,0.2)', borderRadius: 8, fontSize: 11 },
   labelStyle: { color: '#999' },
 }
 
@@ -79,16 +79,16 @@ export default function AdminAnalytics() {
         <ResponsiveContainer width="100%" height={260}>
           <AreaChart data={stats.last14Days}>
             <defs>
-              <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#D4AF37" stopOpacity={0} />
+              <linearGradient id="navyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#1B2B5E" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#1B2B5E" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="date" tick={{ fill: '#666', fontSize: 10 }} />
-            <YAxis tick={{ fill: '#666', fontSize: 10 }} tickFormatter={v => `â‚¹${(v / 1000).toFixed(0)}k`} />
+            <YAxis tick={{ fill: '#666', fontSize: 10 }} tickFormatter={v => `₹${(v / 1000).toFixed(0)}k`} />
             <Tooltip {...TooltipStyle} formatter={(v, n) => [n === 'revenue' ? formatINR(v) : v, n]} />
-            <Area type="monotone" dataKey="revenue" stroke="#D4AF37" fill="url(#goldGrad)" strokeWidth={2} name="Revenue" />
+            <Area type="monotone" dataKey="revenue" stroke="#1B2B5E" fill="url(#navyGrad)" strokeWidth={2} name="Revenue" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -104,7 +104,7 @@ export default function AdminAnalytics() {
               <XAxis dataKey="week" tick={{ fill: '#666', fontSize: 11 }} />
               <YAxis tick={{ fill: '#666', fontSize: 11 }} />
               <Tooltip {...TooltipStyle} />
-              <Bar dataKey="orders" fill="#D4AF37" radius={[4, 4, 0, 0]} name="Orders" />
+              <Bar dataKey="orders" fill="#1B2B5E" radius={[4, 4, 0, 0]} name="Orders" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -126,7 +126,7 @@ export default function AdminAnalytics() {
       {/* Location Analytics */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">
         <h3 className="text-[#1B2B5E] font-medium mb-4 flex items-center gap-2">
-          <MapPin size={16} className="text-[#1B2B5E]" /> Location Analytics â€" Top Cities
+          <MapPin size={16} className="text-[#1B2B5E]" /> Location Analytics — Top Cities
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ResponsiveContainer width="100%" height={240}>
@@ -135,7 +135,7 @@ export default function AdminAnalytics() {
               <XAxis type="number" tick={{ fill: '#666', fontSize: 10 }} />
               <YAxis dataKey="city" type="category" tick={{ fill: '#999', fontSize: 11 }} width={80} />
               <Tooltip {...TooltipStyle} />
-              <Bar dataKey="count" fill="#D4AF37" radius={[0, 4, 4, 0]} name="Orders" />
+              <Bar dataKey="count" fill="#2A3F7E" radius={[0, 4, 4, 0]} name="Orders" />
             </BarChart>
           </ResponsiveContainer>
 

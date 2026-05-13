@@ -11,7 +11,7 @@ import { getSetting, setSetting } from '../../services/settingsService'
 import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
 
-const GOLD_COLORS = ['#D4AF37', '#F0D060', '#B8960C', '#8B6914', '#E8C84A', '#C9A227', '#FFD700', '#DAA520']
+const GOLD_COLORS = ['#1B2B5E', '#2A3F7E', '#3D5A99', '#4E6FA8', '#1A3A6B', '#0F1A3A', '#5B7DB1', '#6B8EC4']
 
 // Hero Video Manager component
 function HeroVideoManager() {
@@ -136,7 +136,7 @@ const ChartTooltip = ({ active, payload, label }) => {
 }
 
 export default function AdminDashboard() {
-  const { stats, orders, products, loadOrders, loadProducts, computeStats, addNotification } = useAdminStore()
+  const { stats, orders, products, loadOrders, loadProducts, computeStats, addNotification, notifications, startupNotified } = useAdminStore()
 
   useEffect(() => {
     Promise.all([loadOrders(), loadProducts()]).then(() => {
@@ -145,13 +145,15 @@ export default function AdminDashboard() {
   }, [])
 
   useEffect(() => {
-    if (stats?.lowStockCount > 0) {
+    if (!stats || startupNotified) return
+    useAdminStore.setState({ startupNotified: true })
+    if (stats.lowStockCount > 0) {
       addNotification(`${stats.lowStockCount} products have low stock`, 'warning')
     }
-    if (stats?.todayOrdersCount > 0) {
+    if (stats.todayOrdersCount > 0) {
       addNotification(`${stats.todayOrdersCount} new orders today`, 'info')
     }
-  }, [stats?.lowStockCount, stats?.todayOrdersCount])
+  }, [stats])
 
   if (!stats) {
     return (
@@ -190,7 +192,7 @@ export default function AdminDashboard() {
               <XAxis dataKey="date" tick={{ fill: '#666', fontSize: 10 }} />
               <YAxis tick={{ fill: '#666', fontSize: 10 }} />
               <Tooltip content={<ChartTooltip />} />
-              <Line type="monotone" dataKey="orders" stroke="#D4AF37" strokeWidth={2} dot={{ fill: '#D4AF37', r: 3 }} name="orders" />
+              <Line type="monotone" dataKey="orders" stroke="#1B2B5E" strokeWidth={2} dot={{ fill: '#1B2B5E', r: 3 }} name="orders" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -202,9 +204,9 @@ export default function AdminDashboard() {
             <BarChart data={stats.last14Days}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="date" tick={{ fill: '#666', fontSize: 10 }} />
-              <YAxis tick={{ fill: '#666', fontSize: 10 }} tickFormatter={v => `?${(v/1000).toFixed(0)}k`} />
+              <YAxis tick={{ fill: '#666', fontSize: 10 }} tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} />
               <Tooltip content={<ChartTooltip />} />
-              <Bar dataKey="revenue" fill="#D4AF37" radius={[3, 3, 0, 0]} name="revenue" />
+              <Bar dataKey="revenue" fill="#1B2B5E" radius={[3, 3, 0, 0]} name="revenue" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -220,7 +222,7 @@ export default function AdminDashboard() {
               <Pie data={stats.categorySales} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" nameKey="name">
                 {stats.categorySales.map((_, i) => <Cell key={i} fill={GOLD_COLORS[i % GOLD_COLORS.length]} />)}
               </Pie>
-              <Tooltip formatter={(v) => formatINR(v)} contentStyle={{ background: '#fff', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 8, fontSize: 11 }} />
+              <Tooltip formatter={(v) => formatINR(v)} contentStyle={{ background: '#fff', border: '1px solid rgba(27,43,94,0.2)', borderRadius: 8, fontSize: 11 }} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11, color: '#999' }} />
             </PieChart>
           </ResponsiveContainer>
@@ -234,8 +236,8 @@ export default function AdminDashboard() {
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis type="number" tick={{ fill: '#666', fontSize: 10 }} />
               <YAxis dataKey="city" type="category" tick={{ fill: '#999', fontSize: 10 }} width={70} />
-              <Tooltip contentStyle={{ background: '#fff', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 8, fontSize: 11 }} />
-              <Bar dataKey="count" fill="#D4AF37" radius={[0, 3, 3, 0]} />
+              <Tooltip contentStyle={{ background: '#fff', border: '1px solid rgba(27,43,94,0.2)', borderRadius: 8, fontSize: 11 }} />
+              <Bar dataKey="count" fill="#2A3F7E" radius={[0, 3, 3, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -325,9 +327,9 @@ export default function AdminDashboard() {
 // Offer Banner Manager - add/edit/remove scrolling offers
 function OfferBannerManager() {
   const [offers, setOffers] = useState([
-    { id: 1, text: '?? Free Shipping on all orders across India!', link: '/products' },
-    { id: 2, text: '?? New Bridal Collection - Shop Now', link: '/products?tags=bridal' },
-    { id: 3, text: '? Use code NASHE10 for 10% off on first order', link: '/products' },
+    { id: 1, text: '🚚 Free Shipping on all orders across India!', link: '/products' },
+    { id: 2, text: '💍 New Bridal Collection - Shop Now', link: '/products?tags=bridal' },
+    { id: 3, text: '✨ Use code NASHE10 for 10% off on first order', link: '/products' },
   ])
   const [saving, setSaving] = useState(false)
   const [newText, setNewText] = useState('')
@@ -364,7 +366,7 @@ function OfferBannerManager() {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5">
       <h3 className="text-[#1B2B5E] font-medium mb-4 flex items-center gap-2">
-        <span className="text-[#1B2B5E]">??</span> Offer Banner
+        <span className="text-[#1B2B5E]">&#127991;</span> Offer Banner
         <span className="text-xs text-gray-500 font-normal ml-1">- scrolling banner below navbar</span>
       </h3>
 
@@ -374,7 +376,7 @@ function OfferBannerManager() {
           <div key={o.id} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
             <span className="flex-1 text-sm text-gray-600 truncate">{o.text}</span>
             <span className="text-xs text-gray-600 shrink-0">{o.link}</span>
-            <button onClick={() => removeOffer(o.id)} className="text-gray-600 hover:text-red-400 transition-colors ml-1 shrink-0">?</button>
+            <button onClick={() => removeOffer(o.id)} className="text-gray-600 hover:text-red-400 transition-colors ml-1 shrink-0">&times;</button>
           </div>
         ))}
         {offers.length === 0 && <p className="text-gray-400 text-xs">No offers. Add one below.</p>}
@@ -383,7 +385,7 @@ function OfferBannerManager() {
       {/* Add new offer */}
       <div className="space-y-2">
         <input value={newText} onChange={e => setNewText(e.target.value)}
-          placeholder="Offer text e.g. ?? Free Shipping on all orders!"
+          placeholder="Offer text e.g. 🚚 Free Shipping on all orders!"
           className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-[#1A1A2E] placeholder-gray-600 focus:outline-none focus:border-[#1B2B5E]" />
         <div className="flex gap-2">
           <input value={newLink} onChange={e => setNewLink(e.target.value)}

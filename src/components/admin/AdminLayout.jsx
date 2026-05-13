@@ -15,14 +15,14 @@ const NAV = [
   { path: "/admin/users", label: "Users", icon: Users },
 ]
 
-function Sidebar({ pathname, onSignOut, userName }) {
+function Sidebar({ pathname, onSignOut }) {
   return (
     <motion.aside initial={{ width: 0, opacity: 0 }} animate={{ width: 240, opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={{ duration: 0.2 }}
       className="flex-shrink-0 bg-[#1B2B5E] flex flex-col overflow-hidden">
       <div className="p-5 border-b border-white/10">
         <Link to="/" className="flex items-center gap-2">
           <span className="text-white font-bold text-lg" style={{ fontFamily: "Georgia, serif" }}>NaShe</span>
-          <span className="text-xs text-white bg-white/20 px-2 py-0.5 rounded font-semibold">User Panel</span>
+          <span className="text-xs text-white bg-white/20 px-2 py-0.5 rounded font-semibold">Admin Panel</span>
         </Link>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -36,8 +36,8 @@ function Sidebar({ pathname, onSignOut, userName }) {
         })}
       </nav>
       <div className="p-3 border-t border-white/10 space-y-1">
-        <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-white hover:bg-white/10 transition-all"><Store size={17} /> View Store</Link>
-        <button onClick={onSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-red-300 hover:bg-red-400/10 transition-all"><LogOut size={17} /> Sign Out</button>
+        <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-white hover:bg-white/10 transition-all"><Store size={17} /> Switch to User</Link>
+        <button onClick={onSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-red-300 hover:bg-red-400/10 transition-all"><LogOut size={17} /> Logout</button>
       </div>
     </motion.aside>
   )
@@ -64,13 +64,13 @@ export default function AdminLayout({ children }) {
   return (
     <div className="flex h-screen bg-[#F4F6FA] overflow-hidden">
       <AnimatePresence initial={false}>
-        {sidebarOpen && <Sidebar pathname={pathname} onSignOut={handleSignOut} userName={user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User"} />}
+        {sidebarOpen && <Sidebar pathname={pathname} onSignOut={handleSignOut} />}
       </AnimatePresence>
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
             <button onClick={() => setSidebarOpen(o => !o)} className="text-gray-500 hover:text-[#1B2B5E] p-1 transition-colors"><Menu size={20} /></button>
-            <span className="text-gray-600 text-sm font-medium hidden sm:block">{NAV.find(n => pathname === n.path || (n.path !== "/admin" && pathname.startsWith(n.path)))?.label || "User Panel"}</span>
+            <span className="text-gray-600 text-sm font-medium hidden sm:block">{NAV.find(n => pathname === n.path || (n.path !== "/admin" && pathname.startsWith(n.path)))?.label || "Admin Panel"}</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative" ref={notifRef}>
@@ -111,11 +111,11 @@ export default function AdminLayout({ children }) {
               </div>
               <span className="text-gray-600 text-xs hidden sm:block font-medium">{user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0]}</span>
             </div>
-            {/* Quick logout in header */}
-            <button onClick={handleSignOut} title="Sign Out"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all border border-gray-200">
-              <LogOut size={13} /> Logout
-            </button>
+            {/* Switch to user view */}
+            <Link to="/"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-[#1B2B5E] hover:bg-[#1B2B5E]/10 rounded-lg transition-all border border-gray-200">
+              <Store size={13} /> Switch to User
+            </Link>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-6">{children}</main>

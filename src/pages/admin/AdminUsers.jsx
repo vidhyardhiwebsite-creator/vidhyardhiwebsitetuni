@@ -51,13 +51,13 @@ export default function AdminUsers() {
     const details = userDetails[user.userId]
     let msg = ""
     if (type === "cart" && details?.cart?.length) {
-      const items = details.cart.map(i => `${i.products?.name} (?${i.products?.price})`).join(", ")
-      msg = encodeURIComponent(`Hi ${user.name}! ??\n\nYou have items in your cart at NaShe Jewels:\n${items}\n\nComplete your purchase now: https://www.nashejewels.in/cart\n\n?? NaShe Jewels`)
+      const items = details.cart.map(i => `${i.products?.name} (₹${i.products?.price})`).join(", ")
+      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nYou have items in your cart at NaShe Jewels:\n${items}\n\nComplete your purchase now: https://www.nashejewels.in/cart\n\n✨ NaShe Jewels`)
     } else if (type === "wishlist" && details?.wishlist?.length) {
-      const items = details.wishlist.map(i => `${i.products?.name} (?${i.products?.price})`).join(", ")
-      msg = encodeURIComponent(`Hi ${user.name}! ??\n\nYour wishlist at NaShe Jewels:\n${items}\n\nShop now before they sell out: https://www.nashejewels.in/wishlist\n\n?? NaShe Jewels`)
+      const items = details.wishlist.map(i => `${i.products?.name} (₹${i.products?.price})`).join(", ")
+      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nYour wishlist at NaShe Jewels:\n${items}\n\nShop now before they sell out: https://www.nashejewels.in/wishlist\n\n✨ NaShe Jewels`)
     } else {
-      msg = encodeURIComponent(`Hi ${user.name}! ??\n\nCheck out our latest jewelry collection at NaShe Jewels!\nhttps://www.nashejewels.in\n\n?? NaShe Jewels`)
+      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nCheck out our latest jewelry collection at NaShe Jewels!\nhttps://www.nashejewels.in\n\n✨ NaShe Jewels`)
     }
     if (phone) window.open(`https://wa.me/91${phone}?text=${msg}`, "_blank")
     else window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(`Customer ${user.name} has no phone on file`)}`, "_blank")
