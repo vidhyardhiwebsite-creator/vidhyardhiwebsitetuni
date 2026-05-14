@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [resetSent, setResetSent] = useState(false)
+  const [signupDone, setSignupDone] = useState(false)
   const { signIn, signUp, signInWithGoogle, resetPassword } = useAuthStore()
   const { mergeLocalCart, loadCart } = useCartStore()
   const { loadWishlist } = useWishlistStore()
@@ -69,8 +70,8 @@ export default function LoginPage() {
         navigate(from, { replace: true })
       } else {
         await signUp(form.email, form.password, form.name)
-        toast.success("Account created! Please check your email to verify.")
-        navigate(from, { replace: true })
+        setSignupDone(true)
+        return // stay on page, show confirmation screen
       }
     } catch (err) {
       toast.error(err.message || "Authentication failed")
@@ -83,6 +84,7 @@ export default function LoginPage() {
     setMode(newMode)
     setErrors({})
     setResetSent(false)
+    setSignupDone(false)
     setForm(f => ({ ...f, password: "" }))
   }
 
@@ -98,8 +100,27 @@ export default function LoginPage() {
 
         <div className="bg-white border border-[#E8E0D5] rounded-2xl p-8 shadow-md">
 
-          {/* Forgot Password View */}
-          <AnimatePresence mode="wait">
+          {/* Sign Up Confirmation */}
+          {signupDone ? (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 bg-[#1B2B5E]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail size={26} className="text-[#1B2B5E]" />
+              </div>
+              <p className="text-[#1A1A2E] font-bold text-lg mb-2">Check your email</p>
+              <p className="text-[#4A4A6A] text-sm mb-1">
+                We sent a confirmation link to
+              </p>
+              <p className="text-[#1B2B5E] font-semibold text-sm mb-4">{form.email}</p>
+              <p className="text-[#8A8AAA] text-xs mb-6">
+                Please open that email and click the confirmation link to activate your account. Once confirmed, come back here and sign in.
+              </p>
+              <button onClick={() => switchMode("login")}
+                className="w-full py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all text-sm">
+                Go to Sign In
+              </button>
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
             {mode === "forgot" ? (
               <motion.div key="forgot" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <button onClick={() => switchMode("login")} className="flex items-center gap-1.5 text-[#4A4A6A] hover:text-[#1B2B5E] text-sm mb-5 transition-colors">
@@ -206,6 +227,7 @@ export default function LoginPage() {
               </motion.div>
             )}
           </AnimatePresence>
+          )}
         </div>
       </motion.div>
     </div>
