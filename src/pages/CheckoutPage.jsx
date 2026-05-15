@@ -305,7 +305,7 @@ export default function CheckoutPage() {
                               {Array(9).fill(0).map((_, i) => <div key={i} className="bg-white rounded-sm" />)}
                             </div>
                             <p className="text-[#1B2B5E] text-xs font-semibold">Tap to reveal QR</p>
-                            <p className="text-[#4A4A6A] text-xs">&#8377;{grandTotal.toLocaleString("en-IN")}</p>
+                            <p className="text-[#4A4A6A] text-xs">₹{grandTotal.toLocaleString("en-IN")}</p>
                           </div>
                           {/* Back — actual QR */}
                           <div style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
@@ -334,7 +334,7 @@ export default function CheckoutPage() {
                       {(() => {
                         const selectedAddr = addresses.find(a => a.id === selectedId)
                         const shipping = getShippingCost(selectedAddr)
-                        return <p className="text-[#1A1A2E] text-2xl font-bold">&#8377;{(total + shipping).toLocaleString("en-IN")}</p>
+                        return <p className="text-[#1A1A2E] text-2xl font-bold">₹{(total + shipping).toLocaleString("en-IN")}</p>
                       })()}
                     </div>
                     <div className="text-xs text-[#4A4A6A] space-y-1">
@@ -436,7 +436,7 @@ export default function CheckoutPage() {
               )
             })()}
           </div>
-          <p className="text-[#8A8AAA] text-xs text-center">&#128274; UPI Payment &middot; Secure &amp; Safe</p>
+          <p className="text-[#8A8AAA] text-xs text-center">🔒 UPI Payment · Secure &amp; Safe</p>
         </div>
       </div>
     </div>

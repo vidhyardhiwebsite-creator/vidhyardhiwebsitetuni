@@ -48,7 +48,7 @@ function StatusDropdown({ orderId, currentStatus, onStatusUpdate }) {
                 className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 transition-colors ${s.key === currentStatus ? "opacity-50 cursor-default" : ""}`}>
                 <span className={`w-2 h-2 rounded-full border ${s.color}`} />
                 <span className="text-gray-500">{s.label}</span>
-                {s.key === currentStatus && <span className="ml-auto text-gray-500">&#10003;</span>}
+                {s.key === currentStatus && <span className="ml-auto text-gray-500">✓</span>}
               </button>
             ))}
           </motion.div>

@@ -370,7 +370,7 @@ function OfferBannerManager() {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5">
       <h3 className="text-[#1B2B5E] font-medium mb-4 flex items-center gap-2">
-        <span className="text-[#1B2B5E]">&#127991;</span> Offer Banner
+        <span className="text-[#1B2B5E]">🏷️</span> Offer Banner
         <span className="text-xs text-gray-500 font-normal ml-1">- scrolling banner below navbar</span>
       </h3>
 
