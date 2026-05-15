@@ -6,6 +6,16 @@ import { fetchAddresses, saveAddress, updateAddress, deleteAddress, setDefaultAd
 import { motion, AnimatePresence } from "framer-motion"
 import toast from "react-hot-toast"
 
+const INDIAN_STATES = [
+  "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
+  "Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh",
+  "Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab",
+  "Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh",
+  "Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir",
+  "Ladakh","Lakshadweep","Puducherry"
+]
+
 const EMPTY_ADDR = { label: "Home", full_name: "", phone: "", address1: "", address2: "", city: "", state: "", pincode: "", is_default: false }
 
 const inp = "w-full bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E]"
@@ -17,12 +27,12 @@ function AddressForm({ initial, onSave, onCancel, saving }) {
 
   const validate = () => {
     const e = {}
-    if (!form.full_name.trim()) e.full_name = "Required"
-    if (!form.phone.match(/^\d{10}$/)) e.phone = "10-digit number"
+    if (form.full_name.trim().length < 3) e.full_name = "Name must be at least 3 characters"
+    if (!form.phone.match(/^\d{10}$/)) e.phone = "10-digit number required"
     if (!form.address1.trim()) e.address1 = "Required"
     if (!form.city.trim()) e.city = "Required"
-    if (!form.state.trim()) e.state = "Required"
-    if (!form.pincode.match(/^\d{6}$/)) e.pincode = "6-digit PIN"
+    if (!form.state.trim()) e.state = "Please select a state"
+    if (!form.pincode.match(/^\d{6}$/)) e.pincode = "6-digit PIN required"
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -53,7 +63,7 @@ function AddressForm({ initial, onSave, onCancel, saving }) {
         </div>
         <div>
           <label className={lbl}>Phone *</label>
-          <input value={form.phone || ""} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="10-digit number" className={inp} />
+          <input value={form.phone || ""} onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))} placeholder="10-digit number" maxLength={10} className={inp} />
           {errors.phone && <p className="text-red-500 text-xs mt-0.5">{errors.phone}</p>}
         </div>
         <div className="col-span-2">
@@ -72,12 +82,16 @@ function AddressForm({ initial, onSave, onCancel, saving }) {
         </div>
         <div>
           <label className={lbl}>State *</label>
-          <input value={form.state || ""} onChange={e => setForm(f => ({ ...f, state: e.target.value }))} placeholder="State" className={inp} />
+          <select value={form.state || ""} onChange={e => setForm(f => ({ ...f, state: e.target.value }))}
+            className={inp}>
+            <option value="">Select state</option>
+            {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
           {errors.state && <p className="text-red-500 text-xs mt-0.5">{errors.state}</p>}
         </div>
         <div>
           <label className={lbl}>PIN Code *</label>
-          <input value={form.pincode || ""} onChange={e => setForm(f => ({ ...f, pincode: e.target.value }))} placeholder="6-digit PIN" className={inp} />
+          <input value={form.pincode || ""} onChange={e => setForm(f => ({ ...f, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))} placeholder="6-digit PIN" maxLength={6} className={inp} />
           {errors.pincode && <p className="text-red-500 text-xs mt-0.5">{errors.pincode}</p>}
         </div>
       </div>

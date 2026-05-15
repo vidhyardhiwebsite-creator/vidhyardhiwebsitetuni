@@ -164,7 +164,7 @@ export default function AdminProducts() {
       }
     }
     const payload = {
-      name: form.name.trim(), price: Number(form.price), category: form.category, custom_id: form.custom_id?.trim() || null,
+      name: form.name.trim(), price: Math.floor(Number(form.price)), category: form.category, custom_id: form.custom_id?.trim() || null,
       description: form.description.trim(), size: form.category === BANGLE_CATEGORY ? (form.size.trim() || null) : null,
       stock: Number(form.stock), tags: form.tags, images: form.images, series_id: form.series_id || 'NS0',
     }
@@ -312,8 +312,8 @@ export default function AdminProducts() {
                     {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1 block">Price (?) *</label>
-                    <input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
+                    <label className="text-xs text-gray-400 mb-1 block">Price (₹) *</label>
+                    <input type="number" min="0" step="1" value={form.price} onChange={e => setForm(f => ({ ...f, price: Math.floor(Number(e.target.value)) || "" }))}
                       className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]"
                       placeholder="2499" />
                     {errors.price && <p className="text-red-400 text-xs mt-1">{errors.price}</p>}

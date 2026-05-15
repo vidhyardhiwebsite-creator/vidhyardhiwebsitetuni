@@ -5,6 +5,7 @@ import { ShoppingCart, Heart, Search, Menu, X, User, LogOut, ChevronDown, Packag
 import { useAuthStore } from "../store/authStore"
 import { useCartStore } from "../store/cartStore"
 import { CATEGORIES } from "../data/products"
+import { useAdminStore } from "../store/adminStore"
 import logoImg from "../assets/logo.png"
 import toast from "react-hot-toast"
 import { isAdmin as checkIsAdmin } from "./AdminRoute"
@@ -13,31 +14,58 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [suggestions, setSuggestions] = useState([])
   const [catOpen, setCatOpen] = useState(false)
   const [userOpen, setUserOpen] = useState(false)
   const { user, signOut } = useAuthStore()
   const cartCount = useCartStore(s => s.getCount())
+  const { products, loadProducts } = useAdminStore()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const userRef = useRef(null)
+  const searchRef = useRef(null)
   const isAdmin = checkIsAdmin(user)
   const isOnAdminPanel = pathname.startsWith("/admin")
 
   useEffect(() => {
+    if (!products.length) loadProducts()
+  }, [])
+
+  useEffect(() => {
     const handler = (e) => {
       if (userRef.current && !userRef.current.contains(e.target)) setUserOpen(false)
+      if (searchRef.current && !searchRef.current.contains(e.target)) setSuggestions([])
     }
     document.addEventListener("mousedown", handler)
     document.addEventListener("touchstart", handler)
     return () => { document.removeEventListener("mousedown", handler); document.removeEventListener("touchstart", handler) }
   }, [])
 
+  const handleSearchChange = (e) => {
+    const q = e.target.value
+    setSearchQuery(q)
+    if (q.trim().length >= 3 && products.length) {
+      const lower = q.toLowerCase()
+      const matches = products
+        .filter(p => p.name?.toLowerCase().includes(lower) || p.category?.toLowerCase().includes(lower))
+        .slice(0, 6)
+      setSuggestions(matches)
+    } else {
+      setSuggestions([])
+    }
+  }
+
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
-      setSearchOpen(false); setSearchQuery("")
+      setSearchOpen(false); setSearchQuery(""); setSuggestions([])
     }
+  }
+
+  const handleSuggestionClick = (product) => {
+    navigate(`/products/${product.id}`)
+    setSearchOpen(false); setSearchQuery(""); setSuggestions([])
   }
 
   const handleSignOut = async () => {
@@ -158,11 +186,39 @@ export default function Navbar() {
         <AnimatePresence>
           {searchOpen && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden pb-3">
-              <form onSubmit={handleSearch} className="flex gap-2">
-                <input autoFocus type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search jewelry..."
-                  className="flex-1 bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg px-4 py-2 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E]" />
-                <button type="submit" className="px-4 py-2 bg-[#1B2B5E] text-white rounded-lg text-sm font-medium hover:bg-[#2A3F7E] transition-colors">Search</button>
-              </form>
+              <div ref={searchRef} className="relative">
+                <form onSubmit={handleSearch} className="flex gap-2">
+                  <input autoFocus type="text" value={searchQuery} onChange={handleSearchChange} placeholder="Search jewelry..."
+                    className="flex-1 bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg px-4 py-2 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E]" />
+                  <button type="submit" className="px-4 py-2 bg-[#1B2B5E] text-white rounded-lg text-sm font-medium hover:bg-[#2A3F7E] transition-colors">Search</button>
+                </form>
+                {/* Auto-suggestions */}
+                <AnimatePresence>
+                  {suggestions.length > 0 && (
+                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+                      className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#E8E0D5] rounded-xl shadow-xl z-50 overflow-hidden">
+                      {suggestions.map(p => (
+                        <button key={p.id} onClick={() => handleSuggestionClick(p)}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#FAF8F5] transition-colors text-left">
+                          {p.images?.[0] && (
+                            <img src={p.images[0]} alt="" className="w-8 h-8 object-cover rounded-lg flex-shrink-0"
+                              onError={e => { e.target.style.display = "none" }} />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[#1A1A2E] text-sm truncate">{p.name}</p>
+                            <p className="text-[#8A8AAA] text-xs">{p.category}</p>
+                          </div>
+                          <span className="text-[#1B2B5E] text-xs font-semibold flex-shrink-0">₹{p.price?.toLocaleString("en-IN")}</span>
+                        </button>
+                      ))}
+                      <button onClick={handleSearch}
+                        className="w-full px-4 py-2 text-xs text-[#1B2B5E] hover:bg-[#FAF8F5] border-t border-[#E8E0D5] text-center font-medium">
+                        See all results for "{searchQuery}"
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -36,8 +36,12 @@ function Sidebar({ pathname, onSignOut }) {
         })}
       </nav>
       <div className="p-3 border-t border-white/10 space-y-1">
-        <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-white hover:bg-white/10 transition-all"><Store size={17} /> Switch to User</Link>
-        <button onClick={onSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-red-300 hover:bg-red-400/10 transition-all"><LogOut size={17} /> Logout</button>
+        <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-white hover:bg-white/10 transition-all">
+          <Store size={17} /> Switch to User
+        </Link>
+        <button onClick={onSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-red-300 hover:bg-red-400/10 transition-all">
+          <LogOut size={17} /> Logout
+        </button>
       </div>
     </motion.aside>
   )
@@ -59,6 +63,11 @@ export default function AdminLayout({ children }) {
     return () => { document.removeEventListener("mousedown", handler); document.removeEventListener("touchstart", handler) }
   }, [])
 
+  // Mark all notifications as read when panel is opened
+  const handleBellClick = () => {
+    setNotifOpen(o => !o)
+  }
+
   const handleSignOut = async () => { await signOut(); toast.success("Signed out"); navigate("/") }
 
   return (
@@ -69,14 +78,22 @@ export default function AdminLayout({ children }) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(o => !o)} className="text-gray-500 hover:text-[#1B2B5E] p-1 transition-colors"><Menu size={20} /></button>
-            <span className="text-gray-600 text-sm font-medium hidden sm:block">{NAV.find(n => pathname === n.path || (n.path !== "/admin" && pathname.startsWith(n.path)))?.label || "Admin Panel"}</span>
+            <button onClick={() => setSidebarOpen(o => !o)} className="text-gray-500 hover:text-[#1B2B5E] p-1 transition-colors">
+              <Menu size={20} />
+            </button>
+            <span className="text-gray-600 text-sm font-medium hidden sm:block">
+              {NAV.find(n => pathname === n.path || (n.path !== "/admin" && pathname.startsWith(n.path)))?.label || "Admin Panel"}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative" ref={notifRef}>
-              <button onClick={() => setNotifOpen(o => !o)} className="relative text-gray-500 hover:text-[#1B2B5E] p-1 transition-colors">
+              <button onClick={handleBellClick} className="relative text-gray-500 hover:text-[#1B2B5E] p-1 transition-colors">
                 <Bell size={18} />
-                {notifications.length > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{notifications.length > 9 ? "9+" : notifications.length}</span>}
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    {notifications.length > 9 ? "9+" : notifications.length}
+                  </span>
+                )}
               </button>
               <AnimatePresence>
                 {notifOpen && (
@@ -84,7 +101,17 @@ export default function AdminLayout({ children }) {
                     className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-[100] overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                       <span className="text-gray-800 text-sm font-medium">Notifications</span>
-                      <button onClick={() => setNotifOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
+                      <div className="flex items-center gap-2">
+                        {notifications.length > 0 && (
+                          <button onClick={() => notifications.forEach(n => clearNotification(n.id))}
+                            className="text-xs text-[#1B2B5E] hover:underline">
+                            Clear all
+                          </button>
+                        )}
+                        <button onClick={() => setNotifOpen(false)} className="text-gray-400 hover:text-gray-600">
+                          <X size={14} />
+                        </button>
+                      </div>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                       {notifications.length === 0
@@ -96,7 +123,9 @@ export default function AdminLayout({ children }) {
                               <p className="text-gray-700 text-xs">{n.msg}</p>
                               <p className="text-gray-400 text-xs mt-0.5">{new Date(n.time).toLocaleTimeString()}</p>
                             </div>
-                            <button onClick={() => clearNotification(n.id)} className="text-gray-300 hover:text-gray-500"><X size={12} /></button>
+                            <button onClick={() => clearNotification(n.id)} className="text-gray-300 hover:text-gray-500">
+                              <X size={12} />
+                            </button>
                           </div>
                         ))
                       }
@@ -107,15 +136,14 @@ export default function AdminLayout({ children }) {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 bg-[#1B2B5E] rounded-full flex items-center justify-center border-2 border-[#C9956C]">
-                <span className="text-white text-xs font-bold">{(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "U")[0]?.toUpperCase()}</span>
+                <span className="text-white text-xs font-bold">
+                  {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "U")[0]?.toUpperCase()}
+                </span>
               </div>
-              <span className="text-gray-600 text-xs hidden sm:block font-medium">{user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0]}</span>
+              <span className="text-gray-600 text-xs hidden sm:block font-medium">
+                {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0]}
+              </span>
             </div>
-            {/* Switch to user view */}
-            <Link to="/"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-[#1B2B5E] hover:bg-[#1B2B5E]/10 rounded-lg transition-all border border-gray-200">
-              <Store size={13} /> Switch to User
-            </Link>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
