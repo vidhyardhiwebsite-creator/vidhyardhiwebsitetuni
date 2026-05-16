@@ -4,65 +4,6 @@ import { Package, ChevronDown, ChevronUp, CheckCircle, Truck, Clock, XCircle, Al
 import { useAuthStore } from "../store/authStore"
 import { supabase } from "../lib/supabase"
 import { formatINR, formatDate } from "../utils/format"
-import toast from "react-hot-toast"
-
-function CancelButton({ order, onCancel }) {
-  const [confirm, setConfirm] = useState(false)
-  const [loading, setLoading] = useState(false)
-
-  const handleCancel = async () => {
-    setLoading(true)
-    try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ order_status: "cancelled", refund_status: "pending" })
-        .eq("id", order.id)
-      if (error) throw error
-      onCancel(order.id)
-      toast.success("Order cancelled. Refund will be processed within 5-7 business days.")
-    } catch (e) {
-      toast.error(e.message || "Failed to cancel order")
-    } finally {
-      setLoading(false)
-      setConfirm(false)
-    }
-  }
-
-  if (!confirm) {
-    return (
-      <button
-        onClick={() => setConfirm(true)}
-        className="flex items-center gap-1.5 px-3 py-2 border border-red-500/30 text-red-400 text-xs rounded-lg hover:bg-red-500/10 transition-all"
-      >
-        <XCircle size={13} /> Cancel Order
-      </button>
-    )
-  }
-
-  return (
-    <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-      <div className="flex items-start gap-2 mb-3">
-        <AlertTriangle size={16} className="text-red-400 mt-0.5 flex-shrink-0" />
-        <div>
-          <p className="text-[#1A1A2E] text-sm font-medium">Cancel this order?</p>
-          <p className="text-[#4A4A6A] text-xs mt-0.5">
-            Your payment of {formatINR(order.total_amount)} will be refunded within 5-7 business days.
-          </p>
-        </div>
-      </div>
-      <div className="flex gap-2">
-        <button onClick={() => setConfirm(false)} className="flex-1 py-2 border border-[#E8E0D5] text-[#4A4A6A] rounded-lg text-xs">
-          Keep Order
-        </button>
-        <button onClick={handleCancel} disabled={loading}
-          className="flex-1 py-2 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600 disabled:opacity-60 flex items-center justify-center gap-1">
-          {loading && <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-          Yes, Cancel
-        </button>
-      </div>
-    </div>
-  )
-}
 
 const STATUS_STEPS = [
   { key: "confirmed", label: "Confirmed", icon: CheckCircle, desc: "Your order has been confirmed" },
@@ -124,12 +65,6 @@ export default function OrdersPage() {
     ? orders.filter(o => (o.display_order_id || "").toLowerCase().includes(search.toLowerCase().trim()))
     : orders
 
-  const handleCancel = (orderId) => {
-    setOrders(prev => prev.map(o =>
-      o.id === orderId ? { ...o, order_status: "cancelled", refund_status: "pending" } : o
-    ))
-  }
-
   useEffect(() => {
     if (!user) return
     const fetchOrders = async () => {
@@ -143,7 +78,6 @@ export default function OrdersPage() {
     }
     fetchOrders()
 
-    // Real-time subscription for status updates
     const channel = supabase
       .channel("orders-user")
       .on("postgres_changes", {
@@ -248,7 +182,8 @@ export default function OrdersPage() {
                 {expanded === order.id && (
                   <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
                     <div className="border-t border-[#E8E0D5] p-5 space-y-4 bg-[#FAF8F5]">
-      {/* Delivery Tracker */}
+
+                      {/* Delivery Tracker */}
                       {order.payment_status === "paid" && (
                         <DeliveryTracker status={order.order_status || "confirmed"} />
                       )}
@@ -271,16 +206,12 @@ export default function OrdersPage() {
                         </div>
                       )}
 
-                      {/* Cancel button - only before shipping */}
-                      {order.payment_status === "paid" &&
-                        (order.order_status === "confirmed" || !order.order_status) && (
-                        <CancelButton order={order} onCancel={handleCancel} />
-                      )}
-
                       {/* Cancelled state */}
                       {order.order_status === "cancelled" && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-                          <p className="text-red-400 text-sm font-medium">Order Cancelled</p>
+                          <p className="text-red-400 text-sm font-medium flex items-center gap-1.5">
+                            <XCircle size={14} /> Order Cancelled
+                          </p>
                           <p className="text-gray-400 text-xs mt-1">
                             {order.refund_status === "refunded"
                               ? "✓ Refund processed. Amount will reflect in 5-7 business days."
@@ -289,15 +220,18 @@ export default function OrdersPage() {
                         </div>
                       )}
 
+                      {/* Order items */}
                       <div className="space-y-3">
                         {order.order_items?.map(item => (
                           <div key={item.id} className="flex items-center gap-3">
                             {item.products?.images?.[0] && (
-                              <img src={item.products.images[0]} alt={item.products?.name} className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5]" onError={e => { if(e.target.src !== "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80") e.target.src="https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80" }} />
+                              <img src={item.products.images[0]} alt={item.products?.name}
+                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5]"
+                                onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80" }} />
                             )}
                             <div className="flex-1">
                               <p className="text-[#1A1A2E] text-sm">{item.products?.name || "Product"}</p>
-                              <p className="text-[#8A8AAA] text-xs">Qty: {item.quantity} &times; {formatINR(item.price)}</p>
+                              <p className="text-[#8A8AAA] text-xs">Qty: {item.quantity} × {formatINR(item.price)}</p>
                             </div>
                             <p className="text-[#1B2B5E] text-sm font-medium">{formatINR(item.quantity * item.price)}</p>
                           </div>
@@ -309,7 +243,7 @@ export default function OrdersPage() {
                           <p className="text-[#4A4A6A] font-medium mb-1">Delivery Address</p>
                           <p className="text-[#1A1A2E]">{addr.full_name}, {addr.phone}</p>
                           <p className="text-[#4A4A6A]">{addr.address1}{addr.address2 ? `, ${addr.address2}` : ""}</p>
-                          <p className="text-[#4A4A6A]">{addr.city}, {addr.state} &ndash; {addr.pincode}</p>
+                          <p className="text-[#4A4A6A]">{addr.city}, {addr.state} – {addr.pincode}</p>
                         </div>
                       )}
                     </div>
