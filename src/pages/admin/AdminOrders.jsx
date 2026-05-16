@@ -281,11 +281,39 @@ export default function AdminOrders() {
   useEffect(() => { setLocalOrders(orders) }, [orders])
 
   const handleStatusUpdate = async (orderId, newStatus) => {
+    const order = localOrders.find(o => o.id === orderId)
     const { error } = await supabase.from("orders").update({ order_status: newStatus }).eq("id", orderId)
-    if (!error) {
-      setLocalOrders(p => p.map(o => o.id === orderId ? { ...o, order_status: newStatus } : o))
-      toast.success("Status updated to " + newStatus)
-    } else toast.error(error.message)
+    if (error) { toast.error(error.message); return }
+
+    setLocalOrders(p => p.map(o => o.id === orderId ? { ...o, order_status: newStatus } : o))
+    toast.success("Status updated to " + newStatus)
+
+    // When admin cancels — notify customer via WhatsApp + Email
+    if (newStatus === "cancelled" && order) {
+      const addr = (() => { try { return typeof order.address === "object" ? order.address : JSON.parse(order.address) } catch { return {} } })()
+      const orderId_ = order.display_order_id || "#" + String(order.id).slice(-6).toUpperCase()
+      const customerName = addr.full_name || "Customer"
+      const amount = `₹${order.total_amount?.toLocaleString("en-IN")}`
+
+      // WhatsApp to customer
+      const phone = addr.phone?.replace(/\D/g, "")
+      if (phone) {
+        const waMsg = encodeURIComponent(
+          `❌ *Order Cancelled - NaShe Jewels*\n\nHi ${customerName},\n\nYour order *${orderId_}* has been cancelled.\nAmount: ${amount}\n\nIf you paid, your refund will be processed within 5-7 business days.\n\nFor queries, contact us at +91 8639006849.\n\n✨ NaShe Jewels`
+        )
+        window.open(`https://wa.me/91${phone}?text=${waMsg}`, "_blank")
+      }
+
+      // Email to customer (opens mail client pre-filled)
+      const userEmail = order.users?.email || order.user_email || ""
+      if (userEmail) {
+        const subject = encodeURIComponent(`Your Order ${orderId_} has been Cancelled - NaShe Jewels`)
+        const body = encodeURIComponent(
+          `Dear ${customerName},\n\nWe regret to inform you that your order ${orderId_} has been cancelled.\n\nOrder Amount: ${amount}\n\nIf you have already made a payment, your refund will be processed within 5-7 business days to your original payment method.\n\nFor any queries, please contact us:\nPhone/WhatsApp: +91 8639006849\nEmail: nashejewels@gmail.com\n\nWe apologize for the inconvenience.\n\nWarm regards,\nNaShe Jewels Team`
+        )
+        window.open(`mailto:${userEmail}?subject=${subject}&body=${body}`, "_blank")
+      }
+    }
   }
 
   const verifyPayment = async (orderId) => {
@@ -295,9 +323,37 @@ export default function AdminOrders() {
   }
 
   const rejectPayment = async (orderId) => {
+    const order = localOrders.find(o => o.id === orderId)
     const { error } = await supabase.from("orders").update({ payment_status: "failed", order_status: "cancelled" }).eq("id", orderId)
-    if (!error) { setLocalOrders(p => p.map(o => o.id === orderId ? { ...o, payment_status: "failed", order_status: "cancelled" } : o)); toast.success("Rejected") }
-    else toast.error(error.message)
+    if (error) { toast.error(error.message); return }
+
+    setLocalOrders(p => p.map(o => o.id === orderId ? { ...o, payment_status: "failed", order_status: "cancelled" } : o))
+    toast.success("Payment rejected")
+
+    // Notify customer via WhatsApp + Email
+    if (order) {
+      const addr = (() => { try { return typeof order.address === "object" ? order.address : JSON.parse(order.address) } catch { return {} } })()
+      const orderId_ = order.display_order_id || "#" + String(order.id).slice(-6).toUpperCase()
+      const customerName = addr.full_name || "Customer"
+      const amount = `₹${order.total_amount?.toLocaleString("en-IN")}`
+
+      const phone = addr.phone?.replace(/\D/g, "")
+      if (phone) {
+        const waMsg = encodeURIComponent(
+          `❌ *Order Rejected - NaShe Jewels*\n\nHi ${customerName},\n\nYour order *${orderId_}* has been rejected due to payment verification failure.\nAmount: ${amount}\n\nIf you believe this is an error, please contact us at +91 8639006849.\n\n✨ NaShe Jewels`
+        )
+        window.open(`https://wa.me/91${phone}?text=${waMsg}`, "_blank")
+      }
+
+      const userEmail = order.users?.email || ""
+      if (userEmail) {
+        const subject = encodeURIComponent(`Your Order ${orderId_} has been Rejected - NaShe Jewels`)
+        const body = encodeURIComponent(
+          `Dear ${customerName},\n\nWe regret to inform you that your order ${orderId_} has been rejected due to payment verification failure.\n\nOrder Amount: ${amount}\n\nIf you believe this is an error or need assistance, please contact us:\nPhone/WhatsApp: +91 8639006849\nEmail: nashejewels@gmail.com\n\nWarm regards,\nNaShe Jewels Team`
+        )
+        window.open(`mailto:${userEmail}?subject=${subject}&body=${body}`, "_blank")
+      }
+    }
   }
 
   const notifyCustomer = (order, addr) => {
