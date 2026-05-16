@@ -6,6 +6,7 @@ import { ArrowRight, Sparkles, Shield, Truck, RefreshCw, Star, Clock } from "luc
 import { CATEGORIES } from "../data/products"
 import { fetchProducts } from "../services/productService"
 import { useRecentlyViewedStore } from "../store/recentlyViewedStore"
+import { getSetting } from "../services/settingsService"
 import ProductCard from "../components/ProductCard"
 import SkeletonCard from "../components/SkeletonCard"
 import ScrollReveal from "../components/ScrollReveal"
@@ -24,11 +25,26 @@ const categoryImages = {
   "Bangles": "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&q=80",
 }
 
+const ICON_MAP = [
+  <Shield size={20} />,
+  <Truck size={20} />,
+  <RefreshCw size={20} />,
+  <Sparkles size={20} />,
+]
+
+const DEFAULT_FEATURES = [
+  { id: 1, title: "Certified Quality", desc: "Authenticity Guaranteed" },
+  { id: 2, title: "Fast Shipping", desc: "Across India" },
+  { id: 3, title: "Easy Returns", desc: "7 Day Return Policy" },
+  { id: 4, title: "Handcrafted", desc: "Artisan made jewelry" },
+]
+
 export default function HomePage() {
   const [featured, setFeatured] = useState([])
   const [newArrivals, setNewArrivals] = useState([])
   const [bestSellers, setBestSellers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [features, setFeatures] = useState(DEFAULT_FEATURES)
   const { items: recentItems } = useRecentlyViewedStore()
 
   useEffect(() => {
@@ -39,6 +55,9 @@ export default function HomePage() {
       setFeatured(data.slice(0, 8))
       setLoading(false)
     })
+    getSetting('features_bar').then(val => {
+      if (val) { try { const p = JSON.parse(val); if (Array.isArray(p) && p.length) setFeatures(p) } catch {} }
+    }).catch(() => {})
   }, [])
 
   const SectionHeader = ({ label, title, link, linkText = "View All" }) => (
@@ -104,14 +123,9 @@ export default function HomePage() {
       <ScrollReveal>
         <section className="bg-white border-y border-[#E8E0D5] py-8 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { icon: <Shield size={20} />, title: "Certified Quality", desc: "Authenticity Guaranteed" },
-              { icon: <Truck size={20} />, title: "Fast Shipping", desc: "Across India" },
-              { icon: <RefreshCw size={20} />, title: "Easy Returns", desc: "7 Day Return Policy" },
-              { icon: <Sparkles size={20} />, title: "Handcrafted", desc: "Artisan made jewelry" },
-            ].map((f, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="text-[#1B2B5E]">{f.icon}</div>
+            {features.map((f, i) => (
+              <div key={f.id || i} className="flex items-center gap-3">
+                <div className="text-[#1B2B5E]">{ICON_MAP[i % ICON_MAP.length]}</div>
                 <div>
                   <p className="text-[#1A1A2E] text-sm font-semibold">{f.title}</p>
                   <p className="text-[#8A8AAA] text-xs">{f.desc}</p>

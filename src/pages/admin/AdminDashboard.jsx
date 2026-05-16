@@ -288,6 +288,7 @@ export default function AdminDashboard() {
 
       {/* Hero Video Manager */}
       <HeroVideoManager />
+      <FeaturesBarManager />
       <OfferBannerManager />
 
       {/* Recent Orders */}
@@ -324,6 +325,60 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Features Bar Manager - edit the 4 trust badges shown on homepage
+function FeaturesBarManager() {
+  const DEFAULT_FEATURES = [
+    { id: 1, title: 'Certified Quality', desc: 'Authenticity Guaranteed' },
+    { id: 2, title: 'Fast Shipping', desc: 'Across India' },
+    { id: 3, title: 'Easy Returns', desc: '7 Day Return Policy' },
+    { id: 4, title: 'Handcrafted', desc: 'Artisan made jewelry' },
+  ]
+  const [features, setFeatures] = useState(DEFAULT_FEATURES)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    getSetting('features_bar').then(val => {
+      if (val) { try { const p = JSON.parse(val); if (Array.isArray(p) && p.length) setFeatures(p) } catch {} }
+    }).catch(() => {})
+  }, [])
+
+  const save = async (updated) => {
+    setSaving(true)
+    try { await setSetting('features_bar', JSON.stringify(updated)); toast.success('Features bar updated!') }
+    catch (e) { toast.error(e.message) }
+    finally { setSaving(false) }
+  }
+
+  const update = (id, field, value) => {
+    setFeatures(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f))
+  }
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <h3 className="text-[#1B2B5E] font-medium mb-1 flex items-center gap-2">
+        ✦ Homepage Trust Badges
+      </h3>
+      <p className="text-xs text-gray-400 mb-4">Edit the 4 feature badges shown below the hero on the homepage.</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        {features.map(f => (
+          <div key={f.id} className="bg-gray-50 rounded-lg p-3 space-y-2">
+            <input value={f.title} onChange={e => update(f.id, 'title', e.target.value)}
+              placeholder="Title e.g. Fast Shipping"
+              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]" />
+            <input value={f.desc} onChange={e => update(f.id, 'desc', e.target.value)}
+              placeholder="Description e.g. Across India"
+              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-500 focus:outline-none focus:border-[#1B2B5E]" />
+          </div>
+        ))}
+      </div>
+      <button onClick={() => save(features)} disabled={saving}
+        className="px-4 py-2 bg-[#1B2B5E] text-white text-sm font-semibold rounded-lg hover:bg-[#2A3F7E] disabled:opacity-60 transition-all">
+        {saving ? 'Saving...' : 'Save Changes'}
+      </button>
     </div>
   )
 }

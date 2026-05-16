@@ -21,8 +21,7 @@ function Sidebar({ pathname, onSignOut, onNavClick }) {
       className="flex-shrink-0 bg-[#1B2B5E] flex flex-col overflow-hidden">
       <div className="p-5 border-b border-white/10">
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-white font-bold text-lg" style={{ fontFamily: "Georgia, serif" }}>NaShe</span>
-          <span className="text-xs text-white bg-white/20 px-2 py-0.5 rounded font-semibold">Admin Panel</span>
+          <span className="text-white font-bold text-lg" style={{ fontFamily: "Georgia, serif" }}>NaShe Jewels</span>
         </Link>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -74,9 +73,30 @@ export default function AdminLayout({ children }) {
     return () => { document.removeEventListener("mousedown", handler); document.removeEventListener("touchstart", handler) }
   }, [])
 
-  // Mark all notifications as read when panel is opened
+  // Auto-clear all notifications when panel opens, and navigate on click
   const handleBellClick = () => {
-    setNotifOpen(o => !o)
+    const opening = !notifOpen
+    setNotifOpen(opening)
+    if (opening) {
+      // Auto-mark all as read (clear) after a short delay so user can see them first
+      setTimeout(() => {
+        useAdminStore.getState().notifications.forEach(n => clearNotification(n.id))
+      }, 3000)
+    }
+  }
+
+  const getNotifLink = (n) => {
+    const msg = n.msg?.toLowerCase() || ""
+    if (msg.includes("stock")) return "/admin/products"
+    if (msg.includes("order")) return "/admin/orders"
+    if (msg.includes("user")) return "/admin/users"
+    return "/admin"
+  }
+
+  const handleNotifClick = (n) => {
+    clearNotification(n.id)
+    setNotifOpen(false)
+    navigate(getNotifLink(n))
   }
 
   const handleSignOut = async () => { await signOut(); toast.success("Signed out"); navigate("/") }
@@ -128,13 +148,14 @@ export default function AdminLayout({ children }) {
                       {notifications.length === 0
                         ? <p className="text-gray-400 text-xs text-center py-6">No notifications</p>
                         : notifications.map(n => (
-                          <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                          <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50 cursor-pointer"
+                            onClick={() => handleNotifClick(n)}>
                             <AlertTriangle size={14} className={n.type === "warning" ? "text-yellow-500 mt-0.5" : "text-[#C9956C] mt-0.5"} />
                             <div className="flex-1 min-w-0">
                               <p className="text-gray-700 text-xs">{n.msg}</p>
                               <p className="text-gray-400 text-xs mt-0.5">{new Date(n.time).toLocaleTimeString()}</p>
                             </div>
-                            <button onClick={() => clearNotification(n.id)} className="text-gray-300 hover:text-gray-500">
+                            <button onClick={e => { e.stopPropagation(); clearNotification(n.id) }} className="text-gray-300 hover:text-gray-500">
                               <X size={12} />
                             </button>
                           </div>
