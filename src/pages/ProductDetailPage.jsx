@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/authStore'
 import { useCartStore } from '../store/cartStore'
 import { useWishlistStore } from '../store/wishlistStore'
 import { useRecentlyViewedStore } from '../store/recentlyViewedStore'
+import { isVideoUrl } from '../services/storageService'
 import { formatINR } from '../utils/format'
 import ProductCard from '../components/ProductCard'
 import toast from 'react-hot-toast'
@@ -100,15 +101,27 @@ export default function ProductDetailPage() {
           {/* Image Gallery */}
           <div>
             <div className="relative aspect-square bg-[#111] rounded-xl overflow-hidden mb-3">
-              <motion.img
-                key={imgIdx}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                src={images[imgIdx] || 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=600&q=80'}
-                alt={product.name}
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
+              {isVideoUrl(images[imgIdx]) ? (
+                <video
+                  key={imgIdx}
+                  src={images[imgIdx]}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <motion.img
+                  key={imgIdx}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  src={images[imgIdx] || 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=600&q=80'}
+                  alt={product.name}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+              )}
               {images.length > 1 && (
                 <>
                   <button onClick={() => setImgIdx(i => (i - 1 + images.length) % images.length)}
@@ -127,8 +140,12 @@ export default function ProductDetailPage() {
                 {images.map((img, i) => (
                   <button key={i} onClick={() => setImgIdx(i)}
                     className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${i === imgIdx ? 'border-[#D4AF37]' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                    <img src={img} alt="" className="w-full h-full object-cover" loading="lazy"
-                      onError={e => { if (e.target.src !== 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80') e.target.src = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80' }} />
+                    {isVideoUrl(img) ? (
+                      <video src={img} muted playsInline className="w-full h-full object-cover bg-black" />
+                    ) : (
+                      <img src={img} alt="" className="w-full h-full object-cover" loading="lazy"
+                        onError={e => { if (e.target.src !== 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80') e.target.src = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80' }} />
+                    )}
                   </button>
                 ))}
               </div>

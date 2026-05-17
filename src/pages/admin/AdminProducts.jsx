@@ -4,7 +4,7 @@ import { Plus, Edit2, Trash2, Search, AlertTriangle, X, Upload, ImagePlus, Loade
 import { useAdminStore } from "../../store/adminStore"
 import { CATEGORIES, TAGS } from "../../data/products"
 import { formatINR } from "../../utils/format"
-import { uploadProductImages, deleteProductImage } from "../../services/storageService"
+import { uploadProductImages, deleteProductImage, isVideoUrl } from "../../services/storageService"
 import { supabase } from "../../lib/supabase"
 import toast from "react-hot-toast"
 
@@ -16,19 +16,37 @@ const EMPTY_FORM = {
   size: "", stock: "", tags: [], images: []
 }
 
-// Image uploader sub-component
+// Image/Video uploader sub-component
 function ImageUploader({ images, onImagesChange, uploading, setUploading }) {
   const inputRef = useRef(null)
+
+  const validateVideoduration = (file) => new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const vid = document.createElement("video")
+    vid.preload = "metadata"
+    vid.onloadedmetadata = () => { URL.revokeObjectURL(url); vid.duration <= 30 ? resolve() : reject(new Error("Video must be 30 seconds or less")) }
+    vid.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Could not read video")) }
+    vid.src = url
+  })
 
   const handleFiles = async (files) => {
     if (!files.length) return
     const fileArr = Array.from(files).slice(0, 4 - images.length)
-    if (fileArr.length === 0) { toast.error("Max 4 images allowed"); return }
+    if (fileArr.length === 0) { toast.error("Max 4 images/videos allowed"); return }
+
+    // Validate video durations before uploading
+    for (const file of fileArr) {
+      if (file.type.startsWith("video/")) {
+        try { await validateVideoduration(file) }
+        catch (e) { toast.error(e.message); return }
+      }
+    }
+
     setUploading(true)
     try {
       const urls = await uploadProductImages(fileArr)
       onImagesChange([...images, ...urls])
-      toast.success(`${urls.length} image(s) uploaded`)
+      toast.success(`${urls.length} file(s) uploaded`)
     } catch (e) {
       toast.error(e.message || "Upload failed")
     } finally {
@@ -48,8 +66,7 @@ function ImageUploader({ images, onImagesChange, uploading, setUploading }) {
 
   return (
     <div className="col-span-2">
-      <label className="text-xs text-gray-400 mb-2 block">Product Images (max 4)</label>
-      {/* Drop zone */}
+      <label className="text-xs text-gray-400 mb-2 block">Product Images & Videos (max 4) — Videos max 30s, muted on display</label>
       {images.length < 4 && (
         <div
           onDrop={handleDrop}
@@ -60,7 +77,7 @@ function ImageUploader({ images, onImagesChange, uploading, setUploading }) {
           <input
             ref={inputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
             multiple
             className="hidden"
             onChange={e => handleFiles(e.target.files)}
@@ -73,19 +90,26 @@ function ImageUploader({ images, onImagesChange, uploading, setUploading }) {
           ) : (
             <>
               <ImagePlus size={28} className="text-[#1B2B5E]/50 mx-auto mb-2" />
-              <p className="text-gray-400 text-sm">Drop images here or click to browse</p>
-              <p className="text-gray-600 text-xs mt-1">JPG, PNG, WEBP - max 5MB each</p>
+              <p className="text-gray-400 text-sm">Drop images or videos here or click to browse</p>
+              <p className="text-gray-600 text-xs mt-1">Images: JPG, PNG, WEBP (max 5MB) · Videos: MP4, MOV, WEBM (max 30s, 50MB)</p>
             </>
           )}
         </div>
       )}
-      {/* Preview grid */}
       {images.length > 0 && (
         <div className="flex gap-2 flex-wrap">
           {images.map((url, i) => (
             <div key={i} className="relative group">
-              <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border border-gray-200" loading="lazy"
-                onError={e => { if (e.target.src !== 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80') e.target.src = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80' }} />
+              {isVideoUrl(url) ? (
+                <video src={url} muted playsInline
+                  className="w-20 h-20 object-cover rounded-lg border border-gray-200 bg-black"
+                  onMouseEnter={e => e.target.play()}
+                  onMouseLeave={e => { e.target.pause(); e.target.currentTime = 0 }}
+                />
+              ) : (
+                <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border border-gray-200" loading="lazy"
+                  onError={e => { if (e.target.src !== 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80') e.target.src = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80' }} />
+              )}
               <button
                 type="button"
                 onClick={() => removeImage(url, i)}
@@ -93,7 +117,8 @@ function ImageUploader({ images, onImagesChange, uploading, setUploading }) {
               >
                 <X size={10} />
               </button>
-              {i === 0 && <span className="absolute bottom-0 left-0 right-0 text-center text-xs bg-black/60 text-[#1B2B5E] rounded-b-lg py-0.5">Main</span>}
+              {i === 0 && <span className="absolute bottom-0 left-0 right-0 text-center text-xs bg-black/60 text-white rounded-b-lg py-0.5">Main</span>}
+              {isVideoUrl(url) && <span className="absolute top-0 left-0 text-xs bg-black/60 text-white rounded-tl-lg rounded-br-lg px-1 py-0.5">▶</span>}
             </div>
           ))}
         </div>
