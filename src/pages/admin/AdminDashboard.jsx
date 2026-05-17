@@ -151,6 +151,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!stats || startupNotified) return
     useAdminStore.setState({ startupNotified: true })
+    if (typeof window !== 'undefined') localStorage.setItem('admin_startup_notified', 'true')
     if (stats.lowStockCount > 0) {
       addNotification(`${stats.lowStockCount} products have low stock`, 'warning')
     }
@@ -180,7 +181,7 @@ export default function AdminDashboard() {
         <StatCard icon={DollarSign} label="Total Revenue" value={formatINR(stats.totalRevenue)} sub="from paid orders" color="green" to="/admin/analytics" />
         <StatCard icon={Package} label="Products" value={stats.totalProducts} color="blue" to="/admin/products" />
         <StatCard icon={AlertTriangle} label="Low Stock" value={stats.lowStockCount} sub="< 10 items" color="red" to="/admin/products" />
-        <StatCard icon={Clock} label="Today's Orders" value={stats.todayOrdersCount} color="gold" to="/admin/orders" />
+        <StatCard icon={Clock} label="Today's Orders" value={stats.todayOrdersCount} color="gold" to="/admin/orders?filter=today" />
       </div>
 
       {/* Charts Row 1 */}

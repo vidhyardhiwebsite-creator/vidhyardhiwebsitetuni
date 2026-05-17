@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react"
+import { useSearchParams } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, ChevronDown, ChevronUp, AlertTriangle, Eye, Truck, Upload } from "lucide-react"
 import { useAdminStore } from "../../store/adminStore"
@@ -276,9 +277,19 @@ export default function AdminOrders() {
   const [search, setSearch] = useState("")
   const [expanded, setExpanded] = useState(null)
   const [screenshotModal, setScreenshotModal] = useState(null)
+  const [searchParams] = useSearchParams()
+  const filterToday = searchParams.get("filter") === "today"
 
   useEffect(() => { loadOrders() }, [])
-  useEffect(() => { setLocalOrders(orders) }, [orders])
+  useEffect(() => {
+    if (!orders.length) return
+    if (filterToday) {
+      const today = new Date().toDateString()
+      setLocalOrders(orders.filter(o => new Date(o.created_at).toDateString() === today))
+    } else {
+      setLocalOrders(orders)
+    }
+  }, [orders, filterToday])
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     const order = localOrders.find(o => o.id === orderId)
@@ -370,13 +381,15 @@ export default function AdminOrders() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-[#1B2B5E]" style={{ fontFamily: "Georgia, serif" }}>Orders</h1>
+        <h1 className="text-2xl font-bold text-[#1B2B5E]" style={{ fontFamily: "Georgia, serif" }}>
+          {filterToday ? "Today's Orders" : "Orders"}
+        </h1>
         <p className="text-gray-500 text-sm mt-0.5">{localOrders.length} total &middot; {localOrders.filter(o => o.payment_status === "pending_verification").length} awaiting verification</p>
       </div>
 
       <div className="relative">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by order ID (e.g. NS0-001), name, phone..."
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by Order ID (e.g. NS0-001)"
           className="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-sm text-[#1A1A2E] placeholder-gray-600 focus:outline-none focus:border-[#1B2B5E]" />
       </div>
 

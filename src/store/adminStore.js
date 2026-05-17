@@ -7,7 +7,7 @@ export const useAdminStore = create((set, get) => ({
   stats: null,
   loading: false,
   notifications: [],
-  startupNotified: false,
+  startupNotified: typeof window !== 'undefined' && localStorage.getItem('admin_startup_notified') === 'true',
 
   loadProducts: async () => {
     set({ loading: true })

@@ -36,10 +36,10 @@ function Sidebar({ pathname, onSignOut, onNavClick }) {
         })}
       </nav>
       <div className="p-3 border-t border-white/10 space-y-1">
-        <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-white hover:bg-white/10 transition-all">
+        <Link to="/admin" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-white hover:bg-white/10 transition-all">
           <Store size={17} /> Switch to User
         </Link>
-        <button onClick={onSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-red-300 hover:bg-red-400/10 transition-all">
+        <button onClick={onSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-red-300 hover:bg-white/10 transition-all">
           <LogOut size={17} /> Logout
         </button>
       </div>
@@ -78,10 +78,9 @@ export default function AdminLayout({ children }) {
     const opening = !notifOpen
     setNotifOpen(opening)
     if (opening) {
-      // Auto-mark all as read (clear) after a short delay so user can see them first
-      setTimeout(() => {
-        useAdminStore.getState().notifications.forEach(n => clearNotification(n.id))
-      }, 3000)
+      // Mark all as read immediately when panel opens — persist to localStorage
+      const ids = useAdminStore.getState().notifications.map(n => n.id)
+      ids.forEach(id => clearNotification(id))
     }
   }
 
