@@ -40,8 +40,12 @@ export default function AdminUsers() {
         supabase.from("cart").select("*, products(id, name, price, images, category, custom_id)").eq("user_id", userId),
         supabase.from("wishlist").select("*, products(id, name, price, images, category, custom_id)").eq("user_id", userId),
       ])
+      console.log("Cart result:", cartRes)
+      console.log("Wishlist result:", wishlistRes)
       setUserDetails(p => ({ ...p, [userId]: { cart: cartRes.data || [], wishlist: wishlistRes.data || [] } }))
-    } catch {}
+    } catch (e) {
+      console.error("Failed to load user details:", e)
+    }
     setLoadingDetails(p => ({ ...p, [userId]: false }))
     setExpanded(expanded === userId ? null : userId)
   }
