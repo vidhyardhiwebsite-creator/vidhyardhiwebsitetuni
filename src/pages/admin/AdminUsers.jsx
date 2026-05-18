@@ -18,11 +18,17 @@ export default function AdminUsers() {
   const fetchAllUsers = useCallback(async () => {
     setLoadingUsers(true)
     try {
-      // Fetch all unique user_ids from cart, wishlist, and orders
+      // Use security definer RPC functions that bypass RLS
       const [cartRes, wishlistRes] = await Promise.all([
-        supabase.from("cart").select("user_id, products(id, name, price, images, category, custom_id), quantity, id"),
-        supabase.from("wishlist").select("user_id, products(id, name, price, images, category, custom_id), id"),
+        supabase.rpc("get_all_carts"),
+        supabase.rpc("get_all_wishlists"),
       ])
+
+      if (cartRes.error) console.error("Cart RPC error:", cartRes.error)
+      if (wishlistRes.error) console.error("Wishlist RPC error:", wishlistRes.error)
+
+      const cartRows = cartRes.data || []
+      const wishlistRows = wishlistRes.data || []
 
       // Build user map from orders (for name/phone/spend data)
       const userMap = {}
@@ -32,34 +38,53 @@ export default function AdminUsers() {
         try { addrObj = typeof o.address === "string" ? JSON.parse(o.address) : (o.address || {}) } catch {}
         const name = addrObj.full_name || "Customer"
         const phone = addrObj.phone || ""
-        if (!userMap[key]) userMap[key] = { userId: key, name, phone, orders: 0, totalSpent: 0, lastOrder: null, hasCart: false, hasWishlist: false }
+        if (!userMap[key]) userMap[key] = { userId: key, name, phone, orders: 0, totalSpent: 0, lastOrder: null }
         userMap[key].orders += 1
         if (o.payment_status === "paid") userMap[key].totalSpent += o.total_amount || 0
         if (!userMap[key].lastOrder || new Date(o.created_at) > new Date(userMap[key].lastOrder)) userMap[key].lastOrder = o.created_at
         if (phone && !userMap[key].phone) userMap[key].phone = phone
       })
 
-      // Add users from cart who may not have ordered
+      // Group cart rows by user
       const cartByUser = {}
-      ;(cartRes.data || []).forEach(row => {
+      cartRows.forEach(row => {
         const uid = row.user_id
         if (!cartByUser[uid]) cartByUser[uid] = []
-        cartByUser[uid].push(row)
-        if (!userMap[uid]) userMap[uid] = { userId: uid, name: "Customer", phone: "", orders: 0, totalSpent: 0, lastOrder: null, hasCart: false, hasWishlist: false }
-        userMap[uid].hasCart = true
+        cartByUser[uid].push({
+          id: row.id,
+          product_id: row.product_id,
+          quantity: row.quantity,
+          products: {
+            name: row.product_name,
+            price: row.product_price,
+            images: row.product_images,
+            category: row.product_category,
+            custom_id: row.product_custom_id,
+          }
+        })
+        if (!userMap[uid]) userMap[uid] = { userId: uid, name: "Customer", phone: "", orders: 0, totalSpent: 0, lastOrder: null }
       })
 
-      // Add users from wishlist who may not have ordered
+      // Group wishlist rows by user
       const wishlistByUser = {}
-      ;(wishlistRes.data || []).forEach(row => {
+      wishlistRows.forEach(row => {
         const uid = row.user_id
         if (!wishlistByUser[uid]) wishlistByUser[uid] = []
-        wishlistByUser[uid].push(row)
-        if (!userMap[uid]) userMap[uid] = { userId: uid, name: "Customer", phone: "", orders: 0, totalSpent: 0, lastOrder: null, hasCart: false, hasWishlist: false }
-        userMap[uid].hasWishlist = true
+        wishlistByUser[uid].push({
+          id: row.id,
+          product_id: row.product_id,
+          products: {
+            name: row.product_name,
+            price: row.product_price,
+            images: row.product_images,
+            category: row.product_category,
+            custom_id: row.product_custom_id,
+          }
+        })
+        if (!userMap[uid]) userMap[uid] = { userId: uid, name: "Customer", phone: "", orders: 0, totalSpent: 0, lastOrder: null }
       })
 
-      // Pre-populate userDetails with fetched cart/wishlist data
+      // Pre-populate userDetails
       const detailsMap = {}
       Object.keys(userMap).forEach(uid => {
         detailsMap[uid] = {
@@ -81,22 +106,9 @@ export default function AdminUsers() {
   const users = allUsers.filter(u => !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.userId.includes(search))
 
   const loadUserDetails = async (userId) => {
-    // Toggle expand — data already pre-loaded in fetchAllUsers
     setExpanded(expanded === userId ? null : userId)
-    // Refresh this user's data on expand
-    if (expanded !== userId) {
-      setLoadingDetails(p => ({ ...p, [userId]: true }))
-      try {
-        const [cartRes, wishlistRes] = await Promise.all([
-          supabase.from("cart").select("*, products(id, name, price, images, category, custom_id)").eq("user_id", userId),
-          supabase.from("wishlist").select("*, products(id, name, price, images, category, custom_id)").eq("user_id", userId),
-        ])
-        setUserDetails(p => ({ ...p, [userId]: { cart: cartRes.data || [], wishlist: wishlistRes.data || [] } }))
-      } catch (e) {
-        console.error("Failed to load user details:", e)
-      }
-      setLoadingDetails(p => ({ ...p, [userId]: false }))
-    }
+    // Refresh this user's data from already-fetched details (no extra query needed)
+    // Data is already in userDetails from fetchAllUsers
   }
 
   const notifyWhatsApp = (user, type) => {
