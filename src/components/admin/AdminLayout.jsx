@@ -15,13 +15,17 @@ const NAV = [
   { path: "/admin/users", label: "Users", icon: Users },
 ]
 
-function Sidebar({ pathname, onSignOut, onNavClick }) {
+function Sidebar({ pathname, onSignOut, onNavClick, onToggle }) {
   return (
     <motion.aside initial={{ width: 0, opacity: 0 }} animate={{ width: 240, opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={{ duration: 0.2 }}
       className="flex-shrink-0 bg-[#1B2B5E] flex flex-col overflow-hidden">
       <div className="p-5 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <span className="text-white font-bold text-lg" style={{ fontFamily: "Georgia, serif" }}>NaShe Jewels</span>
+        <div
+          className="flex items-center gap-2 cursor-pointer select-none"
+          onClick={onToggle}
+          title="Toggle sidebar"
+        >
+          <span className="text-white font-bold text-lg hover:text-blue-200 transition-colors" style={{ fontFamily: "Georgia, serif" }}>NaShe Jewels</span>
         </div>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -108,7 +112,7 @@ export default function AdminLayout({ children }) {
   return (
     <div className="flex h-screen bg-[#F4F6FA] overflow-hidden">
       <AnimatePresence initial={false}>
-        {sidebarOpen && <Sidebar pathname={pathname} onSignOut={handleSignOut} onNavClick={() => { if (window.innerWidth < 1024) setSidebarOpen(false) }} />}
+        {sidebarOpen && <Sidebar pathname={pathname} onSignOut={handleSignOut} onNavClick={() => { if (window.innerWidth < 1024) setSidebarOpen(false) }} onToggle={() => setSidebarOpen(o => !o)} />}
       </AnimatePresence>
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0 shadow-sm">

@@ -377,13 +377,53 @@ export default function AdminProducts() {
                   </div>
                   <div className="col-span-2">
                     <label className="text-xs text-gray-400 mb-2 block">Tags</label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mb-2">
                       {TAGS.map(tag => (
                         <button key={tag} type="button" onClick={() => toggleTag(tag)}
                           className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${form.tags.includes(tag) ? "bg-[#1B2B5E] text-white" : "bg-gray-50 text-gray-400 border border-gray-200 hover:border-[#1B2B5E]/50"}`}>
                           {tag}
                         </button>
                       ))}
+                      {/* Custom tags added by admin */}
+                      {form.tags.filter(t => !TAGS.includes(t)).map(tag => (
+                        <button key={tag} type="button" onClick={() => toggleTag(tag)}
+                          className="px-3 py-1 rounded-full text-xs font-medium bg-[#1B2B5E] text-white flex items-center gap-1">
+                          {tag} <X size={10} />
+                        </button>
+                      ))}
+                    </div>
+                    {/* Add custom tag */}
+                    <div className="flex gap-2">
+                      <input
+                        id="custom-tag-input"
+                        type="text"
+                        placeholder="Add custom tag..."
+                        onKeyDown={e => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            const val = e.target.value.trim().toLowerCase()
+                            if (val && !form.tags.includes(val)) {
+                              setForm(f => ({ ...f, tags: [...f.tags, val] }))
+                            }
+                            e.target.value = ""
+                          }
+                        }}
+                        className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-[#1A1A2E] placeholder-gray-400 focus:outline-none focus:border-[#1B2B5E]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById("custom-tag-input")
+                          const val = input.value.trim().toLowerCase()
+                          if (val && !form.tags.includes(val)) {
+                            setForm(f => ({ ...f, tags: [...f.tags, val] }))
+                          }
+                          input.value = ""
+                        }}
+                        className="px-3 py-1.5 bg-[#1B2B5E] text-white rounded-lg text-xs font-bold hover:bg-[#2A3F7E] transition-all"
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
                   <ImageUploader

@@ -109,6 +109,10 @@ export const useAdminStore = create((set, get) => ({
     const { data, error } = await supabase.from("products").insert(productData).select().single()
     if (error) throw new Error(error.message)
     set(s => ({ products: [data, ...s.products] }))
+    // Fire low stock notification if stock < 10
+    if ((data.stock || 0) < 10) {
+      get().addNotification(`Low stock: "${data.name}" has only ${data.stock} left`, "warning")
+    }
     return data
   },
 
@@ -116,6 +120,10 @@ export const useAdminStore = create((set, get) => ({
     const { data, error } = await supabase.from("products").update(updates).eq("id", id).select().single()
     if (error) throw new Error(error.message)
     set(s => ({ products: s.products.map(p => p.id === id ? data : p) }))
+    // Fire low stock notification if stock dropped below 10
+    if ((data.stock || 0) < 10) {
+      get().addNotification(`Low stock: "${data.name}" has only ${data.stock} left`, "warning")
+    }
   },
 
   deleteProduct: async (id) => {
