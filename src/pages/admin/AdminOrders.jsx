@@ -213,20 +213,38 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
               )}
 
               {order.payment_status === "paid" && (
-                <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                  <p className="text-gray-400 text-xs font-medium">Order Status</p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex flex-wrap gap-1 flex-1">
-                      {["confirmed","shipping","delivered"].map((s, i) => {
-                        const cur = ["confirmed","shipping","delivered"].indexOf(order.order_status || "confirmed")
-                        const done = i < cur; const active = i === cur
-                        return (
-                          <span key={s} className={`text-xs px-2 py-0.5 rounded border ${active?"bg-[#1B2B5E]/15 border-[#1B2B5E]/50 text-[#1B2B5E]":done?"bg-green-500/10 border-green-500/30 text-green-400":"bg-gray-100 border-gray-200 text-gray-500"}`}>
-                            {s.charAt(0).toUpperCase() + s.slice(1)}
-                          </span>
-                        )
-                      })}
-                    </div>
+                <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+                  <p className="text-[#1A1A2E] text-xs font-semibold">Order Status</p>
+                  {/* Colorful step tracker — same as user panel */}
+                  <div className="flex items-start gap-0 mb-2">
+                    {[
+                      { key: "confirmed", label: "Confirmed", activeColor: "bg-blue-500", doneColor: "bg-blue-500", lineColor: "bg-blue-400", textColor: "text-blue-600" },
+                      { key: "shipping",  label: "Shipped",   activeColor: "bg-orange-500", doneColor: "bg-orange-500", lineColor: "bg-orange-400", textColor: "text-orange-600" },
+                      { key: "delivered", label: "Delivered", activeColor: "bg-green-500", doneColor: "bg-green-500", lineColor: "bg-green-400", textColor: "text-green-600" },
+                    ].map((step, idx) => {
+                      const steps = ["confirmed","shipping","delivered"]
+                      const currentIdx = steps.indexOf(order.order_status || "confirmed")
+                      const done = idx <= currentIdx
+                      const active = idx === currentIdx
+                      return (
+                        <div key={step.key} className="flex-1 flex flex-col items-center">
+                          <div className="flex items-center w-full">
+                            <div className={`w-full h-1 rounded-full ${idx === 0 ? "opacity-0" : done ? (idx === 1 ? "bg-blue-400" : "bg-orange-400") : "bg-gray-200"}`} />
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all shadow-sm ${done || active ? `${step.activeColor} border-transparent` : "border-gray-200 bg-gray-100"}`}>
+                              {step.key === "confirmed" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`w-4 h-4 ${done || active ? "text-white" : "text-gray-400"}`}><polyline points="20 6 9 17 4 12"/></svg>}
+                              {step.key === "shipping" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`w-4 h-4 ${done || active ? "text-white" : "text-gray-400"}`}><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>}
+                              {step.key === "delivered" && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`w-4 h-4 ${done || active ? "text-white" : "text-gray-400"}`}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
+                            </div>
+                            <div className={`w-full h-1 rounded-full ${idx === 2 ? "opacity-0" : done && idx < currentIdx ? step.lineColor : "bg-gray-200"}`} />
+                          </div>
+                          <p className={`text-xs mt-1.5 text-center font-medium ${active ? step.textColor : done ? step.textColor + " opacity-70" : "text-gray-400"}`}>{step.label}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {/* Status dropdown to change */}
+                  <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+                    <span className="text-gray-400 text-xs">Change status:</span>
                     <StatusDropdown orderId={order.id} currentStatus={order.order_status || "confirmed"} onStatusUpdate={onStatusUpdate} />
                   </div>
                 </div>
