@@ -36,7 +36,7 @@ function Sidebar({ pathname, onSignOut, onNavClick }) {
         })}
       </nav>
       <div className="p-3 border-t border-white/10 space-y-1">
-        <Link to="/admin" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-white hover:bg-white/10 transition-all">
+        <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-white hover:bg-white/10 transition-all">
           <Store size={17} /> Switch to User
         </Link>
         <button onClick={onSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-100 hover:text-red-300 hover:bg-white/10 transition-all">
