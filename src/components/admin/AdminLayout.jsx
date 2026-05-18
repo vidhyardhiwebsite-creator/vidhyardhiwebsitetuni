@@ -20,9 +20,9 @@ function Sidebar({ pathname, onSignOut, onNavClick }) {
     <motion.aside initial={{ width: 0, opacity: 0 }} animate={{ width: 240, opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={{ duration: 0.2 }}
       className="flex-shrink-0 bg-[#1B2B5E] flex flex-col overflow-hidden">
       <div className="p-5 border-b border-white/10">
-        <Link to="/" className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <span className="text-white font-bold text-lg" style={{ fontFamily: "Georgia, serif" }}>NaShe Jewels</span>
-        </Link>
+        </div>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {NAV.map(({ path, label, icon: Icon }) => {
@@ -60,14 +60,19 @@ export default function AdminLayout({ children }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
   const [notifOpen, setNotifOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const { pathname } = useLocation()
   const { signOut, user } = useAuthStore()
   const { notifications, clearNotification } = useAdminStore()
   const navigate = useNavigate()
   const notifRef = useRef(null)
+  const profileRef = useRef(null)
 
   useEffect(() => {
-    const handler = (e) => { if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false) }
+    const handler = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false)
+      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false)
+    }
     document.addEventListener("mousedown", handler)
     document.addEventListener("touchstart", handler)
     return () => { document.removeEventListener("mousedown", handler); document.removeEventListener("touchstart", handler) }
@@ -165,15 +170,39 @@ export default function AdminLayout({ children }) {
                 )}
               </AnimatePresence>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-[#1B2B5E] rounded-full flex items-center justify-center border-2 border-[#C9956C]">
-                <span className="text-white text-xs font-bold">
-                  {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "U")[0]?.toUpperCase()}
+            <div className="flex items-center gap-2 relative" ref={profileRef}>
+              <button
+                onClick={() => setProfileOpen(o => !o)}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-7 h-7 bg-[#1B2B5E] rounded-full flex items-center justify-center border-2 border-[#C9956C]">
+                  <span className="text-white text-xs font-bold">
+                    {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "U")[0]?.toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-gray-600 text-xs hidden sm:block font-medium">
+                  {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0]}
                 </span>
-              </div>
-              <span className="text-gray-600 text-xs hidden sm:block font-medium">
-                {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0]}
-              </span>
+              </button>
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
+                    className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-[100] overflow-hidden">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-gray-800 text-xs font-semibold truncate">
+                        {user?.user_metadata?.full_name || user?.user_metadata?.name || "Admin"}
+                      </p>
+                      <p className="text-gray-400 text-xs truncate">{user?.email}</p>
+                    </div>
+                    <button
+                      onClick={() => { setProfileOpen(false); handleSignOut() }}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut size={14} /> Logout
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </header>

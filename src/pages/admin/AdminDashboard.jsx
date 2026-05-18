@@ -113,16 +113,16 @@ const StatCard = ({ icon: Icon, label, value, sub, color = 'gold', to }) => (
       whileHover={{ y: -2, boxShadow: '0 4px 20px rgba(27,43,94,0.12)' }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-gray-200 rounded-xl p-5 cursor-pointer transition-all hover:border-[#1B2B5E]/30"
+      className="bg-white border border-gray-200 rounded-xl p-5 cursor-pointer transition-all hover:border-[#1B2B5E]/30 h-full min-h-[130px] flex flex-col justify-between"
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className={`p-2 rounded-lg ${color === 'gold' ? 'bg-[#1B2B5E]/15' : color === 'green' ? 'bg-green-500/15' : color === 'red' ? 'bg-red-500/15' : 'bg-blue-500/15'}`}>
-          <Icon size={18} className={color === 'gold' ? 'text-[#1B2B5E]' : color === 'green' ? 'text-green-400' : color === 'red' ? 'text-red-400' : 'text-blue-400'} />
-        </div>
+      <div className={`p-2 rounded-lg w-fit ${color === 'gold' ? 'bg-[#1B2B5E]/15' : color === 'green' ? 'bg-green-500/15' : color === 'red' ? 'bg-red-500/15' : 'bg-blue-500/15'}`}>
+        <Icon size={18} className={color === 'gold' ? 'text-[#1B2B5E]' : color === 'green' ? 'text-green-400' : color === 'red' ? 'text-red-400' : 'text-blue-400'} />
       </div>
-      <p className="text-2xl font-bold text-[#1B2B5E] mb-1">{value}</p>
-      <p className="text-gray-400 text-sm">{label}</p>
-      {sub && <p className="text-xs text-gray-600 mt-1">{sub}</p>}
+      <div>
+        <p className="text-2xl font-bold text-[#1B2B5E] mb-1">{value}</p>
+        <p className="text-gray-400 text-sm">{label}</p>
+        {sub && <p className="text-xs text-gray-600 mt-1">{sub}</p>}
+      </div>
     </motion.div>
   </Link>
 )
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatCard icon={ShoppingBag} label="Total Orders" value={stats.totalOrders} sub={`${stats.paidOrders} paid`} color="gold" to="/admin/orders" />
         <StatCard icon={DollarSign} label="Total Revenue" value={formatINR(stats.totalRevenue)} sub="from paid orders" color="green" to="/admin/analytics" />
         <StatCard icon={Package} label="Products" value={stats.totalProducts} color="blue" to="/admin/products" />
