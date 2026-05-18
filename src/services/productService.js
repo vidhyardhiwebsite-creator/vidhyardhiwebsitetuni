@@ -7,8 +7,8 @@ export async function fetchProducts(filters = {}) {
     let query = supabase.from('products').select('*')
     if (filters.category) query = query.eq('category', filters.category)
     if (filters.search) {
-      // Use separate ilike filters combined with AND (not OR across category)
-      query = query.ilike('name', `%${filters.search}%`)
+      // Search by name OR custom_id (product code)
+      query = query.or(`name.ilike.%${filters.search}%,custom_id.ilike.%${filters.search}%`)
     }
     if (filters.sort === 'price_asc') query = query.order('price', { ascending: true })
     else if (filters.sort === 'price_desc') query = query.order('price', { ascending: false })

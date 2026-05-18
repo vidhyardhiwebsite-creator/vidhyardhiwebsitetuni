@@ -37,8 +37,8 @@ export default function AdminUsers() {
     setLoadingDetails(p => ({ ...p, [userId]: true }))
     try {
       const [cartRes, wishlistRes] = await Promise.all([
-        supabase.from("cart").select("*, products(name, price, images, category)").eq("user_id", userId),
-        supabase.from("wishlist").select("*, products(name, price, images, category)").eq("user_id", userId),
+        supabase.from("cart").select("*, products(id, name, price, images, category, custom_id)").eq("user_id", userId),
+        supabase.from("wishlist").select("*, products(id, name, price, images, category, custom_id)").eq("user_id", userId),
       ])
       setUserDetails(p => ({ ...p, [userId]: { cart: cartRes.data || [], wishlist: wishlistRes.data || [] } }))
     } catch {}

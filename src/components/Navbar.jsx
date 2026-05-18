@@ -43,10 +43,14 @@ export default function Navbar() {
   const handleSearchChange = (e) => {
     const q = e.target.value
     setSearchQuery(q)
-    if (q.trim().length >= 3 && products.length) {
+    if (q.trim().length >= 2 && products.length) {
       const lower = q.toLowerCase()
       const matches = products
-        .filter(p => p.name?.toLowerCase().includes(lower) || p.category?.toLowerCase().includes(lower))
+        .filter(p =>
+          p.name?.toLowerCase().includes(lower) ||
+          p.category?.toLowerCase().includes(lower) ||
+          (p.custom_id || "").toLowerCase().includes(lower)
+        )
         .slice(0, 6)
       setSuggestions(matches)
     } else {
@@ -59,6 +63,7 @@ export default function Navbar() {
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
       setSearchQuery(""); setSuggestions([])
+      setMenuOpen(false) // close mobile menu so results are visible
     }
   }
 
@@ -135,7 +140,7 @@ export default function Navbar() {
                       {p.images?.[0] && <img src={p.images[0]} alt="" className="w-8 h-8 object-cover rounded-lg flex-shrink-0" onError={e => { e.target.style.display = "none" }} />}
                       <div className="flex-1 min-w-0">
                         <p className="text-[#1A1A2E] text-xs font-medium truncate">{p.name}</p>
-                        <p className="text-[#8A8AAA] text-xs">{p.category}</p>
+                        <p className="text-[#8A8AAA] text-xs">{p.category}{p.custom_id ? ` · ${p.custom_id}` : ""}</p>
                       </div>
                       <span className="text-[#1B2B5E] text-xs font-semibold flex-shrink-0">₹{p.price?.toLocaleString("en-IN")}</span>
                     </button>
@@ -247,7 +252,7 @@ export default function Navbar() {
                             {p.images?.[0] && <img src={p.images[0]} alt="" className="w-8 h-8 object-cover rounded-lg flex-shrink-0" onError={e => { e.target.style.display = "none" }} />}
                             <div className="flex-1 min-w-0">
                               <p className="text-[#1A1A2E] text-sm truncate">{p.name}</p>
-                              <p className="text-[#8A8AAA] text-xs">{p.category}</p>
+                              <p className="text-[#8A8AAA] text-xs">{p.category}{p.custom_id ? ` · ${p.custom_id}` : ""}</p>
                             </div>
                             <span className="text-[#1B2B5E] text-xs font-semibold flex-shrink-0">₹{p.price?.toLocaleString("en-IN")}</span>
                           </button>
