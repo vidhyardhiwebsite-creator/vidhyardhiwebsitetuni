@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Package, ChevronDown, ChevronUp, CheckCircle, Truck, Clock, XCircle, AlertTriangle, Search } from "lucide-react"
 import { useAuthStore } from "../store/authStore"
@@ -102,7 +103,7 @@ export default function OrdersPage() {
     const fetchOrders = async () => {
       const { data } = await supabase
         .from("orders")
-        .select("*, order_items(*, products(name, images, price))")
+        .select("*, order_items(*, product_id, products(id, name, images, price))")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
       setOrders(data || [])
@@ -255,18 +256,22 @@ export default function OrdersPage() {
                       {/* Order items */}
                       <div className="space-y-3">
                         {order.order_items?.map(item => (
-                          <div key={item.id} className="flex items-center gap-3">
+                          <Link
+                            key={item.id}
+                            to={`/products/${item.product_id || item.products?.id}`}
+                            className="flex items-center gap-3 hover:bg-[#FAF8F5] rounded-lg p-1 -mx-1 transition-colors group"
+                          >
                             {item.products?.images?.[0] && (
                               <img src={item.products.images[0]} alt={item.products?.name}
-                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5]"
+                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5] group-hover:border-[#C9956C] transition-colors"
                                 onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80" }} />
                             )}
                             <div className="flex-1">
-                              <p className="text-[#1A1A2E] text-sm">{item.products?.name || "Product"}</p>
+                              <p className="text-[#1A1A2E] text-sm group-hover:text-[#1B2B5E] transition-colors">{item.products?.name || "Product"}</p>
                               <p className="text-[#8A8AAA] text-xs">Qty: {item.quantity} × {formatINR(item.price)}</p>
                             </div>
                             <p className="text-[#1B2B5E] text-sm font-medium">{formatINR(item.quantity * item.price)}</p>
-                          </div>
+                          </Link>
                         ))}
                       </div>
 
