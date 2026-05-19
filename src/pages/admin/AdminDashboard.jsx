@@ -290,6 +290,7 @@ export default function AdminDashboard() {
       <HeroVideoManager />
       <FeaturesBarManager />
       <OfferBannerManager />
+      <ProductsPerPageManager />
 
       {/* Recent Orders — grouped by day (last 3 days) */}
       {(() => {
@@ -501,6 +502,61 @@ function OfferBannerManager() {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Products Per Page Manager - controls how many products users see per page on /products
+function ProductsPerPageManager() {
+  const PAGE_SIZE_OPTIONS = [8, 12, 24, 48]
+  const [value, setValue] = useState(12)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    getSetting('products_per_page').then(val => {
+      const n = parseInt(val)
+      if (n && PAGE_SIZE_OPTIONS.includes(n)) setValue(n)
+    }).catch(() => {})
+  }, [])
+
+  const save = async (n) => {
+    setSaving(true)
+    try {
+      await setSetting('products_per_page', String(n))
+      setValue(n)
+      toast.success(`Products per page set to ${n}`)
+    } catch (e) {
+      toast.error(e.message || 'Failed to save')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <h3 className="text-[#1B2B5E] font-medium mb-1 flex items-center gap-2">
+        <Package size={15} /> Products Per Page
+        <span className="text-xs text-gray-500 font-normal ml-1">- controls user-facing /products page</span>
+      </h3>
+      <p className="text-gray-400 text-xs mb-4">Choose how many products are shown per page on the shop.</p>
+      <div className="flex items-center gap-3 flex-wrap">
+        {PAGE_SIZE_OPTIONS.map(n => (
+          <button
+            key={n}
+            onClick={() => save(n)}
+            disabled={saving}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold border transition-all ${
+              value === n
+                ? 'bg-[#1B2B5E] text-white border-[#1B2B5E]'
+                : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-[#1B2B5E] hover:text-[#1B2B5E]'
+            } disabled:opacity-60`}
+          >
+            {n}
+          </button>
+        ))}
+        {saving && <span className="text-xs text-gray-400">Saving...</span>}
+      </div>
+      <p className="text-gray-400 text-xs mt-3">Current: <span className="text-[#1B2B5E] font-semibold">{value} products per page</span></p>
     </div>
   )
 }

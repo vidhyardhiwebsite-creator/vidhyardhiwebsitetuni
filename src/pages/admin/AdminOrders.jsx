@@ -153,7 +153,7 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
     if (order.payment_status === "failed") return { label: "Failed", color: "bg-red-500/20 text-red-400" }
     const s = order.order_status || "confirmed"
     if (s === "delivered") return { label: "Delivered", color: "bg-green-500 text-white" }
-    if (s === "shipping") return { label: "Shipped", color: "bg-yellow-500/20 text-yellow-400" }
+    if (s === "shipping") return { label: "Shipped", color: "bg-orange-500 text-white" }
     return { label: "Confirmed", color: "bg-blue-500/20 text-blue-400" }
   }
 

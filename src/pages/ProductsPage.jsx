@@ -2,8 +2,9 @@
 import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { SlidersHorizontal, X } from 'lucide-react'
+import { SlidersHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { fetchProducts } from '../services/productService'
+import { getSetting } from '../services/settingsService'
 import { CATEGORIES } from '../data/products'
 import ProductCard from '../components/ProductCard'
 import SkeletonCard from '../components/SkeletonCard'
@@ -14,22 +15,37 @@ const SORT_OPTIONS = [
   { value: 'price_desc', label: 'Price: High to Low' },
 ]
 
+const PAGE_SIZE_OPTIONS = [8, 12, 24, 48]
+const DEFAULT_PAGE_SIZE = 12
+
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [page, setPage] = useState(1)
 
   const category = searchParams.get('category') || ''
   const search = searchParams.get('search') || ''
   const sort = searchParams.get('sort') || 'newest'
+
+  // Load admin-configured per-page setting
+  useEffect(() => {
+    getSetting('products_per_page').then(val => {
+      const n = parseInt(val)
+      if (n && PAGE_SIZE_OPTIONS.includes(n)) setPageSize(n)
+    }).catch(() => {})
+  }, [])
+
+  // Reset to page 1 when filters change
+  useEffect(() => { setPage(1) }, [category, search, sort, pageSize])
 
   // If search exactly matches a category name, treat it as a category filter
   const matchedCategory = CATEGORIES.find(c => c.toLowerCase() === search.toLowerCase())
 
   useEffect(() => {
     if (matchedCategory && !category) {
-      // Auto-switch to category filter
       const params = new URLSearchParams(searchParams)
       params.set('category', matchedCategory)
       params.delete('search')
@@ -51,8 +67,11 @@ export default function ProductsPage() {
   }
 
   const clearFilters = () => setSearchParams({})
-
   const hasFilters = category || search
+
+  // Pagination
+  const totalPages = Math.ceil(products.length / pageSize)
+  const pagedProducts = products.slice((page - 1) * pageSize, page * pageSize)
 
   return (
     <>
@@ -112,10 +131,29 @@ export default function ProductsPage() {
           </div>
         </div>
 
+        {/* Per-page selector */}
+        {!loading && products.length > 0 && (
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[#8A8AAA] text-xs">
+              Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, products.length)} of {products.length} pieces
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-[#8A8AAA] text-xs">Per page:</span>
+              <select
+                value={pageSize}
+                onChange={e => { setPageSize(Number(e.target.value)); setPage(1) }}
+                className="bg-white border border-[#E8E0D5] text-[#4A4A6A] text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#1B2B5E]"
+              >
+                {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+          </div>
+        )}
+
         {/* Grid */}
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {Array(12).fill(0).map((_, i) => <SkeletonCard key={i} />)}
+            {Array(pageSize).fill(0).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-20">
@@ -127,22 +165,53 @@ export default function ProductsPage() {
             </button>
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-          >
-            {products.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
-              >
-                <ProductCard product={p} />
-              </motion.div>
-            ))}
-          </motion.div>
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+            >
+              {pagedProducts.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                >
+                  <ProductCard product={p} />
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-10">
+                <button
+                  onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                  disabled={page === 1}
+                  className="flex items-center gap-1 px-3 py-2 text-xs rounded-lg border border-[#E8E0D5] text-[#4A4A6A] hover:border-[#1B2B5E] disabled:opacity-40 transition-all"
+                >
+                  <ChevronLeft size={13} /> Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                    className={`w-8 h-8 text-xs rounded-lg border transition-all ${p === page ? 'bg-[#1B2B5E] text-white border-[#1B2B5E]' : 'border-[#E8E0D5] text-[#4A4A6A] hover:border-[#1B2B5E]'}`}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                  disabled={page === totalPages}
+                  className="flex items-center gap-1 px-3 py-2 text-xs rounded-lg border border-[#E8E0D5] text-[#4A4A6A] hover:border-[#1B2B5E] disabled:opacity-40 transition-all"
+                >
+                  Next <ChevronRight size={13} />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>
