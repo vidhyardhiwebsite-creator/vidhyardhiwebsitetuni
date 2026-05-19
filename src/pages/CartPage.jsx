@@ -5,6 +5,7 @@ import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 import { useWishlistStore } from '../store/wishlistStore'
 import { formatINR } from '../utils/format'
+import { isVideoUrl } from '../services/storageService'
 import toast from 'react-hot-toast'
 import { useEffect } from 'react'
 
@@ -86,7 +87,8 @@ export default function CartPage() {
           <AnimatePresence>
             {items.map(item => {
               const product = item.products || {}
-              const image = product.images?.[0] || 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=200&q=80'
+              const mediaUrl = product.images?.[0]
+              const fallback = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=200&q=80'
               return (
                 <motion.div
                   key={item.id || item.product_id}
@@ -95,9 +97,24 @@ export default function CartPage() {
                   exit={{ opacity: 0, x: -20 }}
                   className="flex gap-4 bg-white border border-[#E8E0D5] rounded-xl p-4 shadow-sm"
                 >
-                  <Link to={`/products/${item.product_id}`}>
-                    <img src={image} alt={product.name} className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
-                      onError={e => { e.target.src = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=200&q=80' }} />
+                  <Link to={`/products/${item.product_id}`} className="flex-shrink-0">
+                    {mediaUrl && isVideoUrl(mediaUrl) ? (
+                      <video
+                        src={mediaUrl}
+                        muted
+                        playsInline
+                        loop
+                        autoPlay
+                        className="w-20 h-20 object-cover rounded-lg bg-black"
+                      />
+                    ) : (
+                      <img
+                        src={mediaUrl || fallback}
+                        alt={product.name}
+                        className="w-20 h-20 object-cover rounded-lg"
+                        onError={e => { e.target.src = fallback }}
+                      />
+                    )}
                   </Link>
                   <div className="flex-1 min-w-0">
                     <Link to={`/products/${item.product_id}`}>
