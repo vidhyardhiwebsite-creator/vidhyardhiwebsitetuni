@@ -140,7 +140,7 @@ export default function AdminProducts() {
   const [deleting, setDeleting] = useState(false)
 
   // Pagination
-  const PAGE_SIZE_OPTIONS = [5, 10, 20, 50]
+  const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 9999]
   const [pageSize, setPageSize] = useState(10)
   const [page, setPage] = useState(1)
 
@@ -255,7 +255,7 @@ export default function AdminProducts() {
             <label className="text-xs text-gray-500">Per page:</label>
             <select value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setPage(1) }}
               className="bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]">
-              {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
+              {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n === 9999 ? "All" : n}</option>)}
             </select>
           </div>
           <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all text-sm">
@@ -339,7 +339,9 @@ export default function AdminProducts() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-xs text-gray-500">
-            Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length}
+            {pageSize === 9999
+              ? `Showing all ${filtered.length}`
+              : `Showing ${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, filtered.length)} of ${filtered.length}`}
           </p>
           <div className="flex items-center gap-1">
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}

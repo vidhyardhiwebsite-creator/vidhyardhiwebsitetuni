@@ -331,7 +331,7 @@ export default function AdminOrders() {
   const filterToday = searchParams.get("filter") === "today"
 
   // Pagination
-  const PAGE_SIZE_OPTIONS = [5, 10, 20, 50]
+  const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 9999]
   const [pageSize, setPageSize] = useState(10)
   const [ns0Page, setNs0Page] = useState(1)
   const [ns1Page, setNs1Page] = useState(1)
@@ -465,7 +465,7 @@ export default function AdminOrders() {
           <label className="text-xs text-gray-500">Per page:</label>
           <select value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setNs0Page(1); setNs1Page(1); setOtherPage(1); setSearchPage(1) }}
             className="bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]">
-            {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
+            {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n === 9999 ? "All" : n}</option>)}
           </select>
         </div>
       </div>
