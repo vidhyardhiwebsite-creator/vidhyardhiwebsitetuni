@@ -295,23 +295,34 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
   )
 }
 
-function Pagination({ total, page, pageSize, onPage }) {
-  const totalPages = Math.ceil(total / pageSize)
-  if (totalPages <= 1) return null
-  const pages = []
-  for (let i = 1; i <= totalPages; i++) pages.push(i)
+function Pagination({ total, page, pageSize, onPage, onPageSize, pageSizeOptions }) {
+  const totalPages = pageSize === 9999 ? 1 : Math.ceil(total / pageSize)
+  const showingText = pageSize === 9999
+    ? `Showing all ${total}`
+    : `Showing ${Math.min((page - 1) * pageSize + 1, total)}–${Math.min(page * pageSize, total)} of ${total}`
   return (
-    <div className="flex items-center justify-center gap-1 mt-3">
-      <button onClick={() => onPage(page - 1)} disabled={page === 1}
-        className="px-2 py-1 text-xs rounded border border-gray-200 text-gray-500 hover:border-[#1B2B5E] disabled:opacity-40">‹</button>
-      {pages.map(p => (
-        <button key={p} onClick={() => onPage(p)}
-          className={`px-2.5 py-1 text-xs rounded border transition-all ${p === page ? "bg-[#1B2B5E] text-white border-[#1B2B5E]" : "border-gray-200 text-gray-500 hover:border-[#1B2B5E]"}`}>
-          {p}
-        </button>
-      ))}
-      <button onClick={() => onPage(page + 1)} disabled={page === totalPages}
-        className="px-2 py-1 text-xs rounded border border-gray-200 text-gray-500 hover:border-[#1B2B5E] disabled:opacity-40">›</button>
+    <div className="flex items-center justify-between flex-wrap gap-2 mt-3">
+      <div className="flex items-center gap-2">
+        <p className="text-xs text-gray-500">{showingText}</p>
+        <select value={pageSize} onChange={e => onPageSize(Number(e.target.value))}
+          className="bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]">
+          {pageSizeOptions.map(n => <option key={n} value={n}>{n === 9999 ? "All" : n}</option>)}
+        </select>
+      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center gap-1">
+          <button onClick={() => onPage(page - 1)} disabled={page === 1}
+            className="px-2 py-1 text-xs rounded border border-gray-200 text-gray-500 hover:border-[#1B2B5E] disabled:opacity-40">‹</button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+            <button key={p} onClick={() => onPage(p)}
+              className={`px-2.5 py-1 text-xs rounded border transition-all ${p === page ? "bg-[#1B2B5E] text-white border-[#1B2B5E]" : "border-gray-200 text-gray-500 hover:border-[#1B2B5E]"}`}>
+              {p}
+            </button>
+          ))}
+          <button onClick={() => onPage(page + 1)} disabled={page === totalPages}
+            className="px-2 py-1 text-xs rounded border border-gray-200 text-gray-500 hover:border-[#1B2B5E] disabled:opacity-40">›</button>
+        </div>
+      )}
     </div>
   )
 }
@@ -461,13 +472,6 @@ export default function AdminOrders() {
           </h1>
           <p className="text-gray-500 text-sm mt-0.5">{localOrders.length} total &middot; {localOrders.filter(o => o.payment_status === "pending_verification").length} awaiting verification</p>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">Per page:</label>
-          <select value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setNs0Page(1); setNs1Page(1); setOtherPage(1); setSearchPage(1) }}
-            className="bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]">
-            {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n === 9999 ? "All" : n}</option>)}
-          </select>
-        </div>
       </div>
 
       <div className="relative">
@@ -488,7 +492,8 @@ export default function AdminOrders() {
                 {...cardProps} />
             ))
           }
-          <Pagination total={filtered.length} page={searchPage} pageSize={pageSize} onPage={setSearchPage} />
+          <Pagination total={filtered.length} page={searchPage} pageSize={pageSize} onPage={setSearchPage}
+            onPageSize={n => { setPageSize(n); setSearchPage(1) }} pageSizeOptions={PAGE_SIZE_OPTIONS} />
         </div>
       )}
 
@@ -512,7 +517,8 @@ export default function AdminOrders() {
                     {...cardProps} />
                 ))
               }
-              <Pagination total={ns0Orders.length} page={ns0Page} pageSize={pageSize} onPage={setNs0Page} />
+              <Pagination total={ns0Orders.length} page={ns0Page} pageSize={pageSize} onPage={setNs0Page}
+                onPageSize={n => { setPageSize(n); setNs0Page(1); setNs1Page(1) }} pageSizeOptions={PAGE_SIZE_OPTIONS} />
             </div>
 
             {/* NS1 - HYD */}
@@ -531,28 +537,10 @@ export default function AdminOrders() {
                     {...cardProps} />
                 ))
               }
-              <Pagination total={ns1Orders.length} page={ns1Page} pageSize={pageSize} onPage={setNs1Page} />
+              <Pagination total={ns1Orders.length} page={ns1Page} pageSize={pageSize} onPage={setNs1Page}
+                onPageSize={n => { setPageSize(n); setNs0Page(1); setNs1Page(1) }} pageSizeOptions={PAGE_SIZE_OPTIONS} />
             </div>
           </div>
-
-          {/* Other orders */}
-          {otherOrders.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
-                <div className="w-3 h-3 rounded-full bg-[#1B2B5E]" />
-                <h2 className="text-[#1B2B5E] font-semibold">Other Orders</h2>
-                <span className="text-xs bg-[#1B2B5E]/20 text-[#1B2B5E] px-2 py-0.5 rounded-full">{otherOrders.length}</span>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {paginate(otherOrders, otherPage, pageSize).map(order => (
-                  <OrderCard key={order.id} order={order} expanded={expanded === order.id}
-                    onToggle={() => setExpanded(expanded === order.id ? null : order.id)}
-                    {...cardProps} />
-                ))}
-              </div>
-              <Pagination total={otherOrders.length} page={otherPage} pageSize={pageSize} onPage={setOtherPage} />
-            </div>
-          )}
         </>
       )}
 
