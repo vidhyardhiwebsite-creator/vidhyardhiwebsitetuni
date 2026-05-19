@@ -5,6 +5,7 @@ import { Package, ChevronDown, ChevronUp, CheckCircle, Truck, Clock, XCircle, Al
 import { useAuthStore } from "../store/authStore"
 import { supabase } from "../lib/supabase"
 import { formatINR, formatDate } from "../utils/format"
+import { isVideoUrl } from "../services/storageService"
 
 const STATUS_STEPS = [
   {
@@ -262,9 +263,17 @@ export default function OrdersPage() {
                             className="flex items-center gap-3 hover:bg-[#FAF8F5] rounded-lg p-1 -mx-1 transition-colors group"
                           >
                             {item.products?.images?.[0] && (
-                              <img src={item.products.images[0]} alt={item.products?.name}
-                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5] group-hover:border-[#C9956C] transition-colors"
-                                onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80" }} />
+                              isVideoUrl(item.products.images[0]) ? (
+                                <video
+                                  src={item.products.images[0]}
+                                  muted playsInline loop autoPlay
+                                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5] group-hover:border-[#C9956C] transition-colors bg-black"
+                                />
+                              ) : (
+                                <img src={item.products.images[0]} alt={item.products?.name}
+                                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5] group-hover:border-[#C9956C] transition-colors"
+                                  onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80" }} />
+                              )
                             )}
                             <div className="flex-1">
                               <p className="text-[#1A1A2E] text-sm group-hover:text-[#1B2B5E] transition-colors">{item.products?.name || "Product"}</p>
