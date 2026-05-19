@@ -43,7 +43,7 @@ function DeliveryTracker({ status }) {
       <div className="flex items-center justify-between mb-4">
         <p className="text-[#1A1A2E] text-sm font-semibold">Order Status</p>
         {isCancelled && (
-          <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-500 font-medium border border-red-200">Cancelled</span>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-red-500 text-white font-medium">Cancelled</span>
         )}
       </div>
       <div className="flex items-start gap-0">
@@ -126,16 +126,16 @@ export default function OrdersPage() {
   }, [user])
 
   const getStatusBadge = (order) => {
-    if (order.payment_status === "pending") return { label: "Pending Payment", color: "bg-yellow-500/20 text-yellow-400", icon: Clock }
-    if (order.payment_status === "failed") return { label: "Payment Failed", color: "bg-red-500/20 text-red-400", icon: XCircle }
-    if (order.order_status === "cancelled") return { label: "Cancelled", color: "bg-red-500/20 text-red-400", icon: XCircle }
+    if (order.payment_status === "pending") return { label: "Pending Payment", color: "bg-yellow-500 text-white", icon: Clock }
+    if (order.payment_status === "failed") return { label: "Payment Failed", color: "bg-red-500 text-white", icon: XCircle }
+    if (order.order_status === "cancelled") return { label: "Cancelled", color: "bg-red-500 text-white", icon: XCircle }
     const status = order.order_status || "confirmed"
     const map = {
-      confirmed: { label: "Order Confirmed", color: "bg-blue-500/20 text-blue-400", icon: CheckCircle },
-      shipping: { label: "Shipped", color: "bg-orange-500/20 text-orange-400", icon: Truck },
-      delivered: { label: "Delivered", color: "bg-green-500/20 text-green-400", icon: Package },
+      confirmed: { label: "Order Confirmed", color: "bg-blue-500 text-white", icon: CheckCircle },
+      shipping: { label: "Shipped", color: "bg-orange-500 text-white", icon: Truck },
+      delivered: { label: "Delivered", color: "bg-green-500 text-white", icon: Package },
     }
-    return map[status] || { label: status, color: "bg-gray-500/20 text-gray-400", icon: Package }
+    return map[status] || { label: status, color: "bg-gray-500 text-white", icon: Package }
   }
 
   if (loading) {
@@ -202,7 +202,7 @@ export default function OrdersPage() {
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <p className="text-[#1B2B5E] font-semibold">{formatINR(order.total_amount)}</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 mt-1 ${statusInfo.color}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 mt-1 font-medium ${statusInfo.color}`} style={{ color: "#ffffff" }}>
                       <StatusIcon size={10} /> {statusInfo.label}
                     </span>
                   </div>
