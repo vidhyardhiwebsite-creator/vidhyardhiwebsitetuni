@@ -362,8 +362,16 @@ export default function AdminOrders() {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     const order = localOrders.find(o => o.id === orderId)
-    const { error } = await supabase.from("orders").update({ order_status: newStatus }).eq("id", orderId)
-    if (error) { toast.error(error.message); return }
+    const { error, count } = await supabase
+      .from("orders")
+      .update({ order_status: newStatus }, { count: "exact" })
+      .eq("id", orderId)
+
+    if (error) { toast.error("Failed: " + error.message); return }
+    if (count === 0) {
+      toast.error("Update blocked — check Supabase RLS policy for orders table")
+      return
+    }
 
     setLocalOrders(p => p.map(o => o.id === orderId ? { ...o, order_status: newStatus } : o))
     // Sync store so navigating away and back doesn't show stale data
