@@ -291,40 +291,85 @@ export default function AdminDashboard() {
       <FeaturesBarManager />
       <OfferBannerManager />
 
-      {/* Recent Orders */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <h3 className="text-[#1B2B5E] font-medium mb-4">Recent Orders</h3>        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Order ID</th>
-                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Customer</th>
-                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Amount</th>
-                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Status</th>
-                <th className="text-left text-gray-500 text-xs pb-3 font-medium">Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {orders.slice(0, 8).map(o => (
-                <tr key={o.id} className="hover:bg-gray-50">
-                  <td className="py-3 text-gray-400 text-xs font-mono">#{String(o.id).slice(-8).toUpperCase()}</td>
-                  <td className="py-3 text-gray-600 text-xs">{o.users?.email || 'Guest'}</td>
-                  <td className="py-3 text-[#1B2B5E] text-xs font-medium">{formatINR(o.total_amount)}</td>
-                  <td className="py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      o.payment_status === 'paid' ? 'bg-green-500/20 text-green-400' :
-                      o.payment_status === 'delivered' ? 'bg-blue-500/20 text-blue-400' :
-                      o.payment_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-red-500/20 text-red-400'
-                    }`}>{o.payment_status}</span>
-                  </td>
-                  <td className="py-3 text-gray-500 text-xs">{new Date(o.created_at).toLocaleDateString('en-IN')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Recent Orders — grouped by day (last 3 days) */}
+      {(() => {
+        const days = []
+        for (let i = 0; i < 3; i++) {
+          const d = new Date()
+          d.setDate(d.getDate() - i)
+          const ds = d.toDateString()
+          const label = i === 0 ? "Today" : i === 1 ? "Yesterday" : d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })
+          const dayOrders = orders.filter(o => new Date(o.created_at).toDateString() === ds)
+          days.push({ label, date: ds, orders: dayOrders })
+        }
+        const hasAny = days.some(d => d.orders.length > 0)
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[#1B2B5E] font-medium">Recent Orders <span className="text-gray-400 text-xs font-normal ml-1">({orders.length} total)</span></h3>
+              <Link to="/admin/orders" className="text-xs text-[#1B2B5E] hover:underline font-medium">View all →</Link>
+            </div>
+            {!hasAny && (
+              <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">No orders in the last 3 days</div>
+            )}
+            {days.map(({ label, orders: dayOrders }) => dayOrders.length === 0 ? null : (
+              <div key={label} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                {/* Day header */}
+                <div className="flex items-center justify-between px-4 py-2.5 bg-[#F4F6FA] border-b border-gray-200">
+                  <span className="text-[#1B2B5E] text-xs font-semibold">{label}</span>
+                  <span className="text-gray-400 text-xs">{dayOrders.length} order{dayOrders.length !== 1 ? "s" : ""} &middot; {formatINR(dayOrders.filter(o => o.payment_status === "paid").reduce((s, o) => s + (o.total_amount || 0), 0))} revenue</span>
+                </div>
+                {/* Orders table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="text-left text-gray-400 text-xs px-4 py-2 font-medium">Order ID</th>
+                        <th className="text-left text-gray-400 text-xs px-4 py-2 font-medium">Customer</th>
+                        <th className="text-left text-gray-400 text-xs px-4 py-2 font-medium">Amount</th>
+                        <th className="text-left text-gray-400 text-xs px-4 py-2 font-medium">Status</th>
+                        <th className="text-left text-gray-400 text-xs px-4 py-2 font-medium">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {dayOrders.map(o => {
+                        const addr = (() => { try { return typeof o.address === "object" ? o.address : JSON.parse(o.address || "{}") } catch { return {} } })()
+                        const customerName = addr.full_name || o.users?.email || "Guest"
+                        return (
+                          <tr key={o.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-4 py-2.5 text-[#1B2B5E] text-xs font-mono font-semibold">{o.display_order_id || "#" + String(o.id).slice(-6).toUpperCase()}</td>
+                            <td className="px-4 py-2.5 text-gray-600 text-xs truncate max-w-[120px]">{customerName}</td>
+                            <td className="px-4 py-2.5 text-[#1B2B5E] text-xs font-medium">{formatINR(o.total_amount)}</td>
+                            <td className="px-4 py-2.5">
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                o.payment_status === "paid"
+                                  ? o.order_status === "delivered" ? "bg-green-500 text-white" : "bg-green-500/20 text-green-600"
+                                  : o.payment_status === "pending_verification" ? "bg-orange-500/20 text-orange-500"
+                                  : o.payment_status === "failed" ? "bg-red-500/20 text-red-500"
+                                  : "bg-yellow-500/20 text-yellow-600"
+                              }`}>
+                                {o.payment_status === "paid"
+                                  ? (o.order_status === "delivered" ? "Delivered" : o.order_status === "shipping" ? "Shipped" : "Confirmed")
+                                  : o.payment_status === "pending_verification" ? "Verify"
+                                  : o.payment_status === "failed" ? "Failed"
+                                  : "Pending"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2.5 text-gray-400 text-xs">{new Date(o.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+            <div className="text-center">
+              <Link to="/admin/orders" className="text-xs text-[#1B2B5E] hover:underline">View all {orders.length} orders →</Link>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
