@@ -97,11 +97,11 @@ export default function HomePage() {
             </motion.p>
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
               className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#1A1A2E] mb-2 sm:mb-4 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
-              Wear Your <br /><span className="text-[#1B2B5E]">Story</span>
+              NaShe Jewels
             </motion.h1>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
               className="text-[#4A4A6A] text-xs sm:text-sm mb-4 sm:mb-7 leading-relaxed italic">
-              Luxury crafted for everyday elegance.
+              Because Luxury Shouldn't Be Rare.
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}
               className="flex flex-row gap-2 sm:gap-3">
