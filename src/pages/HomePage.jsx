@@ -45,6 +45,7 @@ export default function HomePage() {
   const [bestSellers, setBestSellers] = useState([])
   const [loading, setLoading] = useState(true)
   const [features, setFeatures] = useState(DEFAULT_FEATURES)
+  const [dynamicCategories, setDynamicCategories] = useState(CATEGORIES)
   const { items: recentItems } = useRecentlyViewedStore()
 
   useEffect(() => {
@@ -54,6 +55,9 @@ export default function HomePage() {
       setBestSellers(premium.slice(0, 6))
       setFeatured(data.slice(0, 8))
       setLoading(false)
+      // Build dynamic category list from actual products — includes any custom categories admin added
+      const cats = [...new Set(data.map(p => p.category).filter(Boolean))]
+      if (cats.length > 0) setDynamicCategories(cats.sort())
     })
     getSetting('features_bar').then(val => {
       if (val) { try { const p = JSON.parse(val); if (Array.isArray(p) && p.length) setFeatures(p) } catch {} }
@@ -163,11 +167,11 @@ export default function HomePage() {
           </div>
         </ScrollReveal>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {CATEGORIES.map((cat, i) => (
+          {dynamicCategories.map((cat, i) => (
             <ScrollReveal key={cat} delay={i * 0.06}>
               <Link to={`/products?category=${encodeURIComponent(cat)}`}
                 className="group relative overflow-hidden rounded-xl aspect-square block">
-                <img src={categoryImages[cat]} alt={cat} loading="lazy"
+                <img src={categoryImages[cat] || `https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80`} alt={cat} loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80" }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

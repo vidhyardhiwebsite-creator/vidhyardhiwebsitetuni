@@ -212,6 +212,8 @@ export default function AdminProducts() {
         await addProduct(payload)
         toast.success("Product added!")
       }
+      // Force reload so new/updated tags appear in the list
+      await loadProducts(true)
       setModalOpen(false)
     } catch (e) {
       toast.error(e.message || "Failed to save product")
@@ -311,7 +313,7 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {(p.tags || []).slice(0,2).map(t => (
+                      {(p.tags || []).map(t => (
                         <span key={t} className="text-xs px-1.5 py-0.5 bg-[#1B2B5E]/10 text-[#1B2B5E] rounded">{t}</span>
                       ))}
                     </div>
