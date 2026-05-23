@@ -146,6 +146,9 @@ export default function AdminProducts() {
 
   useEffect(() => { loadProducts() }, [])
 
+  // Build dynamic tag list: hardcoded defaults + any custom tags used across all products
+  const allTags = [...new Set([...TAGS, ...products.flatMap(p => p.tags || [])])].sort()
+
   const filtered = products.filter(p =>
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
     p.category?.toLowerCase().includes(search.toLowerCase())
@@ -428,14 +431,14 @@ export default function AdminProducts() {
                   <div className="col-span-2">
                     <label className="text-xs text-gray-400 mb-2 block">Tags</label>
                     <div className="flex flex-wrap gap-2 mb-2">
-                      {TAGS.map(tag => (
+                      {allTags.map(tag => (
                         <button key={tag} type="button" onClick={() => toggleTag(tag)}
                           className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${form.tags.includes(tag) ? "bg-[#1B2B5E] text-white" : "bg-gray-50 text-gray-400 border border-gray-200 hover:border-[#1B2B5E]/50"}`}>
                           {tag}
                         </button>
                       ))}
-                      {/* Custom tags added by admin */}
-                      {form.tags.filter(t => !TAGS.includes(t)).map(tag => (
+                      {/* Custom tags typed in this session but not yet in allTags */}
+                      {form.tags.filter(t => !allTags.includes(t)).map(tag => (
                         <button key={tag} type="button" onClick={() => toggleTag(tag)}
                           className="px-3 py-1 rounded-full text-xs font-medium bg-[#1B2B5E] text-white flex items-center gap-1">
                           {tag} <X size={10} />

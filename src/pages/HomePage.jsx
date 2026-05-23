@@ -122,7 +122,7 @@ export default function HomePage() {
       {/* Features bar */}
       <ScrollReveal>
         <section className="bg-white border-y border-[#E8E0D5] py-8 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
             {features.map((f, i) => (
               <div key={f.id || i} className="flex items-center gap-3">
                 <div className="text-[#1B2B5E]">{ICON_MAP[i % ICON_MAP.length]}</div>
