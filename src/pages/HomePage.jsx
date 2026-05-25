@@ -112,25 +112,19 @@ export default function HomePage() {
         {/* Text content — left side, over the empty cream area of the photo */}
         <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-8 flex items-center" style={{ minHeight: "inherit" }}>
           <div className="max-w-xs sm:max-w-md py-10 sm:py-16">
-            <motion.p initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
-              className="text-[#C9956C] text-[10px] sm:text-xs uppercase tracking-[0.25em] mb-2 sm:mb-3 font-semibold">
-              New Collection 2025
-            </motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#1A1A2E] mb-2 sm:mb-4 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#1A1A2E] mb-3 sm:mb-5 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
               NaShe Jewels
             </motion.h1>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-              className="text-[#4A4A6A] text-xs sm:text-sm mb-4 sm:mb-7 leading-relaxed italic">
-              Because Luxury Shouldn't Be Rare.
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+              className="text-base sm:text-xl font-semibold mb-4 sm:mb-7 leading-relaxed"
+              style={{ fontFamily: "Georgia, serif" }}>
+              <span className="text-[#C9956C]">Because Luxury</span>{" "}
+              <span className="text-[#1A1A2E]">Shouldn't Be Rare.</span>
             </motion.p>
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}
-              className="flex flex-row gap-2 sm:gap-3">
-              <Link to="/products" className="flex items-center gap-1.5 px-4 sm:px-6 py-2 sm:py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all shadow-md text-xs sm:text-sm whitespace-nowrap">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
+              <Link to="/products" className="inline-flex items-center gap-1.5 px-5 sm:px-7 py-2.5 sm:py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all shadow-md text-xs sm:text-sm whitespace-nowrap">
                 Shop Now <ArrowRight size={13} />
-              </Link>
-              <Link to="/products?tags=bridal" className="flex items-center px-4 sm:px-6 py-2 sm:py-3 border-2 border-[#1B2B5E] text-[#1B2B5E] rounded-lg hover:bg-[#1B2B5E]/5 transition-all font-semibold text-xs sm:text-sm whitespace-nowrap">
-                Bridal Collection
               </Link>
             </motion.div>
           </div>
