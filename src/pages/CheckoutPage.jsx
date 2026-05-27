@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
-import { MapPin, Plus, Check, CheckCircle, Upload, Copy, Smartphone, AlertCircle, Loader2 } from "lucide-react"
+import { MapPin, Plus, Check, CheckCircle, Upload, Copy, Smartphone, AlertCircle, Loader2, Zap } from "lucide-react"
 import { useCartStore } from "../store/cartStore"
 import { useAuthStore } from "../store/authStore"
 import { saveOrder } from "../services/orderService"
@@ -81,10 +81,21 @@ function NewAddressForm({ onSave, onCancel, saving }) {
 }
 
 export default function CheckoutPage() {
-  const { items, getTotal, clearCart } = useCartStore()
+  const { items: cartItems, getTotal, clearCart } = useCartStore()
   const { user } = useAuthStore()
   const navigate = useNavigate()
-  const total = getTotal()
+  const location = useLocation()
+
+  // Buy Now mode: single product passed via navigation state, bypasses cart
+  const buyNowData = location.state?.buyNow || null
+  const isBuyNow = !!buyNowData
+
+  // Normalise items into the same shape as cart items so the rest of the page works identically
+  const items = isBuyNow
+    ? [{ id: `buynow_${buyNowData.product.id}`, product_id: buyNowData.product.id, quantity: buyNowData.quantity, products: buyNowData.product }]
+    : cartItems
+
+  const total = items.reduce((s, i) => s + (i.products?.price || 0) * i.quantity, 0)
   const fileRef = useRef(null)
 
   // Shipping cost based on state
@@ -213,8 +224,8 @@ export default function CheckoutPage() {
 
       const displayOrderId = createdOrderIds.join(" + ")
 
-      // Clear cart
-      await clearCart(user.id)
+      // Clear cart only for normal cart checkout — Buy Now doesn't touch the cart
+      if (!isBuyNow) await clearCart(user.id)
 
       setStep("success")
       toast.success("Order placed! Awaiting payment verification.")
@@ -242,7 +253,15 @@ export default function CheckoutPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-8" style={{ fontFamily: "Georgia, serif" }}>Checkout</h1>
+      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-8" style={{ fontFamily: "Georgia, serif" }}>
+        {isBuyNow ? "Buy Now" : "Checkout"}
+      </h1>
+      {isBuyNow && (
+        <div className="mb-6 flex items-center gap-2 bg-[#1B2B5E]/5 border border-[#1B2B5E]/20 rounded-lg px-4 py-2.5 text-sm text-[#1B2B5E]">
+          <Zap size={14} className="flex-shrink-0" />
+          Buying <span className="font-semibold mx-1">{buyNowData.product.name}</span> directly — your cart is unchanged.
+        </div>
+      )}
 
       {/* Step indicator */}
       <div className="flex items-center gap-3 mb-8">

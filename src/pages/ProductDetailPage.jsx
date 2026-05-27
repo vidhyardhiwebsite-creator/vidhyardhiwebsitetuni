@@ -48,8 +48,8 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = async () => {
     if (!user) { toast.error('Please login'); navigate('/login'); return }
-    await addToCart(product, user.id)
-    navigate('/checkout')
+    // Navigate to checkout with just this product — don't touch the cart
+    navigate('/checkout', { state: { buyNow: { product, quantity: 1 } } })
   }
 
   const handleWishlist = async () => {
