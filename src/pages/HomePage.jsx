@@ -5,7 +5,6 @@ import { Helmet } from "react-helmet-async"
 import { ArrowRight, Sparkles, Shield, Truck, RefreshCw, Star, Clock } from "lucide-react"
 import { CATEGORIES } from "../data/products"
 import { fetchProducts } from "../services/productService"
-import { useRecentlyViewedStore } from "../store/recentlyViewedStore"
 import { getSetting } from "../services/settingsService"
 import ProductCard from "../components/ProductCard"
 import SkeletonCard from "../components/SkeletonCard"
@@ -31,21 +30,18 @@ const DEFAULT_FEATURES = [
 ]
 
 export default function HomePage() {
-  const [featured, setFeatured] = useState([])
   const [newArrivals, setNewArrivals] = useState([])
   const [bestSellers, setBestSellers] = useState([])
   const [loading, setLoading] = useState(true)
   const [features, setFeatures] = useState(DEFAULT_FEATURES)
   const [dynamicCategories, setDynamicCategories] = useState(CATEGORIES)
   const [categoryImageMap, setCategoryImageMap] = useState({})
-  const { items: recentItems } = useRecentlyViewedStore()
 
   useEffect(() => {
     fetchProducts({ sort: "newest" }).then(data => {
       setNewArrivals(data.slice(0, 6))
       const premium = data.filter(p => p.tags?.includes("premium") || p.tags?.includes("bridal"))
       setBestSellers(premium.slice(0, 6))
-      setFeatured(data.slice(0, 8))
       setLoading(false)
       // Build dynamic category list from actual products — includes any custom categories admin added
       const cats = [...new Set(data.map(p => p.category).filter(Boolean))]
@@ -123,7 +119,8 @@ export default function HomePage() {
               <span className="text-[#1A1A2E]">Shouldn't Be Rare.</span>
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
-              <Link to="/products" className="inline-flex items-center gap-1.5 px-5 sm:px-7 py-2.5 sm:py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all shadow-md text-xs sm:text-sm whitespace-nowrap">
+              <Link to="/#categories" className="inline-flex items-center gap-1.5 px-5 sm:px-7 py-2.5 sm:py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all shadow-md text-xs sm:text-sm whitespace-nowrap"
+                onClick={e => { e.preventDefault(); document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' }) }}>
                 Shop Now <ArrowRight size={13} />
               </Link>
             </motion.div>
@@ -151,26 +148,8 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* New Arrivals — auto-picked: newest products by created_at */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
-        <ScrollReveal>
-          <SectionHeader label="Just In" title="New Arrivals" link="/products?sort=newest" icon={<Clock size={16} />} />
-        </ScrollReveal>
-        {/* Mobile: 2 cols, desktop: 6 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {loading
-            ? Array(6).fill(0).map((_, i) => <SkeletonCard key={i} />)
-            : newArrivals.map((p, i) => (
-              <ScrollReveal key={p.id} delay={i * 0.04}>
-                <ProductCard product={p} />
-              </ScrollReveal>
-            ))
-          }
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="max-w-7xl mx-auto px-4 py-8">
+      {/* 1. Categories */}
+      <section id="categories" className="max-w-7xl mx-auto px-4 py-12">
         <ScrollReveal>
           <div className="text-center mb-8">
             <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-2">Browse By</p>
@@ -186,14 +165,8 @@ export default function HomePage() {
                 <Link to={`/products?category=${encodeURIComponent(cat)}`}
                   className="group relative overflow-hidden rounded-xl aspect-square block">
                   {mediaIsVideo ? (
-                    <video
-                      src={media}
-                      muted
-                      loop
-                      playsInline
-                      autoPlay
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+                    <video src={media} muted loop playsInline autoPlay
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   ) : (
                     <img src={media} alt={cat} loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -211,10 +184,27 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Best Sellers — auto-picked: premium/bridal tagged products */}
+      {/* 2. New Arrivals */}
       <section className="max-w-7xl mx-auto px-4 py-12">
         <ScrollReveal>
-          <SectionHeader label="Customer Favourites" title="Best Sellers" link="/products?tags=premium" icon={<Star size={16} />} />
+          <SectionHeader label="Just In" title="New Arrivals" link="/products?sort=newest" />
+        </ScrollReveal>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {loading
+            ? Array(6).fill(0).map((_, i) => <SkeletonCard key={i} />)
+            : newArrivals.map((p, i) => (
+              <ScrollReveal key={p.id} delay={i * 0.04}>
+                <ProductCard product={p} />
+              </ScrollReveal>
+            ))
+          }
+        </div>
+      </section>
+
+      {/* 3. Best Sellers */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <ScrollReveal>
+          <SectionHeader label="Customer Favourites" title="Best Sellers" link="/products?tags=premium" />
         </ScrollReveal>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {loading
@@ -227,40 +217,6 @@ export default function HomePage() {
           }
         </div>
       </section>
-
-      {/* Featured Pieces — admin can control by tagging products "featured" */}
-      <section className="max-w-7xl mx-auto px-4 pb-12">
-        <ScrollReveal>
-          <SectionHeader label="Handpicked" title="Featured Pieces" link="/products" />
-        </ScrollReveal>
-        {/* Mobile: 2 cols, desktop: 4 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {loading
-            ? Array(8).fill(0).map((_, i) => <SkeletonCard key={i} />)
-            : featured.map((p, i) => (
-              <ScrollReveal key={p.id} delay={i * 0.04}>
-                <ProductCard product={p} />
-              </ScrollReveal>
-            ))
-          }
-        </div>
-      </section>
-
-      {/* Recently Viewed */}
-      {recentItems.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 pb-12">
-          <ScrollReveal>
-            <h2 className="text-xl font-bold text-[#1A1A2E] mb-6" style={{ fontFamily: "Georgia, serif" }}>Recently Viewed</h2>
-          </ScrollReveal>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-            {recentItems.slice(0, 6).map((p, i) => (
-              <ScrollReveal key={p.id} delay={i * 0.05}>
-                <ProductCard product={p} />
-              </ScrollReveal>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Customer Reviews */}
       <ScrollReveal>
