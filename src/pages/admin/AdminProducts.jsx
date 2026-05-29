@@ -171,7 +171,8 @@ export default function AdminProducts() {
     setForm({
       name: p.name || "", price: String(p.price || ""), category: p.category || categories[0] || "Bangles",
       description: p.description || "", size: p.category === BANGLE_CATEGORY ? (p.size || "") : "",
-      stock: String(p.stock || ""), tags: p.tags || [], images: p.images || []
+      stock: String(p.stock || ""), tags: p.tags || [], images: p.images || [],
+      custom_id: p.custom_id || "", series_id: p.series_id || "NS0",
     })
     setErrors({})
     setModalOpen(true)
@@ -191,18 +192,20 @@ export default function AdminProducts() {
     if (!validate()) return
     setSaving(true)
 
-    // Check for duplicate custom_id (only when adding new or changing the ID)
+    // Check for duplicate custom_id only when adding a new product
     const newCustomId = form.custom_id?.trim()
-    if (newCustomId && (!editProduct || editProduct.custom_id !== newCustomId)) {
-      const existing = products.find(p => p.custom_id === newCustomId && p.id !== editProduct?.id)
+    if (!editProduct && newCustomId) {
+      const existing = products.find(p => p.custom_id === newCustomId)
       if (existing) {
-        toast.error(`Product ID "${newCustomId}" already exists - "${existing.name}". Edit that product instead.`, { duration: 5000 })
+        toast.error(`Product ID "${newCustomId}" already exists — "${existing.name}". Edit that product instead.`, { duration: 5000 })
         setSaving(false)
         return
       }
     }
     const payload = {
-      name: form.name.trim(), price: Math.floor(Number(form.price)), category: form.category, custom_id: form.custom_id?.trim() || null,
+      name: form.name.trim(), price: Math.floor(Number(form.price)), category: form.category,
+      // On edit: always keep the original custom_id — it's locked. On add: use what was typed (or null for auto-generate).
+      custom_id: editProduct ? (editProduct.custom_id || null) : (form.custom_id?.trim() || null),
       description: form.description.trim(), size: form.category === BANGLE_CATEGORY ? (form.size.trim() || null) : null,
       stock: Number(form.stock), tags: form.tags, images: form.images, series_id: form.series_id || 'NS0',
     }
@@ -379,11 +382,23 @@ export default function AdminProducts() {
               <div className="p-5 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="text-xs text-gray-400 mb-1 block">Product ID <span className="text-gray-600">(e.g. NS0.1, NS1.5)</span></label>
-                    <input value={form.custom_id||""} onChange={e => setForm(f => ({ ...f, custom_id: e.target.value }))}
-                      className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]"
-                      placeholder="e.g. NS0.1" />
-                    <p className="text-gray-600 text-xs mt-0.5">Leave empty to auto-generate</p>
+                    <label className="text-xs text-gray-400 mb-1 block">
+                      Product ID <span className="text-gray-600">(e.g. NS0.1, NS1.5)</span>
+                      {editProduct && <span className="ml-2 text-[#C9956C] font-medium">· locked after creation</span>}
+                    </label>
+                    <input
+                      value={form.custom_id || ""}
+                      onChange={e => !editProduct && setForm(f => ({ ...f, custom_id: e.target.value }))}
+                      readOnly={!!editProduct}
+                      className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1B2B5E] ${
+                        editProduct
+                          ? "bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed select-none"
+                          : "bg-white border-gray-200 text-[#1A1A2E]"
+                      }`}
+                      placeholder="e.g. NS0.1"
+                    />
+                    {!editProduct && <p className="text-gray-600 text-xs mt-0.5">Leave empty to auto-generate</p>}
+                    {editProduct && form.custom_id && <p className="text-gray-400 text-xs mt-0.5">ID is permanent and cannot be changed after creation.</p>}
                   </div>
 
                   <div className="col-span-2">
