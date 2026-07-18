@@ -92,7 +92,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#1B2B5E] mb-2" style={{ fontFamily: "Georgia, serif" }}>✦ NaShe Jewels</h1>
+          <h1 className="text-3xl font-bold text-[#1B2B5E] mb-2" style={{ fontFamily: "Georgia, serif" }}>✦ Vidhyrathi</h1>
           <p className="text-[#4A4A6A] text-sm">
             {mode === "login" ? "Welcome back" : mode === "signup" ? "Create your account" : "Reset your password"}
           </p>

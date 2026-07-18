@@ -1,7 +1,7 @@
 ﻿import { create } from "zustand"
 import { supabase } from "../lib/supabase"
 
-const CART_KEY = "jewelry_cart"
+const CART_KEY = "vidhyrathi_cart"
 const getLocal = () => { try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]") } catch { return [] } }
 const saveLocal = (items) => localStorage.setItem(CART_KEY, JSON.stringify(items))
 

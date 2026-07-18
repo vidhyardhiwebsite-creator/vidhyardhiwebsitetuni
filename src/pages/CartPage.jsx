@@ -21,8 +21,8 @@ export default function CartPage() {
   useEffect(() => {
     if (items.length === 0) return
     const timer = setTimeout(() => {
-      const phone = "918639006849"
-      const msg = encodeURIComponent("Hi! You have items waiting in your cart at NaShe Jewels 💍 Complete your order before they sell out!")
+      const phone = "911234567870"
+      const msg = encodeURIComponent("Hi! You have items waiting in your cart at Vidhyrathi 🎁 Complete your order before they sell out!")
       toast(
         (t) => (
           <div className="flex flex-col gap-2">
@@ -69,7 +69,7 @@ export default function CartPage() {
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
         <ShoppingBag size={64} className="text-[#C9956C] mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-[#1A1A2E] mb-2" style={{ fontFamily: 'Georgia, serif' }}>Your cart is empty</h2>
-        <p className="text-[#8A8AAA] mb-6">Discover our beautiful jewelry collection</p>
+        <p className="text-[#8A8AAA] mb-6">Discover our personalized gifts collection</p>
         <Link to="/products" className="px-8 py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all">
           Shop Now
         </Link>

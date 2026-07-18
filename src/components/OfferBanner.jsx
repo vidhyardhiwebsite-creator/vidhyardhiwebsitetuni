@@ -6,8 +6,8 @@ import { getSetting } from '../services/settingsService'
 // Default offers shown when no DB offers are set
 const DEFAULT_OFFERS = [
   { id: 1, text: '🎉 Free Shipping on all orders across India!', link: '/products' },
-  { id: 2, text: '💍 New Bridal Collection — Shop Now', link: '/products?tags=bridal' },
-  { id: 3, text: '✨ Use code NASHE10 for 10% off on first order', link: '/products' },
+  { id: 2, text: '🎁 New Personalized Gifts Collection — Shop Now', link: '/products?tags=gifting' },
+  { id: 3, text: '✨ Use code VR10 for 10% off on first order', link: '/products' },
 ]
 
 export default function OfferBanner() {

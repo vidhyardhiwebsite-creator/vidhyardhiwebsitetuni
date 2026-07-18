@@ -4,7 +4,7 @@ import { useAdminStore } from "../../store/adminStore"
 import { formatINR } from "../../utils/format"
 import { supabase } from "../../lib/supabase"
 
-const ADMIN_WHATSAPP = "918639006849"
+const ADMIN_WHATSAPP = "911234567870"
 
 export default function AdminUsers() {
   const { orders, loadOrders } = useAdminStore()
@@ -117,12 +117,12 @@ export default function AdminUsers() {
     let msg = ""
     if (type === "cart" && details?.cart?.length) {
       const items = details.cart.map(i => `${i.products?.name} (₹${i.products?.price})`).join(", ")
-      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nYou have items in your cart at NaShe Jewels:\n${items}\n\nComplete your purchase now: https://www.nashejewels.in/cart\n\n✨ NaShe Jewels`)
+      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nYou have items in your cart at Vidhyrathi:\n${items}\n\nComplete your purchase now: ${window.location.origin}/cart\n\n✨ Vidhyrathi`)
     } else if (type === "wishlist" && details?.wishlist?.length) {
       const items = details.wishlist.map(i => `${i.products?.name} (₹${i.products?.price})`).join(", ")
-      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nYour wishlist at NaShe Jewels:\n${items}\n\nShop now before they sell out: https://www.nashejewels.in/wishlist\n\n✨ NaShe Jewels`)
+      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nYour wishlist at Vidhyrathi:\n${items}\n\nShop now before they sell out: ${window.location.origin}/wishlist\n\n✨ Vidhyrathi`)
     } else {
-      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nCheck out our latest jewelry collection at NaShe Jewels!\nhttps://www.nashejewels.in\n\n✨ NaShe Jewels`)
+      msg = encodeURIComponent(`Hi ${user.name}! 👋\n\nCheck out our latest personalized gifts at Vidhyrathi!\n${window.location.origin}\n\n✨ Vidhyrathi`)
     }
     if (phone) window.open(`https://wa.me/91${phone}?text=${msg}`, "_blank")
     else window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(`Customer ${user.name} has no phone on file`)}`, "_blank")

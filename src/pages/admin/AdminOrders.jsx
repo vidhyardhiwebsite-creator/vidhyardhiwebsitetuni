@@ -261,15 +261,39 @@ function OrderCard({ order, expanded, onToggle, onStatusUpdate, onVerify, onReje
 
               <div className="space-y-1">
                 {order.order_items?.map(item => (
-                  <div key={item.id} className="flex items-center gap-2 bg-gray-50 rounded p-1.5">
-                    {item.products?.images?.[0] && <img src={item.products.images[0]} alt="" className="w-7 h-7 object-cover rounded" onError={e=>{e.target.style.display="none"}} />}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[#1A1A2E] text-xs truncate">{item.products?.name}</p>
-                      {item.products?.custom_id && (
-                        <p className="text-[#1B2B5E] text-xs font-mono">Product ID: {item.products.custom_id}</p>
-                      )}
-                      <p className="text-gray-500 text-xs">x{item.quantity} &middot; {formatINR(item.price)}</p>
+                  <div key={item.id} className="bg-gray-50 rounded p-1.5">
+                    <div className="flex items-center gap-2">
+                      {item.products?.images?.[0] && <img src={item.products.images[0]} alt="" className="w-7 h-7 object-cover rounded" onError={e=>{e.target.style.display="none"}} />}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[#1A1A2E] text-xs truncate">{item.products?.name}</p>
+                        {item.products?.custom_id && (
+                          <p className="text-[#1B2B5E] text-xs font-mono">Product ID: {item.products.custom_id}</p>
+                        )}
+                        <p className="text-gray-500 text-xs">x{item.quantity} &middot; {formatINR(item.price)}</p>
+                      </div>
                     </div>
+                    {/* Customization data */}
+                    {(item.custom_name || item.custom_photo_url) && (
+                      <div className="mt-1.5 ml-9 border-l-2 border-[#4DB6AC] pl-2 space-y-1">
+                        {item.custom_name && (
+                          <p className="text-xs text-[#1A1A2E]">
+                            <span className="text-[#4DB6AC] font-medium">✏ Text:</span> {item.custom_name}
+                          </p>
+                        )}
+                        {item.custom_photo_url && (
+                          <div>
+                            <p className="text-xs text-[#4DB6AC] font-medium mb-1">📷 Customer Photo:</p>
+                            <a href={item.custom_photo_url} target="_blank" rel="noopener noreferrer">
+                              <img
+                                src={item.custom_photo_url}
+                                alt="Customer custom photo"
+                                className="h-16 w-16 object-cover rounded border-2 border-[#4DB6AC]/40 hover:border-[#4DB6AC] transition-all cursor-pointer"
+                              />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -385,7 +409,7 @@ export default function AdminOrders() {
       const phone = addr.phone?.replace(/\D/g, "")
       if (phone) {
         const waMsg = encodeURIComponent(
-          `*Order Cancelled - NaShe Jewels*\n\nHi ${customerName},\n\nYour order *${orderId_}* has been cancelled.\nAmount: ${amount}\n\nIf you paid, your refund will be processed within 5-7 business days.\n\nFor queries: +91 8639006849\n\nNaShe Jewels`
+          `*Order Cancelled - Vidhyrathi*\n\nHi ${customerName},\n\nYour order *${orderId_}* has been cancelled.\nAmount: ${amount}\n\nIf you paid, your refund will be processed within 5-7 business days.\n\nFor queries: +91 1234567870\n\nVidhyrathi`
         )
         window.open(`https://wa.me/91${phone}?text=${waMsg}`, "_blank")
       } else {
@@ -427,7 +451,7 @@ export default function AdminOrders() {
       const phone = addr.phone?.replace(/\D/g, "")
       if (phone) {
         const waMsg = encodeURIComponent(
-          `*Order Rejected - NaShe Jewels*\n\nHi ${customerName},\n\nYour order *${orderId_}* has been rejected due to payment verification failure.\nAmount: ${amount}\n\nIf you believe this is an error, contact us at +91 8639006849.\n\nNaShe Jewels`
+          `*Order Rejected - Vidhyrathi*\n\nHi ${customerName},\n\nYour order *${orderId_}* has been rejected due to payment verification failure.\nAmount: ${amount}\n\nIf you believe this is an error, contact us at +91 1234567870.\n\nVidhyrathi`
         )
         window.open(`https://wa.me/91${phone}?text=${waMsg}`, "_blank")
       }
@@ -435,7 +459,7 @@ export default function AdminOrders() {
   }
 
   const notifyCustomer = (order, addr) => {
-    const msg = encodeURIComponent(`*Order Update - NaShe Jewels*\n\nHi ${addr.full_name || "Customer"},\nOrder ${order.display_order_id || "#" + String(order.id).slice(-6).toUpperCase()} status: ${order.order_status || "confirmed"}\nAmount: Rs.${order.total_amount?.toLocaleString("en-IN")}\n\nNaShe Jewels`)
+    const msg = encodeURIComponent(`*Order Update - Vidhyrathi*\n\nHi ${addr.full_name || "Customer"},\nOrder ${order.display_order_id || "#" + String(order.id).slice(-6).toUpperCase()} status: ${order.order_status || "confirmed"}\nAmount: Rs.${order.total_amount?.toLocaleString("en-IN")}\n\nVidhyrathi`)
     const phone = addr.phone?.replace(/\D/g, "")
     if (phone) window.open(`https://wa.me/91${phone}?text=${msg}`, "_blank")
     else toast.error("No phone number")

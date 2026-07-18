@@ -121,7 +121,7 @@ export default function App() {
               <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 items-center">
                 {/* Instagram */}
                 <a
-                  href="https://www.instagram.com/nashejewels"
+                  href="https://www.instagram.com/vidhyrathi"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow on Instagram"
@@ -134,7 +134,7 @@ export default function App() {
                 </a>
                 {/* WhatsApp */}
                 <a
-                  href="https://wa.me/918639006849"
+                  href="https://wa.me/911234567870"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Chat on WhatsApp"

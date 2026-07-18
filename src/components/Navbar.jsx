@@ -10,6 +10,10 @@ import logoImg from "../assets/logo.png"
 import toast from "react-hot-toast"
 import { isAdmin as checkIsAdmin } from "./AdminRoute"
 
+// teal accent matching Vidhyrathi palette
+const TEAL = "#4DB6AC"
+const TEAL_DARK = "#00897B"
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -83,47 +87,57 @@ export default function Navbar() {
   const closeAll = () => { setMenuOpen(false); setUserOpen(false) }
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-[#E8E0D5] shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white shadow-sm">
+      {/* Top utility bar — teal strip */}
+      <div style={{ background: TEAL }} className="text-white text-xs py-1.5 px-4 flex justify-end gap-4">
+        <Link to="/profile" className="hover:underline flex items-center gap-1 opacity-90"><User size={11} /> My Account</Link>
+        <Link to="/cart" className="hover:underline flex items-center gap-1 opacity-90"><ShoppingCart size={11} /> Cart ({cartCount})</Link>
+      </div>
+
+      <div className="border-b border-[#E8E0D5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 gap-3">
-          {/* Logo */}
+          {/* Logo — VR monogram + Vidhyrathi text */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0" onClick={closeAll}>
-            <img src={logoImg} alt="NaShe Jewels" className="h-10 w-10 rounded-full object-cover" />
-            <div className="hidden sm:block">
-              <span className="text-xl font-bold text-[#1B2B5E]" style={{ fontFamily: "Georgia, serif" }}>NaShe</span>
-              <span className="text-xs text-[#C9956C] ml-1 tracking-widest uppercase">Jewels</span>
+            <div className="w-10 h-10 rounded-full border-2 border-[#4DB6AC] flex items-center justify-center bg-white">
+              <span className="text-[#1A1A2E] font-bold text-sm" style={{ fontFamily: "Georgia, serif" }}>VR</span>
+            </div>
+            <div className="hidden sm:block leading-tight">
+              <p className="text-base font-bold text-[#1A1A2E]" style={{ fontFamily: "Georgia, serif" }}>Vidhyrathi</p>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-6 flex-shrink-0">
-            <Link to="/" className="text-[#4A4A6A] hover:text-[#1B2B5E] text-sm font-medium transition-colors">Home</Link>
-            <Link to="/products" className="text-[#4A4A6A] hover:text-[#1B2B5E] text-sm font-medium transition-colors">All Jewelry</Link>
+          {/* Desktop Nav — matching Vidhyrathi: Home | Collections | Personalization Guide | Gift Finder | About Us | Contact */}
+          <div className="hidden lg:flex items-center gap-5 flex-shrink-0">
+            <Link to="/" className="text-[#1A1A2E] hover:text-[#4DB6AC] text-sm font-medium transition-colors border-b-2 border-[#4DB6AC] pb-0.5">Home</Link>
             <div className="relative" onMouseEnter={() => setCatOpen(true)} onMouseLeave={() => setCatOpen(false)}>
-              <button className="flex items-center gap-1 text-[#4A4A6A] hover:text-[#1B2B5E] text-sm font-medium transition-colors">
-                Categories <ChevronDown size={14} />
+              <button className="flex items-center gap-1 text-[#4A4A6A] hover:text-[#4DB6AC] text-sm font-medium transition-colors">
+                Collections <ChevronDown size={13} />
               </button>
               <AnimatePresence>
                 {catOpen && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
-                    className="absolute top-full left-0 mt-1 w-48 bg-white border border-[#E8E0D5] rounded-xl shadow-lg py-2">
+                    className="absolute top-full left-0 mt-1 w-52 bg-white border border-[#E8E0D5] rounded-xl shadow-lg py-2 z-50">
                     {categories.map(cat => (
                       <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`}
-                        className="block px-4 py-2 text-sm text-[#4A4A6A] hover:text-[#1B2B5E] hover:bg-[#FAF8F5] transition-colors"
+                        className="block px-4 py-2 text-sm text-[#4A4A6A] hover:text-[#4DB6AC] hover:bg-[#f0fafa] transition-colors"
                         onClick={() => setCatOpen(false)}>{cat}</Link>
                     ))}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-            <Link to="/contact" className="text-[#4A4A6A] hover:text-[#1B2B5E] text-sm font-medium transition-colors">Contact Us</Link>
+            <Link to="/products" className="text-[#4A4A6A] hover:text-[#4DB6AC] text-sm font-medium transition-colors">Personalization Guide</Link>
+            <Link to="/products?tags=gifting" className="text-[#4A4A6A] hover:text-[#4DB6AC] text-sm font-medium transition-colors">Gift Finder</Link>
+            <Link to="/contact" className="text-[#4A4A6A] hover:text-[#4DB6AC] text-sm font-medium transition-colors">About Us</Link>
+            <Link to="/contact" className="text-[#4A4A6A] hover:text-[#4DB6AC] text-sm font-medium transition-colors">Contact</Link>
           </div>
 
           {/* Desktop Search — always visible */}
           <div ref={searchRef} className="hidden lg:block relative flex-1 max-w-xs">
             <form onSubmit={handleSearch} className="relative">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8AAA] pointer-events-none" />
-              <input type="text" value={searchQuery} onChange={handleSearchChange} placeholder="Search jewelry..."
+              <input type="text" value={searchQuery} onChange={handleSearchChange} placeholder="Search products..."
                 className="w-full bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg pl-8 pr-8 py-2 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E] transition-colors" />
               {searchQuery && (
                 <button type="button" onClick={() => { setSearchQuery(""); setSuggestions([]) }}
@@ -225,7 +239,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu — includes search bar at top */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
@@ -235,7 +249,7 @@ export default function Navbar() {
                 <div ref={searchRef} className="relative mb-3">
                   <form onSubmit={handleSearch} className="relative">
                     <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8AAA] pointer-events-none" />
-                    <input type="text" value={searchQuery} onChange={handleSearchChange} placeholder="Search jewelry..." autoFocus
+                    <input type="text" value={searchQuery} onChange={handleSearchChange} placeholder="Search products..." autoFocus
                       className="w-full bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg pl-8 pr-8 py-2.5 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E]" />
                     {searchQuery && (
                       <button type="button" onClick={() => { setSearchQuery(""); setSuggestions([]) }}
@@ -269,7 +283,7 @@ export default function Navbar() {
                 </div>
 
                 <Link to="/" className="text-[#4A4A6A] hover:text-[#1B2B5E] text-sm py-2 px-1 font-medium" onClick={closeAll}>Home</Link>
-                <Link to="/products" className="text-[#4A4A6A] hover:text-[#1B2B5E] text-sm py-2 px-1 font-medium" onClick={closeAll}>All Jewelry</Link>
+                <Link to="/products" className="text-[#4A4A6A] hover:text-[#1B2B5E] text-sm py-2 px-1 font-medium" onClick={closeAll}>All Products</Link>
                 <p className="text-[#8A8AAA] text-xs uppercase tracking-wider px-1 mt-2 mb-1">Categories</p>
                 {categories.map(cat => (
                   <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`} className="text-[#4A4A6A] hover:text-[#1B2B5E] text-sm py-1.5 pl-3" onClick={closeAll}>{cat}</Link>
@@ -293,6 +307,7 @@ export default function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
       </div>
     </nav>
   )

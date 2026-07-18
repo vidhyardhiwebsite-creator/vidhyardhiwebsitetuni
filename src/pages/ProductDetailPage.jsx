@@ -2,7 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Heart, Zap, ChevronLeft, ChevronRight, Star, Tag } from 'lucide-react'
+import { ShoppingCart, Heart, Zap, ChevronLeft, ChevronRight, Star, Tag, Upload, X } from 'lucide-react'
 import { fetchProductById, fetchProducts } from '../services/productService'
 import { useAuthStore } from '../store/authStore'
 import { useCartStore } from '../store/cartStore'
@@ -10,6 +10,7 @@ import { useWishlistStore } from '../store/wishlistStore'
 import { useRecentlyViewedStore } from '../store/recentlyViewedStore'
 import { isVideoUrl } from '../services/storageService'
 import { formatINR } from '../utils/format'
+import { supabase } from '../lib/supabase'
 import ProductCard from '../components/ProductCard'
 import toast from 'react-hot-toast'
 
@@ -25,6 +26,12 @@ export default function ProductDetailPage() {
   const [allProducts, setAllProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [imgIdx, setImgIdx] = useState(0)
+
+  // Customization state
+  const [customName, setCustomName] = useState("")
+  const [customPhoto, setCustomPhoto] = useState(null)
+  const [customPhotoPreview, setCustomPhotoPreview] = useState(null)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -42,14 +49,63 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     if (!user) { toast.error('Please login to add to cart'); navigate('/login'); return }
-    await addToCart(product, user.id)
+    // Validate customization
+    if (product.allow_custom_name && !customName.trim()) {
+      toast.error(`Please enter: ${product.custom_name_label || 'Personalization Text'}`); return
+    }
+    if (product.allow_custom_photo && !customPhoto) {
+      toast.error(`Please upload: ${product.custom_photo_label || 'Your Photo'}`); return
+    }
+    let photoUrl = null
+    if (product.allow_custom_photo && customPhoto) {
+      setUploadingPhoto(true)
+      try {
+        const ext = customPhoto.name.split('.').pop()
+        const path = `customizations/${user.id}_${product.id}_${Date.now()}.${ext}`
+        const { error } = await supabase.storage.from('product-images').upload(path, customPhoto, { contentType: customPhoto.type })
+        if (error) throw error
+        const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+        photoUrl = data.publicUrl
+      } catch (e) {
+        toast.error('Photo upload failed: ' + e.message); setUploadingPhoto(false); return
+      }
+      setUploadingPhoto(false)
+    }
+    await addToCart(product, user.id, {
+      custom_name: customName.trim() || null,
+      custom_photo_url: photoUrl,
+    })
     toast.success('Added to cart!')
   }
 
   const handleBuyNow = async () => {
     if (!user) { toast.error('Please login'); navigate('/login'); return }
-    // Navigate to checkout with just this product — don't touch the cart
-    navigate('/checkout', { state: { buyNow: { product, quantity: 1 } } })
+    if (product.allow_custom_name && !customName.trim()) {
+      toast.error(`Please enter: ${product.custom_name_label || 'Personalization Text'}`); return
+    }
+    if (product.allow_custom_photo && !customPhoto) {
+      toast.error(`Please upload: ${product.custom_photo_label || 'Your Photo'}`); return
+    }
+    let photoUrl = null
+    if (product.allow_custom_photo && customPhoto) {
+      setUploadingPhoto(true)
+      try {
+        const ext = customPhoto.name.split('.').pop()
+        const path = `customizations/${user.id}_${product.id}_${Date.now()}.${ext}`
+        const { error } = await supabase.storage.from('product-images').upload(path, customPhoto, { contentType: customPhoto.type })
+        if (error) throw error
+        const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+        photoUrl = data.publicUrl
+      } catch (e) {
+        toast.error('Photo upload failed: ' + e.message); setUploadingPhoto(false); return
+      }
+      setUploadingPhoto(false)
+    }
+    navigate('/checkout', { state: { buyNow: {
+      product, quantity: 1,
+      custom_name: customName.trim() || null,
+      custom_photo_url: photoUrl,
+    }}})
   }
 
   const handleWishlist = async () => {
@@ -90,7 +146,7 @@ export default function ProductDetailPage() {
   return (
     <>
       <Helmet>
-        <title>{product.name} – NaShe Jewels</title>
+        <title>{product.name} – Vidhyrathi</title>
         <meta name="description" content={product.description} />
         <meta property="og:title" content={product.name} />
         <meta property="og:image" content={images[0]} />
@@ -194,18 +250,81 @@ export default function ProductDetailPage() {
               </div>
             )}
 
+            {/* Customization fields */}
+            {(product.allow_custom_name || product.allow_custom_photo) && (
+              <div className="border-2 border-[#4DB6AC]/40 rounded-xl p-4 bg-[#f0fafa] space-y-4">
+                <p className="text-sm font-semibold text-[#1A1A2E] flex items-center gap-2">
+                  🎨 Personalize Your Product
+                </p>
+                {product.allow_custom_name && (
+                  <div>
+                    <label className="text-xs text-[#4A4A6A] mb-1.5 block font-medium">
+                      {product.custom_name_label || 'Personalization Text'} <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      value={customName}
+                      onChange={e => setCustomName(e.target.value)}
+                      placeholder={`Enter ${product.custom_name_label || 'your text'}...`}
+                      maxLength={80}
+                      className="w-full bg-white border border-[#E8E0D5] rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#4DB6AC]"
+                    />
+                    <p className="text-xs text-gray-400 mt-1 text-right">{customName.length}/80</p>
+                  </div>
+                )}
+                {product.allow_custom_photo && (
+                  <div>
+                    <label className="text-xs text-[#4A4A6A] mb-1.5 block font-medium">
+                      {product.custom_photo_label || 'Upload Your Photo'} <span className="text-red-400">*</span>
+                    </label>
+                    {customPhotoPreview ? (
+                      <div className="relative inline-block">
+                        <img src={customPhotoPreview} alt="Custom" className="h-28 w-28 object-cover rounded-xl border-2 border-[#4DB6AC]" />
+                        <button
+                          type="button"
+                          onClick={() => { setCustomPhoto(null); setCustomPhotoPreview(null) }}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex items-center gap-3 p-4 border-2 border-dashed border-[#4DB6AC]/50 hover:border-[#4DB6AC] rounded-xl cursor-pointer transition-all bg-white">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={e => {
+                            const f = e.target.files?.[0]
+                            if (!f) return
+                            if (f.size > 10 * 1024 * 1024) { toast.error('Photo must be under 10MB'); return }
+                            setCustomPhoto(f)
+                            setCustomPhotoPreview(URL.createObjectURL(f))
+                          }}
+                        />
+                        <Upload size={20} className="text-[#4DB6AC] flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-[#1A1A2E] font-medium">Click to upload photo</p>
+                          <p className="text-xs text-[#8A8AAA]">JPG, PNG — max 10MB</p>
+                        </div>
+                      </label>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex gap-3">
               <button
                 onClick={handleAddToCart}
-                disabled={product.stock === 0}
+                disabled={product.stock === 0 || uploadingPhoto}
                 className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#1B2B5E]/10 hover:bg-[#1B2B5E] text-[#1B2B5E] hover:text-white border border-[#1B2B5E]/40 rounded-xl font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <ShoppingCart size={18} /> Add to Cart
+                {uploadingPhoto ? <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> Uploading...</> : <><ShoppingCart size={18} /> Add to Cart</>}
               </button>
               <button
                 onClick={handleBuyNow}
-                disabled={product.stock === 0}
+                disabled={product.stock === 0 || uploadingPhoto}
                 className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#1B2B5E] text-white rounded-xl font-semibold hover:bg-[#2A3F7E] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Zap size={18} /> Buy Now

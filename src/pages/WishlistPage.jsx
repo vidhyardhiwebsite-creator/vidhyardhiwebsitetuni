@@ -14,7 +14,7 @@ export default function WishlistPage() {
         <h2 className="text-2xl font-bold text-[#1A1A2E] mb-2" style={{ fontFamily: 'Georgia, serif' }}>Your wishlist is empty</h2>
         <p className="text-[#8A8AAA] mb-6">Save pieces you love to revisit later</p>
         <Link to="/products" className="px-8 py-3 bg-[#1B2B5E] text-white font-semibold rounded-lg hover:bg-[#2A3F7E] transition-all">
-          Browse Jewelry
+          Browse Products
         </Link>
       </div>
     )

@@ -9,12 +9,12 @@ import { uploadProductImages, deleteProductImage, isVideoUrl } from "../../servi
 import { supabase } from "../../lib/supabase"
 import toast from "react-hot-toast"
 
-// Only Bangles have sizes - admin types them as comma-separated values
-const BANGLE_CATEGORY = "Bangles"
-
+// No size restriction — all categories can optionally have sizes
 const EMPTY_FORM = {
-  name: "", price: "", category: "Bangles", description: "",
-  size: "", stock: "", tags: [], images: []
+  name: "", price: "", category: "", description: "",
+  size: "", stock: "", tags: [], images: [], custom_id: "", series_id: "VR0",
+  allow_custom_name: false, allow_custom_photo: false,
+  custom_name_label: "Personalization Text", custom_photo_label: "Upload Your Photo",
 }
 
 // Image/Video uploader sub-component
@@ -161,7 +161,7 @@ export default function AdminProducts() {
 
   const openAdd = () => {
     setEditProduct(null)
-    setForm({ ...EMPTY_FORM, category: categories[0] || "Bangles" })
+    setForm({ ...EMPTY_FORM, category: categories[0] || "" })
     setErrors({})
     setModalOpen(true)
   }
@@ -169,10 +169,14 @@ export default function AdminProducts() {
   const openEdit = (p) => {
     setEditProduct(p)
     setForm({
-      name: p.name || "", price: String(p.price || ""), category: p.category || categories[0] || "Bangles",
-      description: p.description || "", size: p.category === BANGLE_CATEGORY ? (p.size || "") : "",
+      name: p.name || "", price: String(p.price || ""), category: p.category || categories[0] || "",
+      description: p.description || "", size: p.size || "",
       stock: String(p.stock || ""), tags: p.tags || [], images: p.images || [],
-      custom_id: p.custom_id || "", series_id: p.series_id || "NS0",
+      custom_id: p.custom_id || "", series_id: p.series_id || "VR0",
+      allow_custom_name: p.allow_custom_name || false,
+      allow_custom_photo: p.allow_custom_photo || false,
+      custom_name_label: p.custom_name_label || "Personalization Text",
+      custom_photo_label: p.custom_photo_label || "Upload Your Photo",
     })
     setErrors({})
     setModalOpen(true)
@@ -204,10 +208,13 @@ export default function AdminProducts() {
     }
     const payload = {
       name: form.name.trim(), price: Math.floor(Number(form.price)), category: form.category,
-      // On edit: always keep the original custom_id — it's locked. On add: use what was typed (or null for auto-generate).
       custom_id: editProduct ? (editProduct.custom_id || null) : (form.custom_id?.trim() || null),
-      description: form.description.trim(), size: form.category === BANGLE_CATEGORY ? (form.size.trim() || null) : null,
-      stock: Number(form.stock), tags: form.tags, images: form.images, series_id: form.series_id || 'NS0',
+      description: form.description.trim(), size: form.size?.trim() || null,
+      stock: Number(form.stock), tags: form.tags, images: form.images, series_id: form.series_id || 'VR0',
+      allow_custom_name: form.allow_custom_name,
+      allow_custom_photo: form.allow_custom_photo,
+      custom_name_label: form.custom_name_label?.trim() || 'Personalization Text',
+      custom_photo_label: form.custom_photo_label?.trim() || 'Upload Your Photo',
     }
     try {
       if (editProduct) {
@@ -395,7 +402,7 @@ export default function AdminProducts() {
                           ? "bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed select-none"
                           : "bg-white border-gray-200 text-[#1A1A2E]"
                       }`}
-                      placeholder="e.g. NS0.1"
+                      placeholder="e.g. VR0.1"
                     />
                     {!editProduct && <p className="text-gray-600 text-xs mt-0.5">Leave empty to auto-generate</p>}
                     {editProduct && form.custom_id && <p className="text-gray-400 text-xs mt-0.5">ID is permanent and cannot be changed after creation.</p>}
@@ -405,7 +412,7 @@ export default function AdminProducts() {
                     <label className="text-xs text-gray-400 mb-1 block">Product Name *</label>
                     <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                       className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]"
-                      placeholder="e.g. Kundan Jhumka Earrings" />
+                      placeholder="e.g. Custom Photo Mug" />
                     {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
                   </div>
                   <div>
@@ -429,18 +436,16 @@ export default function AdminProducts() {
                       {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
-                  {form.category === BANGLE_CATEGORY && (
-                    <div>
-                      <label className="text-xs text-gray-400 mb-1 block">Available Sizes</label>
-                      <input
-                        value={form.size}
-                        onChange={e => setForm(f => ({ ...f, size: e.target.value }))}
-                        placeholder="e.g. 2.4, 2.6, 2.8, Free Size"
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]"
-                      />
-                      <p className="text-gray-600 text-xs mt-0.5">Comma-separated. Remove a size to mark it out of stock.</p>
-                    </div>
-                  )}
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">Available Sizes <span className="text-gray-500">(optional)</span></label>
+                    <input
+                      value={form.size}
+                      onChange={e => setForm(f => ({ ...f, size: e.target.value }))}
+                      placeholder="e.g. S, M, L, XL or Free Size"
+                      className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] focus:outline-none focus:border-[#1B2B5E]"
+                    />
+                    <p className="text-gray-600 text-xs mt-0.5">Comma-separated sizes (leave blank if not applicable).</p>
+                  </div>
                   <div className="col-span-2">
                     <label className="text-xs text-gray-400 mb-1 block">Description</label>
                     <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -498,6 +503,66 @@ export default function AdminProducts() {
                       </button>
                     </div>
                   </div>
+                  {/* ── Customization Options ── */}
+                  <div className="col-span-2 border border-[#4DB6AC]/30 rounded-xl p-4 bg-[#f0fafa] space-y-3">
+                    <p className="text-sm font-semibold text-[#1A1A2E] flex items-center gap-2">
+                      🎨 Personalization Options
+                      <span className="text-xs text-gray-400 font-normal">— enable if customers can customise this product</span>
+                    </p>
+
+                    {/* Allow custom name/text */}
+                    <div className="flex items-center justify-between gap-3 bg-white rounded-lg px-3 py-2.5 border border-[#E8E0D5]">
+                      <div>
+                        <p className="text-sm text-[#1A1A2E] font-medium">Custom Name / Text</p>
+                        <p className="text-xs text-gray-400">Customer types a name, message or text to print</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, allow_custom_name: !f.allow_custom_name }))}
+                        className={`w-12 h-6 rounded-full transition-all flex-shrink-0 relative ${form.allow_custom_name ? 'bg-[#4DB6AC]' : 'bg-gray-300'}`}
+                      >
+                        <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${form.allow_custom_name ? 'left-6' : 'left-0.5'}`} />
+                      </button>
+                    </div>
+                    {form.allow_custom_name && (
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Label shown to customer</label>
+                        <input
+                          value={form.custom_name_label}
+                          onChange={e => setForm(f => ({ ...f, custom_name_label: e.target.value }))}
+                          placeholder="e.g. Enter name to print, Your message..."
+                          className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-[#1A1A2E] focus:outline-none focus:border-[#4DB6AC]"
+                        />
+                      </div>
+                    )}
+
+                    {/* Allow custom photo */}
+                    <div className="flex items-center justify-between gap-3 bg-white rounded-lg px-3 py-2.5 border border-[#E8E0D5]">
+                      <div>
+                        <p className="text-sm text-[#1A1A2E] font-medium">Custom Photo Upload</p>
+                        <p className="text-xs text-gray-400">Customer uploads a photo to be printed on product</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, allow_custom_photo: !f.allow_custom_photo }))}
+                        className={`w-12 h-6 rounded-full transition-all flex-shrink-0 relative ${form.allow_custom_photo ? 'bg-[#4DB6AC]' : 'bg-gray-300'}`}
+                      >
+                        <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${form.allow_custom_photo ? 'left-6' : 'left-0.5'}`} />
+                      </button>
+                    </div>
+                    {form.allow_custom_photo && (
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Label shown to customer</label>
+                        <input
+                          value={form.custom_photo_label}
+                          onChange={e => setForm(f => ({ ...f, custom_photo_label: e.target.value }))}
+                          placeholder="e.g. Upload your photo, Upload couple photo..."
+                          className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-[#1A1A2E] focus:outline-none focus:border-[#4DB6AC]"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <ImageUploader
                     images={form.images}
                     onImagesChange={imgs => setForm(f => ({ ...f, images: imgs }))}

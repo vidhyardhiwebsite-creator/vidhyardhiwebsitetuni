@@ -26,7 +26,7 @@ const policies = {
       },
       {
         heading: 'Contact Us',
-        text: 'For shipping-related queries, please contact:\n📞 Phone / WhatsApp: +91 8639006849\n📧 Email: nashejewels@gmail.com'
+        text: 'For shipping-related queries, please contact:\n📞 Phone / WhatsApp: +91 123 456-7870\n📧 Email: vidhyrathi@gmail.com'
       },
     ]
   },
@@ -34,7 +34,7 @@ const policies = {
     title: 'Refund & Return Policy',
     content: [
       {
-        heading: '😊 NaShe Jewels — Customer First',
+        heading: '😊 Vidhyrathi — Customer First',
         text: 'Customer satisfaction is very important to us. Every product is carefully checked and packed before dispatch to ensure it reaches you in the best condition.\n\nPlease go through our policy to understand how we handle returns, replacements, and refunds.'
       },
       {
@@ -47,7 +47,7 @@ const policies = {
       },
       {
         heading: 'How to Report',
-        text: 'Send the proof via:\n📱 WhatsApp: +91 8639006849\n📧 Email: nashejewels@gmail.com\n\nOnce verified by our team, we will:\n• Offer a replacement of the same product, or\n• Provide a refund if replacement is not possible.'
+        text: 'Send the proof via:\n📱 WhatsApp: +91 123 456-7870\n📧 Email: vidhyrathi@gmail.com\n\nOnce verified by our team, we will:\n• Offer a replacement of the same product, or\n• Provide a refund if replacement is not possible.'
       },
       {
         heading: 'Refunds',
@@ -55,7 +55,7 @@ const policies = {
       },
       {
         heading: 'Contact Us',
-        text: 'For all return or refund related queries, please contact us:\n📞 Phone / WhatsApp: +91 8639006849\n📧 Email: nashejewels@gmail.com'
+        text: 'For all return or refund related queries, please contact us:\n📞 Phone / WhatsApp: +91 123 456-7870\n📧 Email: vidhyrathi@gmail.com'
       },
     ]
   },
@@ -66,7 +66,7 @@ const policies = {
       { heading: 'How We Use It', text: 'Your information is used solely to process orders, send shipping updates, and improve your shopping experience. We never sell your data.' },
       { heading: 'Payment Security', text: 'All payments are processed securely. We do not store your card or payment details.' },
       { heading: 'Cookies', text: 'We use cookies to remember your preferences and improve site performance. You can disable cookies in your browser settings.' },
-      { heading: 'Contact', text: 'For any privacy concerns, email us at nashejewels@gmail.com.' },
+      { heading: 'Contact', text: 'For any privacy concerns, email us at vidhyrathi@gmail.com.' },
     ]
   }
 }
@@ -95,7 +95,7 @@ export default function PolicyPage() {
           </div>
         ))}
       </div>
-      <p className="text-[#8A8AAA] text-xs mt-8 text-center">Last updated: May 2026 · NaShe Jewels</p>
+      <p className="text-[#8A8AAA] text-xs mt-8 text-center">Last updated: May 2026 · Vidhyrathi</p>
     </div>
   )
 }

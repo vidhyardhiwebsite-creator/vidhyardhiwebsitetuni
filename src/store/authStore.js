@@ -20,7 +20,7 @@ export const useAuthStore = create((set, get) => ({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "https://www.nashejewels.in/auth/callback",
+        redirectTo: `${window.location.origin}/auth/callback`,
         queryParams: { access_type: "offline", prompt: "consent" },
       },
     })
@@ -50,7 +50,7 @@ export const useAuthStore = create((set, get) => ({
 
   resetPassword: async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "https://www.nashejewels.in/auth/callback",
+      redirectTo: `${window.location.origin}/auth/callback`,
     })
     if (error) throw error
   },

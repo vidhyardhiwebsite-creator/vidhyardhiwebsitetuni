@@ -11,10 +11,10 @@ import { formatINR } from "../utils/format"
 import toast from "react-hot-toast"
 
 const UPI_ID = "Q487529392@ybl"
-const ADMIN_WHATSAPP = "918639006849"
+const ADMIN_WHATSAPP = "911234567870"
 // Generate QR dynamically from UPI ID using Google Charts API
 const getQRUrl = (upiId, amount) =>
-  `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`upi://pay?pa=${upiId}&pn=NaShe+Jewels&am=${Math.ceil(amount)}&cu=INR&tn=NaShe+Jewels+Order`)}`
+  `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`upi://pay?pa=${upiId}&pn=Vidhyrathi&am=${Math.ceil(amount)}&cu=INR&tn=Vidhyrathi+Order`)}`
 
 const EMPTY_ADDR = { label: "Home", full_name: "", phone: "", address1: "", address2: "", city: "", state: "", pincode: "", is_default: false }
 
@@ -92,7 +92,7 @@ export default function CheckoutPage() {
 
   // Normalise items into the same shape as cart items so the rest of the page works identically
   const items = isBuyNow
-    ? [{ id: `buynow_${buyNowData.product.id}`, product_id: buyNowData.product.id, quantity: buyNowData.quantity, products: buyNowData.product }]
+    ? [{ id: `buynow_${buyNowData.product.id}`, product_id: buyNowData.product.id, quantity: buyNowData.quantity, products: buyNowData.product, custom_name: buyNowData.custom_name || null, custom_photo_url: buyNowData.custom_photo_url || null }]
     : cartItems
 
   const total = items.reduce((s, i) => s + (i.products?.price || 0) * i.quantity, 0)
@@ -217,6 +217,8 @@ export default function CheckoutPage() {
           product_id: item.product_id,
           quantity: item.quantity,
           price: item.products?.price || 0,
+          custom_name: item.custom_name || null,
+          custom_photo_url: item.custom_photo_url || null,
         }))
         await supabase.from("order_items").insert(orderItems)
         createdOrderIds.push(displayOrderId)

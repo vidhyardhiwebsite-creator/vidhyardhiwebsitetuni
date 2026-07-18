@@ -171,7 +171,7 @@ export default function ReviewsSection() {
               <textarea
                 value={comment}
                 onChange={e => setComment(e.target.value)}
-                placeholder="Tell us about your experience with NaShe Jewels..."
+                placeholder="Tell us about your experience with Vidhyrathi..."
                 rows={3}
                 className="w-full bg-[#FAF8F5] border border-[#E8E0D5] rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#1B2B5E] resize-none"
               />

@@ -260,26 +260,44 @@ export default function OrdersPage() {
                           <Link
                             key={item.id}
                             to={`/products/${item.product_id || item.products?.id}`}
-                            className="flex items-center gap-3 hover:bg-[#FAF8F5] rounded-lg p-1 -mx-1 transition-colors group"
+                            className="flex flex-col hover:bg-[#FAF8F5] rounded-lg p-1 -mx-1 transition-colors group"
                           >
-                            {item.products?.images?.[0] && (
-                              isVideoUrl(item.products.images[0]) ? (
-                                <video
-                                  src={item.products.images[0]}
-                                  muted playsInline loop autoPlay
-                                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5] group-hover:border-[#C9956C] transition-colors bg-black"
-                                />
-                              ) : (
-                                <img src={item.products.images[0]} alt={item.products?.name}
-                                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5] group-hover:border-[#C9956C] transition-colors"
-                                  onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80" }} />
-                              )
-                            )}
-                            <div className="flex-1">
-                              <p className="text-[#1A1A2E] text-sm group-hover:text-[#1B2B5E] transition-colors">{item.products?.name || "Product"}</p>
-                              <p className="text-[#8A8AAA] text-xs">Qty: {item.quantity} × {formatINR(item.price)}</p>
+                            <div className="flex items-center gap-3">
+                              {item.products?.images?.[0] && (
+                                isVideoUrl(item.products.images[0]) ? (
+                                  <video
+                                    src={item.products.images[0]}
+                                    muted playsInline loop autoPlay
+                                    className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5] group-hover:border-[#C9956C] transition-colors bg-black"
+                                  />
+                                ) : (
+                                  <img src={item.products.images[0]} alt={item.products?.name}
+                                    className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#E8E0D5] group-hover:border-[#C9956C] transition-colors"
+                                    onError={e => { e.target.src = "https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80" }} />
+                                )
+                              )}
+                              <div className="flex-1">
+                                <p className="text-[#1A1A2E] text-sm group-hover:text-[#1B2B5E] transition-colors">{item.products?.name || "Product"}</p>
+                                <p className="text-[#8A8AAA] text-xs">Qty: {item.quantity} × {formatINR(item.price)}</p>
+                              </div>
+                              <p className="text-[#1B2B5E] text-sm font-medium">{formatINR(item.quantity * item.price)}</p>
                             </div>
-                            <p className="text-[#1B2B5E] text-sm font-medium">{formatINR(item.quantity * item.price)}</p>
+                            {/* Show customization if any */}
+                            {(item.custom_name || item.custom_photo_url) && (
+                              <div className="ml-15 mt-1 pl-14 border-l-2 border-[#4DB6AC]/40 space-y-1">
+                                {item.custom_name && (
+                                  <p className="text-xs text-[#4A4A6A]">
+                                    <span className="text-[#4DB6AC] font-medium">✏ Text:</span> {item.custom_name}
+                                  </p>
+                                )}
+                                {item.custom_photo_url && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-[#4DB6AC] font-medium">📷 Photo:</span>
+                                    <img src={item.custom_photo_url} alt="Custom" className="h-10 w-10 object-cover rounded border border-[#4DB6AC]/40" />
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </Link>
                         ))}
                       </div>

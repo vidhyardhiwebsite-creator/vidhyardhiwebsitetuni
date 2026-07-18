@@ -17,15 +17,14 @@ const COLORS = [
 
 const LINK_OPTIONS = [
   { label: "All Products", value: "/products" },
-  { label: "Earrings", value: "/products?category=Earrings" },
-  { label: "Necklaces", value: "/products?category=Necklaces" },
-  { label: "Black Beads", value: "/products?category=Black+Beads" },
-  { label: "Tikka", value: "/products?category=Tikka" },
-  { label: "Champaswaram", value: "/products?category=Champaswaram" },
-  { label: "Maatilu", value: "/products?category=Maatilu" },
-  { label: "Bracelets", value: "/products?category=Bracelets" },
-  { label: "Bangles", value: "/products?category=Bangles" },
-  { label: "Bridal Collection", value: "/products?tags=bridal" },
+  { label: "Photo Gifts", value: "/products?category=Photo+Cubes" },
+  { label: "Mugs", value: "/products?category=Mugs" },
+  { label: "Pillows", value: "/products?category=Pillows" },
+  { label: "T-Shirts", value: "/products?category=T-Shirts" },
+  { label: "Keychains", value: "/products?category=Keychains" },
+  { label: "Photo Frames", value: "/products?category=Photo+Frames" },
+  { label: "Engraved Wood", value: "/products?category=Wood+Engraving+Photo+Frames" },
+  { label: "Custom Gifts", value: "/products?tags=gifting" },
   { label: "Premium Collection", value: "/products?tags=premium" },
   { label: "New Arrivals", value: "/products?sort=newest" },
 ]

@@ -78,15 +78,15 @@ export default function ProductsPage() {
   return (
     <>
       <Helmet>
-        <title>{category ? `${category} – NaShe Jewels` : 'All Jewelry – NaShe Jewels'}</title>
-        <meta name="description" content={`Shop ${category || 'all'} jewelry at NaShe Jewels. Premium handcrafted Indian jewelry.`} />
+        <title>{category ? `${category} – Vidhyrathi` : 'All Products – Vidhyrathi'}</title>
+        <meta name="description" content={`Shop ${category || 'all'} personalized gifts at Vidhyrathi. Unique handcrafted custom products.`} />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#1A1A2E] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
-            {category || 'All Jewelry'}
+            {category || 'All Products'}
           </h1>
           {search && <p className="text-[#4A4A6A] text-sm">Search results for: <span className="text-[#C9956C] font-medium">"{search}"</span></p>}
           <p className="text-[#8A8AAA] text-sm mt-1">{loading ? '...' : `${products.length} pieces`}</p>
@@ -160,7 +160,7 @@ export default function ProductsPage() {
         ) : products.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-4xl mb-4">💎</p>
-            <p className="text-[#4A4A6A] text-lg">No jewelry found</p>
+            <p className="text-[#4A4A6A] text-lg">No products found</p>
             <p className="text-[#8A8AAA] text-sm mt-2">Try adjusting your filters</p>
             <button onClick={clearFilters} className="mt-4 px-6 py-2 bg-[#1B2B5E] text-white rounded-lg text-sm font-medium hover:bg-[#2A3F7E] transition-all">
               Clear Filters

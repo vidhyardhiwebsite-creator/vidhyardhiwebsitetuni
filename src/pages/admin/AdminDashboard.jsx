@@ -378,10 +378,10 @@ export default function AdminDashboard() {
 // Features Bar Manager - edit the 4 trust badges shown on homepage
 function FeaturesBarManager() {
   const DEFAULT_FEATURES = [
-    { id: 1, title: 'Certified Quality', desc: 'Authenticity Guaranteed' },
-    { id: 2, title: 'Fast Shipping', desc: 'Across India' },
-    { id: 3, title: 'Easy Returns', desc: '7 Day Return Policy' },
-    { id: 4, title: 'Handcrafted', desc: 'Artisan made jewelry' },
+    { id: 1, title: 'Handcrafted Quality', desc: 'Artisan made gifts' },
+    { id: 2, title: 'Easy Personalization', desc: 'Custom orders welcome' },
+    { id: 3, title: 'Secure Checkout', desc: '100% safe payments' },
+    { id: 4, title: 'Fast Shipping', desc: 'Across India' },
   ]
   const [features, setFeatures] = useState(DEFAULT_FEATURES)
   const [saving, setSaving] = useState(false)
@@ -433,8 +433,8 @@ function FeaturesBarManager() {
 function OfferBannerManager() {
   const [offers, setOffers] = useState([
     { id: 1, text: '🚚 Free Shipping on all orders across India!', link: '/products' },
-    { id: 2, text: '💍 New Bridal Collection - Shop Now', link: '/products?tags=bridal' },
-    { id: 3, text: '✨ Use code NASHE10 for 10% off on first order', link: '/products' },
+    { id: 2, text: '🎁 New Personalized Gifts Collection - Shop Now', link: '/products?tags=gifting' },
+    { id: 3, text: '✨ Use code VR10 for 10% off on first order', link: '/products' },
   ])
   const [saving, setSaving] = useState(false)
   const [newText, setNewText] = useState('')

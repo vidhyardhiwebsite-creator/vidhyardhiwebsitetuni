@@ -27,7 +27,7 @@ function Sidebar({ pathname, onSignOut, onNavClick, onToggle }) {
           onClick={onNavClick}
           className="flex items-center gap-2 select-none"
         >
-          <span className="text-white font-bold text-lg hover:text-blue-200 transition-colors" style={{ fontFamily: "Georgia, serif" }}>NaShe Jewels</span>
+          <span className="text-white font-bold text-lg hover:text-blue-200 transition-colors" style={{ fontFamily: "Georgia, serif" }}>Vidhyrathi</span>
         </Link>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">

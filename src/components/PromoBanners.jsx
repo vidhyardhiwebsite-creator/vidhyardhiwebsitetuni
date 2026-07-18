@@ -5,10 +5,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { getSetting } from "../services/settingsService"
 
 const DEFAULT_BANNERS = [
-  { id: 1, badge: "LIMITED TIME", title: "Bridal Collection", subtitle: "Up to 30% Off", desc: "Handcrafted gold & kundan sets", price: "2499", originalPrice: "3999", cta: "Shop Now", link: "/products?tags=bridal", bg: "from-[#1a0a00] to-[#3d1f00]", accent: "#D4AF37", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&q=80" },
-  { id: 2, badge: "NEW ARRIVALS", title: "Premium Earrings", subtitle: "Starting ₹599", desc: "Traditional & modern styles", price: "599", originalPrice: "", cta: "Explore", link: "/products?category=Earrings", bg: "from-[#0a001a] to-[#1f003d]", accent: "#C084FC", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=300&q=80" },
-  { id: 3, badge: "BESTSELLER", title: "Gold Bangles", subtitle: "BIS Hallmarked", desc: "Certified 22K gold jewelry", price: "7500", originalPrice: "", cta: "View Collection", link: "/products?category=Bangles", bg: "from-[#001a0a] to-[#003d1f]", accent: "#4ADE80", image: "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=300&q=80" },
-  { id: 4, badge: "FREE SHIPPING", title: "Free Shipping", subtitle: "On All Orders", desc: "No minimum order value", price: "", originalPrice: "", cta: "Shop All", link: "/products", bg: "from-[#1a0a0a] to-[#3d0000]", accent: "#F87171", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=300&q=80" },
+  { id: 1, badge: "LIMITED TIME", title: "Custom Photo Gifts", subtitle: "Up to 30% Off", desc: "Personalized mugs, frames & more", price: "349", originalPrice: "499", cta: "Shop Now", link: "/products?category=Mugs", bg: "from-[#004d40] to-[#00695c]", accent: "#4DB6AC", image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=300&q=80" },
+  { id: 2, badge: "NEW ARRIVALS", title: "Photo Frames", subtitle: "Starting ₹399", desc: "Acrylic, MDF & Wood options", price: "399", originalPrice: "", cta: "Explore", link: "/products?category=Photo+Frames", bg: "from-[#0a001a] to-[#1f003d]", accent: "#C084FC", image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=300&q=80" },
+  { id: 3, badge: "BESTSELLER", title: "T-Shirts", subtitle: "Custom Printed", desc: "Your photo on premium fabric", price: "499", originalPrice: "", cta: "View Collection", link: "/products?category=T-Shirts", bg: "from-[#001a0a] to-[#003d1f]", accent: "#4ADE80", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&q=80" },
+  { id: 4, badge: "FREE SHIPPING", title: "Free Shipping", subtitle: "On All Orders", desc: "No minimum order value", price: "", originalPrice: "", cta: "Shop All", link: "/products", bg: "from-[#1a0a0a] to-[#3d0000]", accent: "#F87171", image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=300&q=80" },
 ]
 
 export default function PromoBanners() {
