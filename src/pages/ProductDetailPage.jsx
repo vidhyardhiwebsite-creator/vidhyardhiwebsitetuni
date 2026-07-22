@@ -1,8 +1,8 @@
-﻿import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Heart, Zap, ChevronLeft, ChevronRight, Star, Tag, Upload, X } from 'lucide-react'
+import { ShoppingCart, Heart, Zap, ChevronLeft, ChevronRight, Star, Tag, Upload, X, ShieldCheck, Truck, Gift, Award, CheckCircle } from 'lucide-react'
 import { fetchProductById, fetchProducts } from '../services/productService'
 import { useAuthStore } from '../store/authStore'
 import { useCartStore } from '../store/cartStore'
@@ -14,6 +14,8 @@ import { supabase } from '../lib/supabase'
 import ProductCard from '../components/ProductCard'
 import toast from 'react-hot-toast'
 
+const FB = 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80'
+
 export default function ProductDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -22,108 +24,76 @@ export default function ProductDetailPage() {
   const { toggleWishlist, isWishlisted } = useWishlistStore()
   const { addProduct } = useRecentlyViewedStore()
 
-  const [product, setProduct] = useState(null)
-  const [allProducts, setAllProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [imgIdx, setImgIdx] = useState(0)
-
-  // Customization state
-  const [customName, setCustomName] = useState("")
-  const [customPhoto, setCustomPhoto] = useState(null)
+  const [product, setProduct]     = useState(null)
+  const [all,     setAll]         = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [imgIdx,  setImgIdx]      = useState(0)
+  const [customName,       setCustomName]       = useState('')
+  const [customPhoto,      setCustomPhoto]      = useState(null)
   const [customPhotoPreview, setCustomPhotoPreview] = useState(null)
-  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
-  useEffect(() => {
-    setLoading(true)
-    setImgIdx(0)
-    Promise.all([fetchProductById(id), fetchProducts()]).then(([prod, all]) => {
-      const finalProd = prod || all.find(p => p.custom_id === id) || null
-      setProduct(finalProd)
-      setAllProducts(all)
-      if (finalProd) addProduct(finalProd)
-      setLoading(false)
+  useEffect(()=>{
+    setLoading(true); setImgIdx(0)
+    Promise.all([fetchProductById(id), fetchProducts()]).then(([prod,allP])=>{
+      const final = prod || allP.find(p=>p.custom_id===id) || null
+      setProduct(final); setAll(allP); if(final) addProduct(final); setLoading(false)
     })
-  }, [id])
+  },[id])
 
   const wishlisted = product ? isWishlisted(product.id) : false
 
+  const uploadPhoto = async () => {
+    if (!customPhoto) return null
+    setUploading(true)
+    try {
+      const ext = customPhoto.name.split('.').pop()
+      const path = `customizations/${user.id}_${product.id}_${Date.now()}.${ext}`
+      const { error } = await supabase.storage.from('product-images').upload(path, customPhoto, { contentType:customPhoto.type })
+      if (error) throw error
+      const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+      setUploading(false); return data.publicUrl
+    } catch(e) { toast.error('Photo upload failed: '+e.message); setUploading(false); return null }
+  }
+
+  const validate = () => {
+    if (product.allow_custom_name && !customName.trim()) { toast.error(`Please enter: ${product.custom_name_label||'Text'}`); return false }
+    if (product.allow_custom_photo && !customPhoto)     { toast.error(`Please upload: ${product.custom_photo_label||'Photo'}`); return false }
+    return true
+  }
+
   const handleAddToCart = async () => {
-    if (!user) { toast.error('Please login to add to cart'); navigate('/login'); return }
-    // Validate customization
-    if (product.allow_custom_name && !customName.trim()) {
-      toast.error(`Please enter: ${product.custom_name_label || 'Personalization Text'}`); return
-    }
-    if (product.allow_custom_photo && !customPhoto) {
-      toast.error(`Please upload: ${product.custom_photo_label || 'Your Photo'}`); return
-    }
-    let photoUrl = null
-    if (product.allow_custom_photo && customPhoto) {
-      setUploadingPhoto(true)
-      try {
-        const ext = customPhoto.name.split('.').pop()
-        const path = `customizations/${user.id}_${product.id}_${Date.now()}.${ext}`
-        const { error } = await supabase.storage.from('product-images').upload(path, customPhoto, { contentType: customPhoto.type })
-        if (error) throw error
-        const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-        photoUrl = data.publicUrl
-      } catch (e) {
-        toast.error('Photo upload failed: ' + e.message); setUploadingPhoto(false); return
-      }
-      setUploadingPhoto(false)
-    }
-    await addToCart(product, user.id, {
-      custom_name: customName.trim() || null,
-      custom_photo_url: photoUrl,
-    })
+    if (!user) { toast.error('Please login'); navigate('/login'); return }
+    if (!validate()) return
+    const photoUrl = await uploadPhoto()
+    await addToCart(product, user.id, { custom_name:customName.trim()||null, custom_photo_url:photoUrl })
     toast.success('Added to cart!')
   }
-
   const handleBuyNow = async () => {
     if (!user) { toast.error('Please login'); navigate('/login'); return }
-    if (product.allow_custom_name && !customName.trim()) {
-      toast.error(`Please enter: ${product.custom_name_label || 'Personalization Text'}`); return
-    }
-    if (product.allow_custom_photo && !customPhoto) {
-      toast.error(`Please upload: ${product.custom_photo_label || 'Your Photo'}`); return
-    }
-    let photoUrl = null
-    if (product.allow_custom_photo && customPhoto) {
-      setUploadingPhoto(true)
-      try {
-        const ext = customPhoto.name.split('.').pop()
-        const path = `customizations/${user.id}_${product.id}_${Date.now()}.${ext}`
-        const { error } = await supabase.storage.from('product-images').upload(path, customPhoto, { contentType: customPhoto.type })
-        if (error) throw error
-        const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-        photoUrl = data.publicUrl
-      } catch (e) {
-        toast.error('Photo upload failed: ' + e.message); setUploadingPhoto(false); return
-      }
-      setUploadingPhoto(false)
-    }
-    navigate('/checkout', { state: { buyNow: {
-      product, quantity: 1,
-      custom_name: customName.trim() || null,
-      custom_photo_url: photoUrl,
-    }}})
+    if (!validate()) return
+    const photoUrl = await uploadPhoto()
+    navigate('/checkout', { state:{ buyNow:{ product, quantity:1, custom_name:customName.trim()||null, custom_photo_url:photoUrl } } })
   }
-
   const handleWishlist = async () => {
     if (!user) { toast.error('Please login'); navigate('/login'); return }
     const added = await toggleWishlist(product, user.id)
-    toast.success(added ? 'Added to wishlist!' : 'Removed from wishlist')
+    toast.success(added?'Saved to wishlist!':'Removed from wishlist')
   }
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 animate-pulse">
-          <div className="aspect-square bg-[#1A1A1A] rounded-xl" />
-          <div className="space-y-4">
-            <div className="h-6 bg-[#1A1A1A] rounded w-1/3" />
-            <div className="h-8 bg-[#1A1A1A] rounded w-3/4" />
-            <div className="h-10 bg-[#1A1A1A] rounded w-1/4" />
-            <div className="h-24 bg-[#1A1A1A] rounded" />
+      <div style={{ background:'#F8F5F0', minHeight:'100vh' }}>
+        <div className="container-lux section-gap-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-14">
+            <div className="skeleton rounded-2xl" style={{ aspectRatio:'1' }}/>
+            <div className="space-y-5 pt-4">
+              <div className="skeleton h-3 w-28 rounded"/>
+              <div className="skeleton h-9 w-3/4 rounded-xl"/>
+              <div className="skeleton h-10 w-1/3 rounded-xl"/>
+              <div className="skeleton h-24 w-full rounded-xl"/>
+              <div className="skeleton h-14 w-full rounded-full"/>
+            </div>
           </div>
         </div>
       </div>
@@ -132,11 +102,9 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="text-center py-20">
-        <p className="text-[#4A4A6A] text-lg">Product not found</p>
-        <button onClick={() => navigate('/products')} className="mt-4 px-6 py-2 bg-[#1B2B5E] text-white rounded-lg text-sm">
-          Browse Products
-        </button>
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4" style={{ background:'#F8F5F0' }}>
+        <h2 className="heading-lg mb-4">Product not found</h2>
+        <button onClick={()=>navigate('/products')} className="btn-primary" style={{ height:48 }}>Browse Collection</button>
       </div>
     )
   }
@@ -146,220 +114,215 @@ export default function ProductDetailPage() {
   return (
     <>
       <Helmet>
-        <title>{product.name} – Vidhyrathi</title>
-        <meta name="description" content={product.description} />
-        <meta property="og:title" content={product.name} />
-        <meta property="og:image" content={images[0]} />
+        <title>{product.name} � Vidhyrathi</title>
+        <meta name="description" content={product.description||`Personalised ${product.name}`}/>
+        <meta property="og:image" content={images[0]}/>
       </Helmet>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
-          {/* Image Gallery */}
-          <div>
-            <div className="relative aspect-square bg-[#111] rounded-xl overflow-hidden mb-3">
-              {isVideoUrl(images[imgIdx]) ? (
-                <video
-                  key={imgIdx}
-                  src={images[imgIdx]}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <motion.img
-                  key={imgIdx}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  src={images[imgIdx] || 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=600&q=80'}
-                  alt={product.name}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                />
-              )}
-              {images.length > 1 && (
-                <>
-                  <button onClick={() => setImgIdx(i => (i - 1 + images.length) % images.length)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-all">
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button onClick={() => setImgIdx(i => (i + 1) % images.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-all">
-                    <ChevronRight size={18} />
-                  </button>
-                </>
-              )}
-            </div>
-            {images.length > 1 && (
-              <div className="flex gap-2">
-                {images.map((img, i) => (
-                  <button key={i} onClick={() => setImgIdx(i)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${i === imgIdx ? 'border-[#D4AF37]' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                    {isVideoUrl(img) ? (
-                      <video src={img} muted playsInline className="w-full h-full object-cover bg-black" />
-                    ) : (
-                      <img src={img} alt="" className="w-full h-full object-cover" loading="lazy"
-                        onError={e => { if (e.target.src !== 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80') e.target.src = 'https://images.unsplash.com/photo-1515562153-702640cf-b037-4b1e-83b0-418397cf1be3?w=400&q=80' }} />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
+      <div style={{ background:'#F8F5F0', minHeight:'100vh' }}>
+        <div className="container-lux section-gap-sm">
+
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 font-inter text-[12px] text-[#8F857A] mb-10">
+            <Link to="/" className="hover:text-[#C8A23A] transition-colors">Home</Link>
+            <span>/</span>
+            <Link to="/products" className="hover:text-[#C8A23A] transition-colors">Products</Link>
+            {product.category&&<><span>/</span>
+              <Link to={`/products?category=${encodeURIComponent(product.category)}`} className="hover:text-[#C8A23A] transition-colors">{product.category}</Link></>}
+            <span>/</span>
+            <span className="text-[#6F655A] truncate max-w-[180px]">{product.name}</span>
           </div>
 
-          {/* Product Info */}
-          <div>
-            <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-2">{product.category}</p>
-            <h1 className="text-3xl font-bold text-[#1A1A2E] mb-3" style={{ fontFamily: 'Georgia, serif' }}>{product.name}</h1>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex text-[#C9956C]">{Array(5).fill(0).map((_, i) => <Star key={i} size={14} fill="currentColor" />)}</div>
-              <span className="text-[#8A8AAA] text-xs">(24 reviews)</span>
-            </div>
-            <p className="text-3xl font-bold text-[#1B2B5E] mb-4">{formatINR(product.price)}</p>
-            <p className="text-[#4A4A6A] text-sm leading-relaxed mb-6">{product.description}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-14 mb-20">
 
-            <div className={`grid gap-3 mb-6 text-sm ${product.category === 'Bangles' && product.size ? 'grid-cols-1' : 'grid-cols-1'}`}>
-              {/* Size — only for Bangles */}
-              {product.category === 'Bangles' && product.size && (
-                <div className="bg-[#F2EDE6] rounded-lg p-3">
-                  <p className="text-[#8A8AAA] text-xs mb-2">Available Sizes</p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.size.split(',').map(s => s.trim()).filter(Boolean).map(s => (
-                      <span key={s} className="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-xs rounded-full font-medium">{s}</span>
+            {/* -- Gallery -- */}
+            <div>
+              <div className="relative rounded-[24px] overflow-hidden bg-[#F3EEE6] shadow-warm-lg mb-4" style={{ aspectRatio:'1', border:'1px solid #E7DED1' }}>
+                {isVideoUrl(images[imgIdx])
+                  ? <video key={imgIdx} src={images[imgIdx]} autoPlay muted loop playsInline className="w-full h-full object-cover"/>
+                  : <motion.img key={imgIdx} initial={{opacity:0}} animate={{opacity:1}} transition={{duration:0.3}}
+                      src={images[imgIdx]||FB} alt={product.name}
+                      className="w-full h-full object-cover" onError={e=>e.target.src=FB}/>}
+                {images.length>1&&(<>
+                  <button onClick={()=>setImgIdx(i=>(i-1+images.length)%images.length)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 btn-icon shadow-warm-md"><ChevronLeft size={18}/></button>
+                  <button onClick={()=>setImgIdx(i=>(i+1)%images.length)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 btn-icon shadow-warm-md"><ChevronRight size={18}/></button>
+                </>)}
+                <button onClick={handleWishlist}
+                  className="absolute top-4 right-4 btn-icon shadow-warm-md">
+                  <Heart size={16} className={wishlisted?"fill-[#D9534F] text-[#D9534F]":"text-[#6F655A]"}/>
+                </button>
+              </div>
+              {images.length>1&&(
+                <div className="flex gap-2 flex-wrap">
+                  {images.map((img,i)=>(
+                    <button key={i} onClick={()=>setImgIdx(i)}
+                      className={`w-16 h-16 rounded-[12px] overflow-hidden border-2 transition-all ${i===imgIdx?"shadow-gold":"border-[#E7DED1] opacity-60 hover:opacity-100"}`}
+                      style={i===imgIdx?{borderColor:"#C8A23A"}:{}}>
+                      {isVideoUrl(img)
+                        ?<video src={img} muted playsInline className="w-full h-full object-cover bg-[#F3EEE6]"/>
+                        :<img src={img} alt="" className="w-full h-full object-cover bg-[#F3EEE6]" onError={e=>e.target.src=FB}/>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* -- Info -- */}
+            <div className="flex flex-col">
+              <span className="eyebrow">{product.category}</span>
+              <h1 className="heading-xl mb-4" style={{ fontSize:"clamp(1.8rem,3vw,2.3rem)" }}>{product.name}</h1>
+
+              {/* Rating */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="flex gap-0.5">{[...Array(5)].map((_,i)=><Star key={i} size={15} className="fill-[#C8A23A] text-[#C8A23A]"/>)}</div>
+                <span className="font-inter text-[13px] text-[#8F857A]">(24 verified reviews)</span>
+                <span className="badge badge-success"><CheckCircle size={9}/>In Stock</span>
+              </div>
+
+              {/* Price */}
+              <div className="flex items-baseline gap-3 mb-6">
+                <span className="font-playfair font-bold text-[2rem] text-gold-accent">{formatINR(product.price)}</span>
+                {product.compare_price>product.price&&<>
+                  <span className="font-inter text-[15px] text-[#8F857A] line-through">{formatINR(product.compare_price)}</span>
+                  <span className="badge badge-bronze">{Math.round((1-product.price/product.compare_price)*100)}% Off</span>
+                </>}
+              </div>
+
+              <p className="body-md mb-6">{product.description}</p>
+
+              {/* Stock */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <div className="card-warm px-4 py-2.5 flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${product.stock>0?'bg-[#2E7D32]':'bg-[#D9534F]'}`}/>
+                  <span className={`font-inter text-[13px] font-semibold ${product.stock>0?'text-[#2E7D32]':'text-[#D9534F]'}`}>
+                    {product.stock>0?`${product.stock} in stock`:'Out of Stock'}
+                  </span>
+                </div>
+                {product.category==='Bangles'&&product.size&&(
+                  <div className="card-warm px-4 py-2.5 flex items-center gap-2 flex-wrap">
+                    <span className="font-inter text-[12px] text-[#8F857A]">Sizes:</span>
+                    {product.size.split(',').map(s=>s.trim()).filter(Boolean).map(s=>(
+                      <span key={s} className="badge badge-gold">{s}</span>
                     ))}
                   </div>
+                )}
+              </div>
+
+              {/* Tags */}
+              {product.tags?.length>0&&(
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {product.tags.map(tag=>(
+                    <span key={tag} className="badge badge-bronze flex items-center gap-1"><Tag size={9}/>{tag}</span>
+                  ))}
                 </div>
               )}
-              <div className="bg-[#F2EDE6] rounded-lg p-3">
-                  <p className="text-[#8A8AAA] text-xs mb-1">Stock</p>
-                  <p className={`font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {product.stock > 0 ? `${product.stock} available` : 'Out of Stock'}
-                  </p>
-                </div>
-            </div>
 
-            {/* Tags */}
-            {product.tags?.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
-                {product.tags.map(tag => (
-                  <span key={tag} className="flex items-center gap-1 px-2 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-xs rounded-full border border-[#D4AF37]/20">
-                    <Tag size={10} /> {tag}
-                  </span>
+              {/* Personalisation */}
+              {(product.allow_custom_name||product.allow_custom_photo)&&(
+                <div className="rounded-2xl p-6 mb-6 space-y-5"
+                  style={{ background:'rgba(200,162,58,0.06)', border:'1px solid rgba(200,162,58,0.2)' }}>
+                  <p className="font-inter font-semibold text-[14px] text-[#2C241B] flex items-center gap-2">
+                    <Award size={16} style={{ color:'#C8A23A' }}/>Personalise Your Gift
+                  </p>
+                  {product.allow_custom_name&&(
+                    <div>
+                      <label className="font-inter text-[12px] font-medium text-[#6F655A] mb-2 block">
+                        {product.custom_name_label||'Personalisation Text'} <span className="text-[#D9534F]">*</span>
+                      </label>
+                      <input value={customName} onChange={e=>setCustomName(e.target.value)}
+                        placeholder={`Enter ${product.custom_name_label||'your text'}...`}
+                        maxLength={80} className="input-warm"/>
+                      <p className="font-inter text-[11px] text-[#8F857A] mt-1 text-right">{customName.length}/80</p>
+                    </div>
+                  )}
+                  {product.allow_custom_photo&&(
+                    <div>
+                      <label className="font-inter text-[12px] font-medium text-[#6F655A] mb-2 block">
+                        {product.custom_photo_label||'Upload Your Photo'} <span className="text-[#D9534F]">*</span>
+                      </label>
+                      {customPhotoPreview?(
+                        <div className="relative inline-block">
+                          <img src={customPhotoPreview} alt="Custom" className="h-28 w-28 object-cover rounded-xl border-2" style={{ borderColor:'#C8A23A' }}/>
+                          <button type="button" onClick={()=>{setCustomPhoto(null);setCustomPhotoPreview(null)}}
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-[#D9534F] text-white rounded-full flex items-center justify-center shadow-warm-sm">
+                            <X size={11}/>
+                          </button>
+                        </div>
+                      ):(
+                        <label className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 border-dashed"
+                          style={{ borderColor:'rgba(200,162,58,0.3)', background:'rgba(200,162,58,0.04)' }}
+                          onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(200,162,58,0.6)'}
+                          onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(200,162,58,0.3)'}>
+                          <input type="file" accept="image/*" className="hidden"
+                            onChange={e=>{
+                              const f=e.target.files?.[0]; if(!f) return
+                              if(f.size>10*1024*1024){toast.error('Max 10MB');return}
+                              setCustomPhoto(f); setCustomPhotoPreview(URL.createObjectURL(f))
+                            }}/>
+                          <Upload size={20} style={{ color:'#C8A23A' }}/>
+                          <div>
+                            <p className="font-inter font-semibold text-[14px] text-[#2C241B]">Click to upload photo</p>
+                            <p className="font-inter text-[12px] text-[#8F857A]">JPG, PNG � max 10MB</p>
+                          </div>
+                        </label>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 mb-5">
+                <button onClick={handleAddToCart} disabled={product.stock===0||uploading}
+                  className="flex-1 btn-secondary disabled:opacity-40 disabled:cursor-not-allowed" style={{ height:52, fontSize:14 }}>
+                  {uploading?<><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"/>Uploading...</>
+                    :<><ShoppingCart size={17}/>Add to Cart</>}
+                </button>
+                <button onClick={handleBuyNow} disabled={product.stock===0||uploading}
+                  className="flex-1 btn-primary disabled:opacity-40 disabled:cursor-not-allowed" style={{ height:52, fontSize:14 }}>
+                  <Zap size={17}/>Buy Now
+                </button>
+              </div>
+
+              {/* Delivery promises */}
+              <div className="grid grid-cols-3 gap-3">
+                {[{icon:<Truck size={14}/>,t:"Free Shipping"},{icon:<Gift size={14}/>,t:"Gift Ready"},{icon:<ShieldCheck size={14}/>,t:"Secure Pay"}].map(f=>(
+                  <div key={f.t} className="card-warm p-3 flex flex-col items-center gap-1.5 text-center">
+                    <span style={{ color:'#C8A23A' }}>{f.icon}</span>
+                    <p className="caption uppercase">{f.t}</p>
+                  </div>
                 ))}
               </div>
-            )}
-
-            {/* Customization fields */}
-            {(product.allow_custom_name || product.allow_custom_photo) && (
-              <div className="border-2 border-[#4DB6AC]/40 rounded-xl p-4 bg-[#f0fafa] space-y-4">
-                <p className="text-sm font-semibold text-[#1A1A2E] flex items-center gap-2">
-                  🎨 Personalize Your Product
-                </p>
-                {product.allow_custom_name && (
-                  <div>
-                    <label className="text-xs text-[#4A4A6A] mb-1.5 block font-medium">
-                      {product.custom_name_label || 'Personalization Text'} <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      value={customName}
-                      onChange={e => setCustomName(e.target.value)}
-                      placeholder={`Enter ${product.custom_name_label || 'your text'}...`}
-                      maxLength={80}
-                      className="w-full bg-white border border-[#E8E0D5] rounded-lg px-3 py-2.5 text-sm text-[#1A1A2E] placeholder-[#8A8AAA] focus:outline-none focus:border-[#4DB6AC]"
-                    />
-                    <p className="text-xs text-gray-400 mt-1 text-right">{customName.length}/80</p>
-                  </div>
-                )}
-                {product.allow_custom_photo && (
-                  <div>
-                    <label className="text-xs text-[#4A4A6A] mb-1.5 block font-medium">
-                      {product.custom_photo_label || 'Upload Your Photo'} <span className="text-red-400">*</span>
-                    </label>
-                    {customPhotoPreview ? (
-                      <div className="relative inline-block">
-                        <img src={customPhotoPreview} alt="Custom" className="h-28 w-28 object-cover rounded-xl border-2 border-[#4DB6AC]" />
-                        <button
-                          type="button"
-                          onClick={() => { setCustomPhoto(null); setCustomPhotoPreview(null) }}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="flex items-center gap-3 p-4 border-2 border-dashed border-[#4DB6AC]/50 hover:border-[#4DB6AC] rounded-xl cursor-pointer transition-all bg-white">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={e => {
-                            const f = e.target.files?.[0]
-                            if (!f) return
-                            if (f.size > 10 * 1024 * 1024) { toast.error('Photo must be under 10MB'); return }
-                            setCustomPhoto(f)
-                            setCustomPhotoPreview(URL.createObjectURL(f))
-                          }}
-                        />
-                        <Upload size={20} className="text-[#4DB6AC] flex-shrink-0" />
-                        <div>
-                          <p className="text-sm text-[#1A1A2E] font-medium">Click to upload photo</p>
-                          <p className="text-xs text-[#8A8AAA]">JPG, PNG — max 10MB</p>
-                        </div>
-                      </label>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stock === 0 || uploadingPhoto}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#1B2B5E]/10 hover:bg-[#1B2B5E] text-[#1B2B5E] hover:text-white border border-[#1B2B5E]/40 rounded-xl font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {uploadingPhoto ? <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> Uploading...</> : <><ShoppingCart size={18} /> Add to Cart</>}
-              </button>
-              <button
-                onClick={handleBuyNow}
-                disabled={product.stock === 0 || uploadingPhoto}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#1B2B5E] text-white rounded-xl font-semibold hover:bg-[#2A3F7E] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Zap size={18} /> Buy Now
-              </button>
-              <button
-                onClick={handleWishlist}
-                className={`p-3 rounded-xl border transition-all ${wishlisted ? 'bg-red-500/20 border-red-500/50 text-red-500' : 'bg-[#F2EDE6] border-[#E8E0D5] text-[#4A4A6A] hover:text-red-500'}`}
-              >
-                <Heart size={20} fill={wishlisted ? 'currentColor' : 'none'} />
-              </button>
             </div>
           </div>
-        </div>
 
-        {/* Related Products — same category, sorted by price ascending */}
-        {(() => {
-          const related = allProducts
-            .filter(p => p.id !== product?.id && p.category === product?.category)
-            .sort((a, b) => a.price - b.price)
-          if (related.length === 0) return null
-          return (
-            <section className="mb-12">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <p className="text-[#C9956C] text-xs uppercase tracking-widest mb-1">You May Also Like</p>
-                  <h2 className="text-2xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Georgia, serif' }}>More {product.category}</h2>
+          {/* Related products */}
+          {(()=>{
+            const related = all.filter(p=>p.id!==product.id&&p.category===product.category).sort((a,b)=>a.price-b.price)
+            if(!related.length) return null
+            return (
+              <section className="mb-10">
+                <div className="flex items-end justify-between mb-10">
+                  <div>
+                    <span className="eyebrow">You May Also Like</span>
+                    <h2 className="heading-lg">More <span className="text-gold-accent">{product.category}</span></h2>
+                  </div>
+                  <Link to={`/products?category=${encodeURIComponent(product.category)}`}
+                    className="flex items-center gap-1.5 font-inter font-semibold text-[14px] text-[#C8A23A] hover:gap-2.5 transition-all">
+                    View All<ChevronRight size={14}/>
+                  </Link>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {related.slice(0, 12).map(p => <ProductCard key={p.id} product={p} />)}
-              </div>
-            </section>
-          )
-        })()}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+                  {related.slice(0,12).map(p=><ProductCard key={p.id} product={p}/>)}
+                </div>
+              </section>
+            )
+          })()}
+        </div>
       </div>
     </>
   )
 }
+
