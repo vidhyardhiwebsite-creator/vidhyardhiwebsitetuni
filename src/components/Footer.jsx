@@ -86,14 +86,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand col */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background:"linear-gradient(135deg,#D4AF37,#A88422)" }}>
-                <span className="font-playfair font-black text-white text-base">V</span>
-              </div>
-              <div>
-                <p className="font-playfair font-bold text-white text-[17px] leading-none">Vidhyrathi</p>
-                <p className="font-inter text-[9px] tracking-[0.22em] uppercase leading-none mt-0.5" style={{ color:"#C8A23A" }}>Personalized Gifts</p>
-              </div>
+            <Link to="/" className="flex items-center mb-5">
+              <img
+                src="/logo.png"
+                alt="Vidhyrathi"
+                style={{ height: 40, width: "auto", maxWidth: 160, objectFit: "contain", display: "block" }}
+              />
             </Link>
             <p className="font-inter text-[14px] leading-relaxed mb-6 max-w-xs" style={{ color:"rgba(255,255,255,0.5)" }}>
               India's premium personalized gifting brand. Every gift we craft carries a story, a memory, and a lifetime of love.

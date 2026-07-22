@@ -404,21 +404,12 @@ export default function Navbar() {
             flex: "0 0 auto",
             display: "flex", alignItems: "center", gap: 10,
           }}>
-            <Link to="/" onClick={closeAll} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
-              {/* Gold monogram */}
-              <div style={{
-                width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
-                background: "linear-gradient(135deg, #D4AF37, #A88422)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 2px 10px rgba(200,162,58,0.28)",
-              }}>
-                <span style={{ fontFamily: "'Playfair Display',Georgia,serif", fontWeight: 900, fontSize: 16, color: "#FFFFFF", lineHeight: 1 }}>V</span>
-              </div>
-              {/* Brand text */}
-              <div style={{ lineHeight: 1 }}>
-                <p style={{ fontFamily: "'Playfair Display',Georgia,serif", fontWeight: 700, fontSize: 17, color: "#2C241B", lineHeight: 1, margin: 0 }}>Vidhyrathi</p>
-                <p style={{ fontFamily: "'Inter',sans-serif", fontWeight: 700, fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: "#C8A23A", lineHeight: 1, marginTop: 3 }}>Personalized Gifts</p>
-              </div>
+            <Link to="/" onClick={closeAll} style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
+              <img
+                src="/logo.png"
+                alt="Vidhyrathi"
+                style={{ height: 44, width: "auto", maxWidth: 160, objectFit: "contain", display: "block" }}
+              />
             </Link>
           </div>
 
